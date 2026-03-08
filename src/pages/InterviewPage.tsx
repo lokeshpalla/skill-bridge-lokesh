@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
-  Mic, Send, StopCircle, Play, Brain, Code2, Layout,
-  Server, Users, Sparkles, Clock, Trophy
+  Mic, MicOff, Send, StopCircle, Play, Brain, Code2, Layout,
+  Server, Users, Sparkles, Clock, Trophy, Volume2, VolumeX
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,18 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+
+// Extend Window for SpeechRecognition
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
 
 type Msg = { role: "user" | "assistant"; content: string };
 
