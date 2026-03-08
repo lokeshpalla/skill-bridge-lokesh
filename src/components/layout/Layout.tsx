@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import { AppSidebar } from "./AppSidebar";
 import AIAssistant from "@/components/ai/AIAssistant";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 
