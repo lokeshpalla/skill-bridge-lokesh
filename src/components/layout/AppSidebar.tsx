@@ -1,10 +1,12 @@
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
-  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award, MessageSquare, Download, Brain, Compass
+  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award, MessageSquare, Download, Brain, Compass, Shield
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sidebar,
   SidebarContent,
@@ -47,6 +49,13 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) { setIsAdmin(false); return; }
+    supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin")
+      .then(({ data }) => setIsAdmin(!!(data && data.length > 0)));
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -97,6 +106,7 @@ export function AppSidebar() {
         {renderGroup("Learn", mainItems)}
         {renderGroup("Community", socialItems)}
         {renderGroup("Career", careerItems)}
+        {isAdmin && renderGroup("Admin", [{ title: "Admin", url: "/admin", icon: Shield }])}
       </SidebarContent>
 
       <SidebarFooter className="p-3 border-t border-border/40">

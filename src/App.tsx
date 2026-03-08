@@ -21,6 +21,7 @@ import InstallPage from "./pages/InstallPage";
 import InterviewPage from "./pages/InterviewPage";
 import LearningPathsPage from "./pages/LearningPathsPage";
 import SettingsPage from "./pages/SettingsPage";
+import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
               <Route path="/interview" element={<InterviewPage />} />
               <Route path="/paths" element={<LearningPathsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/admin" element={<AdminPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
