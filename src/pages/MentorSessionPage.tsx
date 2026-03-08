@@ -202,18 +202,28 @@ export default function MentorSessionPage() {
         {/* Main video area */}
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 p-4 grid grid-cols-2 gap-3">
-            {/* Mentor video */}
+            {/* Remote video (Mentor/Other participant) */}
             <div className="rounded-2xl bg-secondary/30 border border-border/30 flex items-center justify-center relative overflow-hidden">
-              <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-4xl">👨‍🏫</div>
+              {isConnected ? (
+                <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover rounded-2xl" />
+              ) : (
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-4xl">👨‍🏫</div>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <WifiOff className="w-3 h-3" /> Waiting for {mentorName} to join...
+                  </div>
+                </div>
+              )}
               <div className="absolute bottom-3 left-3 bg-background/80 backdrop-blur-sm rounded-lg px-2.5 py-1 text-[11px] font-medium flex items-center gap-1.5">
-                <Mic className="w-3 h-3 text-success" /> {mentorName}
+                {isConnected ? <Wifi className="w-3 h-3 text-success" /> : <WifiOff className="w-3 h-3 text-muted-foreground" />}
+                {mentorName}
               </div>
             </div>
 
             {/* Your video */}
             <div className="rounded-2xl bg-secondary/30 border border-border/30 flex items-center justify-center relative overflow-hidden">
               {isVideoOn ? (
-                <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover rounded-2xl" />
+                <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover rounded-2xl" />
               ) : (
                 <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-4xl">🧑‍💻</div>
               )}
