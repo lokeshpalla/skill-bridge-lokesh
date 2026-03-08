@@ -114,7 +114,11 @@ export function AppSidebar() {
         {renderGroup("Learn", mainItems)}
         {renderGroup("Community", socialItems)}
         {renderGroup("Career", careerItems)}
-        {isRecruiter && renderGroup("Recruiter", [{ title: "Recruiter Dashboard", url: "/recruiter", icon: Building2 }])}
+        {renderGroup("Connect", [{ title: "Messages", url: "/messages", icon: MessageSquare }])}
+        {isRecruiter && renderGroup("Recruiter", [
+          { title: "Dashboard", url: "/recruiter", icon: Building2 },
+          { title: "Browse Talent", url: "/talent", icon: Search },
+        ])}
         {isAdmin && renderGroup("Admin", [{ title: "Admin", url: "/admin", icon: Shield }])}
       </SidebarContent>
 
