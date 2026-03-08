@@ -408,9 +408,21 @@ const InterviewPage = () => {
 
       {/* Input */}
       <div className="p-4 border-t border-border/40">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-end">
+          {/* Mic button */}
+          <button
+            onClick={toggleMic}
+            className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+              isRecording
+                ? "bg-destructive text-destructive-foreground animate-pulse"
+                : "bg-secondary/80 text-muted-foreground hover:text-foreground hover:bg-secondary"
+            }`}
+            title={isRecording ? "Stop recording" : "Start recording"}
+          >
+            {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+          </button>
           <Textarea
-            placeholder="Type your answer..."
+            placeholder={isRecording ? "🎙 Listening..." : "Type your answer..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={2}
@@ -422,10 +434,15 @@ const InterviewPage = () => {
               }
             }}
           />
-          <Button className="self-end" onClick={sendMessage} disabled={isLoading || !input.trim()}>
+          <Button className="self-end flex-shrink-0" onClick={() => { if (isRecording) { recognitionRef.current?.stop(); setIsRecording(false); } sendMessage(); }} disabled={isLoading || !input.trim()}>
             <Send className="w-4 h-4" />
           </Button>
         </div>
+        {isRecording && (
+          <p className="text-[10px] text-destructive mt-1.5 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" /> Recording... speak your answer, then click Send
+          </p>
+        )}
       </div>
     </div>
   );
