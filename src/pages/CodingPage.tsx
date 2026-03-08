@@ -357,17 +357,62 @@ const CodingPage = () => {
         {/* Code editor */}
         <div className="lg:col-span-3 flex flex-col gap-3">
           {/* Problem description */}
-          <div className="rounded-xl border border-border/50 bg-card/60 p-4">
+          <div className="rounded-xl border border-border/50 bg-card/60 p-4 max-h-[40vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-sm font-semibold">{selected.id}. {selected.title}</h2>
               <span className={`text-xs font-medium ${diffColor[selected.difficulty]}`}>{selected.difficulty}</span>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+
+            {/* Topics */}
+            {selected.topics && selected.topics.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-3">
+                {selected.topics.map((topic) => (
+                  <span key={topic} className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
+                    {topic}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Description */}
+            <p className="text-xs text-muted-foreground leading-relaxed mb-3">
               {defaultDescriptions[selected.id] || selected.description}
             </p>
+
+            {/* Examples */}
+            {selected.examples && selected.examples.length > 0 && (
+              <div className="space-y-2 mb-3">
+                {selected.examples.map((ex, idx) => (
+                  <div key={idx} className="rounded-lg bg-secondary/30 border border-border/30 p-3 space-y-1">
+                    <p className="text-[11px] font-semibold text-foreground">Example {idx + 1}:</p>
+                    <div className="font-mono text-[11px] space-y-0.5">
+                      <p><span className="text-muted-foreground">Input: </span><span className="text-foreground whitespace-pre-wrap">{ex.input}</span></p>
+                      <p><span className="text-muted-foreground">Output: </span><span className="text-foreground">{ex.output}</span></p>
+                      {ex.explanation && (
+                        <p className="text-muted-foreground mt-1"><span className="font-medium">Explanation: </span>{ex.explanation}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Constraints */}
+            {selected.constraints && selected.constraints.length > 0 && (
+              <div className="mb-3">
+                <p className="text-[11px] font-semibold text-foreground mb-1">Constraints:</p>
+                <ul className="list-disc list-inside space-y-0.5">
+                  {selected.constraints.map((c, idx) => (
+                    <li key={idx} className="text-[11px] text-muted-foreground font-mono">{c}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Hint */}
             <button
               onClick={() => setShowHint(!showHint)}
-              className="mt-2 flex items-center gap-1 text-[11px] text-primary hover:underline"
+              className="mt-1 flex items-center gap-1 text-[11px] text-primary hover:underline"
             >
               <Lightbulb className="w-3 h-3" />
               {showHint ? "Hide Hint" : "Show Hint"}

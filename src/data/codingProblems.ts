@@ -1,5 +1,11 @@
 // Auto-generated 4000 coding problems across categories and difficulties
 
+export interface ProblemExample {
+  input: string;
+  output: string;
+  explanation?: string;
+}
+
 export interface CodingProblem {
   id: number;
   title: string;
@@ -9,6 +15,211 @@ export interface CodingProblem {
   solved: boolean;
   description: string;
   hint: string;
+  examples: ProblemExample[];
+  constraints: string[];
+  topics: string[];
+}
+
+// Examples & constraints for well-known problems (keyed by title)
+const problemExtras: Record<string, { examples: ProblemExample[]; constraints: string[]; topics: string[] }> = {
+  "Two Sum": {
+    examples: [
+      { input: "nums = [2,7,11,15], target = 9", output: "[0,1]", explanation: "Because nums[0] + nums[1] == 9, we return [0, 1]." },
+      { input: "nums = [3,2,4], target = 6", output: "[1,2]" },
+      { input: "nums = [3,3], target = 6", output: "[0,1]" },
+    ],
+    constraints: ["2 ≤ nums.length ≤ 10⁴", "-10⁹ ≤ nums[i] ≤ 10⁹", "-10⁹ ≤ target ≤ 10⁹", "Only one valid answer exists."],
+    topics: ["Array", "Hash Table"],
+  },
+  "Best Time to Buy and Sell Stock": {
+    examples: [
+      { input: "prices = [7,1,5,3,6,4]", output: "5", explanation: "Buy on day 2 (price = 1), sell on day 5 (price = 6), profit = 6-1 = 5." },
+      { input: "prices = [7,6,4,3,1]", output: "0", explanation: "No profitable transaction possible." },
+    ],
+    constraints: ["1 ≤ prices.length ≤ 10⁵", "0 ≤ prices[i] ≤ 10⁴"],
+    topics: ["Array", "Dynamic Programming"],
+  },
+  "Contains Duplicate": {
+    examples: [
+      { input: "nums = [1,2,3,1]", output: "true" },
+      { input: "nums = [1,2,3,4]", output: "false" },
+      { input: "nums = [1,1,1,3,3,4,3,2,4,2]", output: "true" },
+    ],
+    constraints: ["1 ≤ nums.length ≤ 10⁵", "-10⁹ ≤ nums[i] ≤ 10⁹"],
+    topics: ["Array", "Hash Table", "Sorting"],
+  },
+  "Product of Array Except Self": {
+    examples: [
+      { input: "nums = [1,2,3,4]", output: "[24,12,8,6]" },
+      { input: "nums = [-1,1,0,-3,3]", output: "[0,0,9,0,0]" },
+    ],
+    constraints: ["2 ≤ nums.length ≤ 10⁵", "-30 ≤ nums[i] ≤ 30", "O(n) time without using division."],
+    topics: ["Array", "Prefix Sum"],
+  },
+  "Maximum Subarray": {
+    examples: [
+      { input: "nums = [-2,1,-3,4,-1,2,1,-5,4]", output: "6", explanation: "The subarray [4,-1,2,1] has the largest sum 6." },
+      { input: "nums = [1]", output: "1" },
+      { input: "nums = [5,4,-1,7,8]", output: "23" },
+    ],
+    constraints: ["1 ≤ nums.length ≤ 10⁵", "-10⁴ ≤ nums[i] ≤ 10⁴"],
+    topics: ["Array", "Divide and Conquer", "Dynamic Programming"],
+  },
+  "Container With Most Water": {
+    examples: [
+      { input: "height = [1,8,6,2,5,4,8,3,7]", output: "49", explanation: "The lines at index 1 and 8 form a container with area 49." },
+      { input: "height = [1,1]", output: "1" },
+    ],
+    constraints: ["n == height.length", "2 ≤ n ≤ 10⁵", "0 ≤ height[i] ≤ 10⁴"],
+    topics: ["Array", "Two Pointers", "Greedy"],
+  },
+  "Three Sum": {
+    examples: [
+      { input: "nums = [-1,0,1,2,-1,-4]", output: "[[-1,-1,2],[-1,0,1]]", explanation: "The distinct triplets that sum to zero." },
+      { input: "nums = [0,1,1]", output: "[]" },
+      { input: "nums = [0,0,0]", output: "[[0,0,0]]" },
+    ],
+    constraints: ["3 ≤ nums.length ≤ 3000", "-10⁵ ≤ nums[i] ≤ 10⁵"],
+    topics: ["Array", "Two Pointers", "Sorting"],
+  },
+  "Valid Anagram": {
+    examples: [
+      { input: 's = "anagram", t = "nagaram"', output: "true" },
+      { input: 's = "rat", t = "car"', output: "false" },
+    ],
+    constraints: ["1 ≤ s.length, t.length ≤ 5 × 10⁴", "s and t consist of lowercase English letters."],
+    topics: ["Hash Table", "String", "Sorting"],
+  },
+  "Valid Palindrome": {
+    examples: [
+      { input: 's = "A man, a plan, a canal: Panama"', output: "true", explanation: '"amanaplanacanalpanama" is a palindrome.' },
+      { input: 's = "race a car"', output: "false" },
+    ],
+    constraints: ["1 ≤ s.length ≤ 2 × 10⁵", "s consists only of printable ASCII characters."],
+    topics: ["Two Pointers", "String"],
+  },
+  "Longest Substring Without Repeating Characters": {
+    examples: [
+      { input: 's = "abcabcbb"', output: "3", explanation: 'The answer is "abc", with length 3.' },
+      { input: 's = "bbbbb"', output: "1" },
+      { input: 's = "pwwkew"', output: "3" },
+    ],
+    constraints: ["0 ≤ s.length ≤ 5 × 10⁴", "s consists of English letters, digits, symbols, and spaces."],
+    topics: ["Hash Table", "String", "Sliding Window"],
+  },
+  "Reverse Linked List": {
+    examples: [
+      { input: "head = [1,2,3,4,5]", output: "[5,4,3,2,1]" },
+      { input: "head = [1,2]", output: "[2,1]" },
+      { input: "head = []", output: "[]" },
+    ],
+    constraints: ["0 ≤ Number of nodes ≤ 5000", "-5000 ≤ Node.val ≤ 5000"],
+    topics: ["Linked List", "Recursion"],
+  },
+  "Merge Two Sorted Lists": {
+    examples: [
+      { input: "list1 = [1,2,4], list2 = [1,3,4]", output: "[1,1,2,3,4,4]" },
+      { input: "list1 = [], list2 = []", output: "[]" },
+      { input: "list1 = [], list2 = [0]", output: "[0]" },
+    ],
+    constraints: ["0 ≤ list length ≤ 50", "-100 ≤ Node.val ≤ 100", "Both lists are sorted in non-decreasing order."],
+    topics: ["Linked List", "Recursion"],
+  },
+  "Maximum Depth of Binary Tree": {
+    examples: [
+      { input: "root = [3,9,20,null,null,15,7]", output: "3" },
+      { input: "root = [1,null,2]", output: "2" },
+    ],
+    constraints: ["0 ≤ Number of nodes ≤ 10⁴", "-100 ≤ Node.val ≤ 100"],
+    topics: ["Tree", "DFS", "BFS"],
+  },
+  "Climbing Stairs": {
+    examples: [
+      { input: "n = 2", output: "2", explanation: "1+1 or 2. Two ways." },
+      { input: "n = 3", output: "3", explanation: "1+1+1, 1+2, or 2+1. Three ways." },
+    ],
+    constraints: ["1 ≤ n ≤ 45"],
+    topics: ["Math", "Dynamic Programming", "Memoization"],
+  },
+  "Coin Change": {
+    examples: [
+      { input: "coins = [1,5,10,25], amount = 11", output: "3", explanation: "11 = 5 + 5 + 1" },
+      { input: "coins = [2], amount = 3", output: "-1" },
+      { input: "coins = [1], amount = 0", output: "0" },
+    ],
+    constraints: ["1 ≤ coins.length ≤ 12", "1 ≤ coins[i] ≤ 2³¹ - 1", "0 ≤ amount ≤ 10⁴"],
+    topics: ["Array", "Dynamic Programming", "BFS"],
+  },
+  "Trapping Rain Water": {
+    examples: [
+      { input: "height = [0,1,0,2,1,0,1,3,2,1,2,1]", output: "6", explanation: "6 units of rain water are trapped." },
+      { input: "height = [4,2,0,3,2,5]", output: "9" },
+    ],
+    constraints: ["n == height.length", "1 ≤ n ≤ 2 × 10⁴", "0 ≤ height[i] ≤ 10⁵"],
+    topics: ["Array", "Two Pointers", "Stack", "Dynamic Programming"],
+  },
+  "LRU Cache": {
+    examples: [
+      { input: '["LRUCache","put","put","get","put","get","put","get","get","get"]\n[[2],[1,1],[2,2],[1],[3,3],[2],[4,4],[1],[3],[4]]', output: "[null,null,null,1,null,-1,null,-1,3,4]" },
+    ],
+    constraints: ["1 ≤ capacity ≤ 3000", "0 ≤ key ≤ 10⁴", "0 ≤ value ≤ 10⁵", "At most 2 × 10⁵ calls to get and put."],
+    topics: ["Hash Table", "Linked List", "Design"],
+  },
+  "Merge Intervals": {
+    examples: [
+      { input: "intervals = [[1,3],[2,6],[8,10],[15,18]]", output: "[[1,6],[8,10],[15,18]]", explanation: "Intervals [1,3] and [2,6] overlap, merged to [1,6]." },
+      { input: "intervals = [[1,4],[4,5]]", output: "[[1,5]]" },
+    ],
+    constraints: ["1 ≤ intervals.length ≤ 10⁴", "intervals[i].length == 2", "0 ≤ start_i ≤ end_i ≤ 10⁴"],
+    topics: ["Array", "Sorting"],
+  },
+  "Group Anagrams": {
+    examples: [
+      { input: 'strs = ["eat","tea","tan","ate","nat","bat"]', output: '[["bat"],["nat","tan"],["ate","eat","tea"]]' },
+      { input: 'strs = [""]', output: '[[""]]' },
+      { input: 'strs = ["a"]', output: '[["a"]]' },
+    ],
+    constraints: ["1 ≤ strs.length ≤ 10⁴", "0 ≤ strs[i].length ≤ 100", "strs[i] consists of lowercase English letters."],
+    topics: ["Array", "Hash Table", "String", "Sorting"],
+  },
+  "Validate Binary Search Tree": {
+    examples: [
+      { input: "root = [2,1,3]", output: "true" },
+      { input: "root = [5,1,4,null,null,3,6]", output: "false", explanation: "Root's right child is 4, which is less than 5." },
+    ],
+    constraints: ["1 ≤ Number of nodes ≤ 10⁴", "-2³¹ ≤ Node.val ≤ 2³¹ - 1"],
+    topics: ["Tree", "DFS", "BST"],
+  },
+};
+
+// Generate examples/constraints for problems without explicit entries
+function generateExamples(title: string, category: string, difficulty: string): { examples: ProblemExample[]; constraints: string[]; topics: string[] } {
+  if (problemExtras[title]) return problemExtras[title];
+
+  const topicMap: Record<string, string[]> = {
+    "Arrays": ["Array"], "Strings": ["String"], "Linked Lists": ["Linked List"],
+    "Trees": ["Tree", "DFS"], "Dynamic Programming": ["Dynamic Programming"],
+    "Graphs": ["Graph", "BFS"], "Backtracking": ["Backtracking", "Recursion"],
+    "Stacks & Queues": ["Stack", "Queue"], "Heaps": ["Heap", "Priority Queue"],
+    "Binary Search": ["Binary Search", "Array"], "Greedy": ["Greedy", "Sorting"],
+    "Bit Manipulation": ["Bit Manipulation"], "Math": ["Math"],
+    "Sliding Window": ["Sliding Window", "Two Pointers"],
+    "Tries": ["Trie", "String"], "Union Find": ["Union Find", "Graph"],
+  };
+
+  const constraintsByDiff: Record<string, string[]> = {
+    "Easy": ["1 ≤ n ≤ 10⁴", "Time complexity: O(n)", "Space complexity: O(n)"],
+    "Medium": ["1 ≤ n ≤ 10⁵", "Time complexity: O(n log n) or better", "-10⁹ ≤ values ≤ 10⁹"],
+    "Hard": ["1 ≤ n ≤ 10⁵", "Optimal time complexity expected", "-10⁹ ≤ values ≤ 10⁹", "Multiple edge cases to handle"],
+  };
+
+  return {
+    examples: [
+      { input: "See problem description for sample input", output: "See problem description for expected output" },
+    ],
+    constraints: constraintsByDiff[difficulty] || constraintsByDiff["Medium"],
+    topics: topicMap[category] || [category],
+  };
 }
 
 // Categories with problem templates
@@ -685,6 +896,7 @@ function generateProblems(): CodingProblem[] {
     for (let i = 0; i < cat.problems.length; i++) {
       const p = cat.problems[i];
       const difficulty = difficultyDistribution(i, cat.problems.length);
+      const extras = generateExamples(p.t, cat.name, difficulty);
       allProblems.push({
         id: id++,
         title: p.t,
@@ -694,6 +906,7 @@ function generateProblems(): CodingProblem[] {
         solved: false,
         description: p.d,
         hint: p.h,
+        ...extras,
       });
     }
   }
@@ -738,6 +951,7 @@ function generateProblems(): CodingProblem[] {
           cat.problems.length
         ) as "Easy" | "Medium" | "Hard";
 
+        const extras = generateExamples(p.t, cat.name, difficulty);
         allProblems.push({
           id: id++,
           title: `${p.t} ${variation}`,
@@ -747,6 +961,7 @@ function generateProblems(): CodingProblem[] {
           solved: false,
           description: `${p.d} Solve this ${mod}.`,
           hint: p.h,
+          ...extras,
         });
 
         modIdx++;
