@@ -1008,6 +1008,7 @@ export type Database = {
           id: string
           last_active_date: string | null
           linkedin_url: string | null
+          phone: string | null
           portfolio_url: string | null
           skills: string[] | null
           streak: number
@@ -1025,6 +1026,7 @@ export type Database = {
           id?: string
           last_active_date?: string | null
           linkedin_url?: string | null
+          phone?: string | null
           portfolio_url?: string | null
           skills?: string[] | null
           streak?: number
@@ -1042,6 +1044,7 @@ export type Database = {
           id?: string
           last_active_date?: string | null
           linkedin_url?: string | null
+          phone?: string | null
           portfolio_url?: string | null
           skills?: string[] | null
           streak?: number
