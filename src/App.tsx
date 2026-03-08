@@ -58,6 +58,7 @@ function AppRoutes() {
         <Route path="/coding" element={<CodingPage />} />
          <Route path="/mentors" element={<MentorsPage />} />
           <Route path="/mentor-session" element={<MentorSessionPage />} />
+        <Route path="/mentor-dashboard" element={<MentorDashboardPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/internships" element={<InternshipsPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />

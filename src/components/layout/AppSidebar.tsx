@@ -117,6 +117,7 @@ export function AppSidebar() {
         {renderGroup("Community", socialItems)}
         {renderGroup("Career", careerItems)}
         {renderGroup("Connect", [{ title: "Messages", url: "/messages", icon: MessageSquare }])}
+        {isMentor && renderGroup("Mentor", [{ title: "Mentor Dashboard", url: "/mentor-dashboard", icon: Users }])}
         {isRecruiter && renderGroup("Recruiter", [
           { title: "Dashboard", url: "/recruiter", icon: Building2 },
           { title: "Browse Talent", url: "/talent", icon: Search },
