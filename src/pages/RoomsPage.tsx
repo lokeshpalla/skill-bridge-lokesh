@@ -264,9 +264,21 @@ export default function RoomsPage() {
                     <Users className="w-3.5 h-3.5" />
                     {room.participant_count}/{room.max_participants}
                   </div>
-                  <Button size="sm" variant="secondary" className="text-xs">
-                    Join Room
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {room.created_by === user?.id && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="text-xs gap-1 h-7 px-2"
+                        onClick={(e) => endRoom(room.id, e)}
+                      >
+                        <XCircle className="w-3 h-3" /> End
+                      </Button>
+                    )}
+                    <Button size="sm" variant="secondary" className="text-xs">
+                      Join Room
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
