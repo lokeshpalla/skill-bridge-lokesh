@@ -75,31 +75,50 @@ const SettingsPage = () => {
     }
   }, [profile]);
 
-  const uploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
-    if (file.size > 2 * 1024 * 1024) return toast.error("Image must be under 2MB");
-    
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) return toast.error("Image must be under 5MB");
+    const reader = new FileReader();
+    reader.onload = () => setCropImage(reader.result as string);
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const getCroppedBlob = async (): Promise<Blob> => {
+    const image = new Image();
+    image.src = cropImage!;
+    await new Promise((r) => (image.onload = r));
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d")!;
+    const { x, y, width, height } = croppedAreaPixels!;
+    canvas.width = 256;
+    canvas.height = 256;
+    ctx.drawImage(image, x, y, width, height, 0, 0, 256, 256);
+    return new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/jpeg", 0.9));
+  };
+
+  const saveCroppedAvatar = async () => {
+    if (!user || !croppedAreaPixels) return;
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/avatar.${ext}`;
+    try {
+      const blob = await getCroppedBlob();
+      const path = `${user.id}/avatar.jpg`;
+      const { error: uploadErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, blob, { upsert: true, contentType: "image/jpeg" });
+      if (uploadErr) throw uploadErr;
 
-    const { error: uploadErr } = await supabase.storage
-      .from("avatars")
-      .upload(path, file, { upsert: true });
-
-    if (uploadErr) {
-      setUploading(false);
-      return toast.error("Upload failed");
+      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+      const urlWithCache = `${publicUrl}?t=${Date.now()}`;
+      await supabase.from("profiles").update({ avatar_url: urlWithCache }).eq("user_id", user.id);
+      setAvatarUrl(urlWithCache);
+      setCropImage(null);
+      toast.success("Avatar updated!");
+    } catch {
+      toast.error("Upload failed");
     }
-
-    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
-    const urlWithCache = `${publicUrl}?t=${Date.now()}`;
-
-    await supabase.from("profiles").update({ avatar_url: urlWithCache }).eq("user_id", user.id);
-    setAvatarUrl(urlWithCache);
     setUploading(false);
-    toast.success("Avatar updated!");
   };
 
   const removeAvatar = async () => {
