@@ -48,8 +48,25 @@ const difficultyColor: Record<string, string> = {
 const CourseDetail = () => {
   const { id } = useParams();
   const course = coursesData[Number(id)];
-  const [modules, setModules] = useState(course?.modules || []);
-  const [enrolled, setEnrolled] = useState(course ? modules.some(m => m.completed) : false);
+  
+  // Load persisted module completion from localStorage
+  const getPersistedModules = () => {
+    if (!course) return [];
+    const saved = localStorage.getItem(`course_progress_${id}`);
+    if (saved) {
+      try {
+        const completedIndices: number[] = JSON.parse(saved);
+        return course.modules.map((m, i) => ({ ...m, completed: completedIndices.includes(i) }));
+      } catch { /* fallback */ }
+    }
+    return course.modules;
+  };
+
+  const [modules, setModules] = useState(getPersistedModules);
+  const [enrolled, setEnrolled] = useState(() => {
+    if (!course) return false;
+    return localStorage.getItem(`course_enrolled_${id}`) === "true" || getPersistedModules().some(m => m.completed);
+  });
   const [activeModule, setActiveModule] = useState<number | null>(null);
   const [certificate, setCertificate] = useState<any>(null);
   const { user } = useAuth();
