@@ -188,7 +188,7 @@ const CodingPage = () => {
           const runtimeMs = Math.round(parseFloat(elapsed));
 
           // Save submission as accepted
-          supabase.from("coding_submissions").insert({
+          supabase.from("coding_submissions").insert([{
             user_id: user.id,
             problem_id: selected.id,
             code,
@@ -196,7 +196,7 @@ const CodingPage = () => {
             status: "accepted",
             xp_earned: baseXp,
             runtime_ms: runtimeMs,
-          }).then(() => {
+          }]).then(() => {
             // Update streak & XP
             supabase.rpc("record_activity", {
               _user_id: user.id,
