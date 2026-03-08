@@ -34,6 +34,8 @@ import PublicPortfolioPage from "./pages/PublicPortfolioPage";
 import CertificatesPage from "./pages/CertificatesPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
+import TalentBrowsePage from "./pages/TalentBrowsePage";
+import MessagesPage from "./pages/MessagesPage";
 import NotFound from "./pages/NotFound";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
@@ -59,6 +61,8 @@ function AppRoutes() {
         <Route path="/internships" element={<InternshipsPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/recruiter" element={<RecruiterDashboard />} />
+        <Route path="/talent" element={<TalentBrowsePage />} />
+        <Route path="/messages" element={<MessagesPage />} />
         <Route path="/portfolio/:userId" element={<PublicPortfolioPage />} />
         
         <Route path="/community" element={<CommunityPage />} />
