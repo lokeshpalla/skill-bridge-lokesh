@@ -703,6 +703,7 @@ export type Database = {
       }
       internships: {
         Row: {
+          apply_url: string | null
           company: string
           created_at: string
           description: string | null
@@ -715,6 +716,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          apply_url?: string | null
           company: string
           created_at?: string
           description?: string | null
@@ -727,6 +729,7 @@ export type Database = {
           title: string
         }
         Update: {
+          apply_url?: string | null
           company?: string
           created_at?: string
           description?: string | null
