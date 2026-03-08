@@ -36,7 +36,7 @@ interface GitHubProfile {
 }
 
 const SettingsPage = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [skills, setSkills] = useState("");
@@ -114,6 +114,7 @@ const SettingsPage = () => {
       await supabase.from("profiles").update({ avatar_url: urlWithCache }).eq("user_id", user.id);
       setAvatarUrl(urlWithCache);
       setCropImage(null);
+      await refreshProfile();
       toast.success("Avatar updated!");
     } catch {
       toast.error("Upload failed");
@@ -126,6 +127,7 @@ const SettingsPage = () => {
     setUploading(true);
     await supabase.from("profiles").update({ avatar_url: null }).eq("user_id", user.id);
     setAvatarUrl(null);
+    await refreshProfile();
     setUploading(false);
     toast.success("Avatar removed");
   };
@@ -146,6 +148,7 @@ const SettingsPage = () => {
       .eq("user_id", user.id);
     setSaving(false);
     if (error) return toast.error("Failed to save");
+    await refreshProfile();
     toast.success("Profile updated!");
   };
 
