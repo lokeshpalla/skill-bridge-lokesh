@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import { AppSidebar } from "./AppSidebar";
 import AIAssistant from "@/components/ai/AIAssistant";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 
@@ -13,7 +14,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const isPublic = publicRoutes.includes(location.pathname) || location.pathname === "*";
   const is404 = !publicRoutes.includes(location.pathname) && ![
     "/dashboard", "/courses", "/coding", "/mentors",
-    "/leaderboard", "/internships", "/portfolio"
+    "/leaderboard", "/internships", "/portfolio", "/achievements",
+    "/community", "/install", "/interview", "/paths", "/settings", "/admin"
   ].includes(location.pathname) && !location.pathname.startsWith("/courses/");
 
   if (isPublic || is404) {
@@ -42,10 +44,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 flex items-center border-b border-border/40 px-4 bg-background/80 backdrop-blur-sm sticky top-0 z-30">
+          <header className="h-14 flex items-center justify-between border-b border-border/40 px-4 bg-background/80 backdrop-blur-sm sticky top-0 z-30">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground">
               <Menu className="w-5 h-5" />
             </SidebarTrigger>
+            <NotificationBell />
           </header>
           <AnimatePresence mode="wait">
             <motion.main
