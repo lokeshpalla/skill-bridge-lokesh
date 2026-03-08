@@ -4,6 +4,10 @@ import { Star, Calendar, MessageCircle, Search, Clock, IndianRupee } from "lucid
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
+} from "@/components/ui/dialog";
 
 const mentors = [
   { id: 1, name: "Sarah Chen", role: "Senior Engineer @ Google", skills: ["React", "System Design", "TypeScript"], rating: 4.9, sessions: 234, price: 4500, avatar: "👩‍💻", available: true, freeSlots: ["Mon 6–8 PM", "Wed 7–9 PM", "Sat 10 AM–12 PM"] },
