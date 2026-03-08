@@ -39,7 +39,6 @@ const externalPlatforms = [
 const InternshipsPage = () => {
   const { user, profile } = useAuth();
   const [internships, setInternships] = useState<Internship[]>([]);
-  const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [locationFilter, setLocationFilter] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -47,8 +46,7 @@ const InternshipsPage = () => {
 
   useEffect(() => {
     fetchInternships();
-    if (user) fetchApplications();
-  }, [user]);
+  }, []);
 
   const fetchInternships = async () => {
     const { data } = await supabase
@@ -62,15 +60,6 @@ const InternshipsPage = () => {
       })));
     }
     setLoading(false);
-  };
-
-  const fetchApplications = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from("internship_applications")
-      .select("internship_id")
-      .eq("user_id", user.id);
-    if (data) setAppliedIds(new Set(data.map((a: any) => a.internship_id)));
   };
 
   const applyToInternship = (intern: Internship) => {
