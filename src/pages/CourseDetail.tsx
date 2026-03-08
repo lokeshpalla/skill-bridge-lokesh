@@ -51,6 +51,25 @@ const CourseDetail = () => {
   const [modules, setModules] = useState(course?.modules || []);
   const [enrolled, setEnrolled] = useState(course ? modules.some(m => m.completed) : false);
   const [activeModule, setActiveModule] = useState<number | null>(null);
+  const [certificate, setCertificate] = useState<any>(null);
+  const { user } = useAuth();
+
+  const allCompleted = modules.length > 0 && modules.every(m => m.completed);
+
+  useEffect(() => {
+    if (user && course) fetchCertificate();
+  }, [user, course]);
+
+  const fetchCertificate = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("course_certificates")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("course_id", Number(id))
+      .maybeSingle();
+    if (data) setCertificate(data);
+  };
 
   if (!course) {
     return (
