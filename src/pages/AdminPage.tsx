@@ -221,6 +221,9 @@ export default function AdminPage() {
         <AdminModeration posts={stats.recentPosts} comments={stats.recentComments} onRefresh={fetchStats} />
       )}
 
+      {/* Payouts Tab */}
+      {tab === "payouts" && <AdminPayouts />}
+
       {/* Analytics Tab */}
       {tab === "analytics" && (
         <div className="space-y-4">
