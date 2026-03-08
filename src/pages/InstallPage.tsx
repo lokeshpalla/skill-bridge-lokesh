@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Download, Smartphone, Wifi, WifiOff, Zap, Shield, Bell, BellRing, Check } from "lucide-react";
+import { Download, Smartphone, Wifi, WifiOff, Zap, Shield, Bell, BellRing, Check, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
@@ -109,6 +109,32 @@ const InstallPage = () => {
           </div>
         )}
       </div>
+
+      {/* QR Code */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="rounded-xl border border-border/50 bg-card/60 p-6 max-w-md mx-auto text-center"
+      >
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <QrCode className="w-5 h-5 text-primary" />
+          <h2 className="text-sm font-semibold">Scan to Install</h2>
+        </div>
+        <p className="text-xs text-muted-foreground mb-4">
+          Scan this QR code from any device to open and install SkillBridge
+        </p>
+        <div className="bg-white rounded-xl p-3 inline-block shadow-sm">
+          <img
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(window.location.origin)}&bgcolor=ffffff&color=000000&margin=8`}
+            alt="QR Code to install SkillBridge"
+            className="w-[180px] h-[180px]"
+          />
+        </div>
+        <p className="text-[10px] text-muted-foreground mt-3">
+          Works on iPhone, Android, tablets & desktop
+        </p>
+      </motion.div>
 
       {/* Push Notifications CTA */}
       {isSupported && (
