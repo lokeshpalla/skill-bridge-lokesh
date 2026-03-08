@@ -20,10 +20,10 @@ const coursesData: Record<number, {
     duration: "12h", enrolled: 2340, rating: 4.8, image: "🚀",
     description: "Master React with TypeScript from component patterns to advanced hooks, state management, and performance optimization.",
     modules: [
-      { title: "Introduction to React + TS", duration: "25min", completed: true },
-      { title: "Component Patterns & Props", duration: "40min", completed: true },
-      { title: "useState & useEffect Deep Dive", duration: "35min", completed: true },
-      { title: "Custom Hooks", duration: "30min", completed: true },
+      { title: "Introduction to React + TS", duration: "25min", completed: false },
+      { title: "Component Patterns & Props", duration: "40min", completed: false },
+      { title: "useState & useEffect Deep Dive", duration: "35min", completed: false },
+      { title: "Custom Hooks", duration: "30min", completed: false },
       { title: "Context API & State Management", duration: "45min", completed: false },
       { title: "React Router & Navigation", duration: "30min", completed: false },
       { title: "Forms & Validation", duration: "35min", completed: false },
@@ -33,10 +33,10 @@ const coursesData: Record<number, {
     ],
   },
   2: { id: 2, title: "Python for Data Science", category: "AI/ML", difficulty: "Beginner", duration: "18h", enrolled: 5120, rating: 4.9, image: "🐍", description: "Learn Python fundamentals and dive into data science with Pandas, NumPy, and Matplotlib.", modules: [{ title: "Python Basics", duration: "30min", completed: false },{ title: "Data Types & Structures", duration: "35min", completed: false },{ title: "Functions & Modules", duration: "25min", completed: false },{ title: "NumPy Fundamentals", duration: "40min", completed: false },{ title: "Pandas DataFrames", duration: "45min", completed: false },{ title: "Data Visualization", duration: "35min", completed: false }] },
-  3: { id: 3, title: "System Design Fundamentals", category: "Architecture", difficulty: "Advanced", duration: "15h", enrolled: 1890, rating: 4.7, image: "🏗️", description: "Learn to design scalable distributed systems.", modules: [{ title: "Scalability Basics", duration: "30min", completed: true },{ title: "Load Balancing", duration: "35min", completed: true },{ title: "Database Design", duration: "40min", completed: false },{ title: "Caching Strategies", duration: "30min", completed: false },{ title: "Microservices Architecture", duration: "45min", completed: false }] },
+  3: { id: 3, title: "System Design Fundamentals", category: "Architecture", difficulty: "Advanced", duration: "15h", enrolled: 1890, rating: 4.7, image: "🏗️", description: "Learn to design scalable distributed systems.", modules: [{ title: "Scalability Basics", duration: "30min", completed: false },{ title: "Load Balancing", duration: "35min", completed: false },{ title: "Database Design", duration: "40min", completed: false },{ title: "Caching Strategies", duration: "30min", completed: false },{ title: "Microservices Architecture", duration: "45min", completed: false }] },
   4: { id: 4, title: "DSA in JavaScript", category: "Algorithms", difficulty: "Intermediate", duration: "20h", enrolled: 3450, rating: 4.8, image: "⚡", description: "Master data structures and algorithms in JavaScript.", modules: [{ title: "Arrays & Strings", duration: "40min", completed: false },{ title: "Linked Lists", duration: "35min", completed: false },{ title: "Stacks & Queues", duration: "30min", completed: false },{ title: "Trees & Graphs", duration: "45min", completed: false },{ title: "Sorting Algorithms", duration: "35min", completed: false },{ title: "Dynamic Programming", duration: "50min", completed: false }] },
   5: { id: 5, title: "AWS Cloud Practitioner", category: "Cloud", difficulty: "Beginner", duration: "10h", enrolled: 4200, rating: 4.6, image: "☁️", description: "Prepare for AWS Cloud Practitioner certification.", modules: [{ title: "Cloud Concepts", duration: "25min", completed: false },{ title: "AWS Core Services", duration: "40min", completed: false },{ title: "Security & Compliance", duration: "30min", completed: false },{ title: "Billing & Pricing", duration: "25min", completed: false }] },
-  6: { id: 6, title: "Full-Stack Node.js", category: "Web Dev", difficulty: "Intermediate", duration: "22h", enrolled: 2100, rating: 4.7, image: "🌐", description: "Build production-ready full-stack applications.", modules: [{ title: "Node.js Fundamentals", duration: "30min", completed: true },{ title: "Express.js & Routing", duration: "35min", completed: false },{ title: "Database with PostgreSQL", duration: "40min", completed: false },{ title: "Authentication & JWT", duration: "35min", completed: false },{ title: "REST API Design", duration: "30min", completed: false },{ title: "Deployment", duration: "25min", completed: false }] },
+  6: { id: 6, title: "Full-Stack Node.js", category: "Web Dev", difficulty: "Intermediate", duration: "22h", enrolled: 2100, rating: 4.7, image: "🌐", description: "Build production-ready full-stack applications.", modules: [{ title: "Node.js Fundamentals", duration: "30min", completed: false },{ title: "Express.js & Routing", duration: "35min", completed: false },{ title: "Database with PostgreSQL", duration: "40min", completed: false },{ title: "Authentication & JWT", duration: "35min", completed: false },{ title: "REST API Design", duration: "30min", completed: false },{ title: "Deployment", duration: "25min", completed: false }] },
 };
 
 const difficultyColor: Record<string, string> = {
@@ -65,7 +65,7 @@ const CourseDetail = () => {
   const [modules, setModules] = useState(getPersistedModules);
   const [enrolled, setEnrolled] = useState(() => {
     if (!course) return false;
-    return localStorage.getItem(`course_enrolled_${id}`) === "true" || getPersistedModules().some(m => m.completed);
+    return localStorage.getItem(`course_enrolled_${id}`) === "true";
   });
   const [activeModule, setActiveModule] = useState<number | null>(null);
   const [certificate, setCertificate] = useState<any>(null);
