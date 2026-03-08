@@ -322,6 +322,12 @@ const RecruiterDashboard = () => {
           interviews={interviews}
         />
       )}
+      {tab === "ai-match" && (
+        <RecruiterAIMatch
+          internships={internships}
+          applications={applications}
+        />
+      )}
     </div>
   );
 };
