@@ -101,14 +101,17 @@ export function NotificationBell() {
           size="icon"
           className="relative text-muted-foreground hover:text-foreground"
           onClick={handleBellClick}
+          aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
+          aria-haspopup="true"
+          aria-expanded={open}
         >
           {unreadCount > 0 ? (
-            <BellRing className="w-4.5 h-4.5 animate-pulse" />
+            <BellRing className="w-4.5 h-4.5 animate-pulse" aria-hidden="true" />
           ) : (
-            <Bell className="w-4.5 h-4.5" />
+            <Bell className="w-4.5 h-4.5" aria-hidden="true" />
           )}
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center animate-pulse">
+            <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center animate-pulse" aria-hidden="true">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}

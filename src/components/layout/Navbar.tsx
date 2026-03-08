@@ -30,10 +30,14 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50">
+    <nav
+      className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50"
+      role="navigation"
+      aria-label="Main navigation"
+    >
       <div className="container flex items-center justify-between h-16">
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+        <Link to="/" className="flex items-center gap-2 group" aria-label="SkillBridge home">
+          <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center" aria-hidden="true">
             <Sparkles className="w-4 h-4 text-primary-foreground" />
           </div>
           <span className="text-lg font-bold text-foreground group-hover:text-gradient transition-colors">
@@ -41,18 +45,19 @@ const Navbar = () => {
           </span>
         </Link>
 
-        <div className="hidden lg:flex items-center gap-1">
+        <div className="hidden lg:flex items-center gap-1" role="menubar" aria-label="Navigation links">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = location.pathname === item.path;
             return (
-              <Link key={item.path} to={item.path}>
+              <Link key={item.path} to={item.path} aria-current={active ? "page" : undefined}>
                 <Button
                   variant="ghost"
                   size="sm"
                   className={active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}
+                  aria-label={item.label}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-4 h-4" aria-hidden="true" />
                   {item.label}
                 </Button>
               </Link>
@@ -64,13 +69,13 @@ const Navbar = () => {
           {user ? (
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center" aria-hidden="true">
                   <User className="w-4 h-4 text-primary-foreground" />
                 </div>
                 <span className="text-sm font-medium">{profile?.display_name || "User"}</span>
               </div>
-              <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign out">
-                <LogOut className="w-4 h-4" />
+              <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sign out">
+                <LogOut className="w-4 h-4" aria-hidden="true" />
               </Button>
             </div>
           ) : (
@@ -85,30 +90,37 @@ const Navbar = () => {
           size="icon"
           className="lg:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-nav-menu"
+          aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
         >
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {mobileOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
         </Button>
       </div>
 
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
+            id="mobile-nav-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden glass border-t border-border/50 overflow-hidden"
+            role="menu"
+            aria-label="Mobile navigation"
           >
             <div className="container py-4 flex flex-col gap-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const active = location.pathname === item.path;
                 return (
-                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}>
+                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)} role="menuitem">
                     <Button
                       variant="ghost"
                       className={`w-full justify-start ${active ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}
+                      aria-current={active ? "page" : undefined}
                     >
-                      <Icon className="w-4 h-4 mr-2" />
+                      <Icon className="w-4 h-4 mr-2" aria-hidden="true" />
                       {item.label}
                     </Button>
                   </Link>
@@ -116,7 +128,7 @@ const Navbar = () => {
               })}
               {user ? (
                 <Button variant="secondary" className="w-full mt-2" onClick={() => { handleSignOut(); setMobileOpen(false); }}>
-                  <LogOut className="w-4 h-4 mr-2" /> Sign Out
+                  <LogOut className="w-4 h-4 mr-2" aria-hidden="true" /> Sign Out
                 </Button>
               ) : (
                 <Link to="/auth" onClick={() => setMobileOpen(false)}>

@@ -78,7 +78,7 @@ export function AppSidebar() {
                   className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all text-sm"
                   activeClassName="bg-primary/10 text-primary font-medium border border-primary/20"
                 >
-                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <item.icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                   {!collapsed && <span>{item.title}</span>}
                 </NavLink>
               </SidebarMenuButton>
@@ -90,7 +90,7 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border/40 bg-sidebar">
+    <Sidebar collapsible="icon" className="border-r border-border/40 bg-sidebar" aria-label="Sidebar navigation">
       <SidebarHeader className="p-4">
         <Link to="/" className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">

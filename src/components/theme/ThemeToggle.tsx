@@ -20,15 +20,21 @@ export function ThemeToggle() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
+  const nextTheme = theme === "dark" ? "light" : "dark";
+
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      onClick={() => setTheme(nextTheme)}
       className="text-muted-foreground hover:text-foreground"
-      title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      aria-label={`Switch to ${nextTheme} mode`}
     >
-      {theme === "dark" ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
+      {theme === "dark" ? (
+        <Sun className="w-4.5 h-4.5" aria-hidden="true" />
+      ) : (
+        <Moon className="w-4.5 h-4.5" aria-hidden="true" />
+      )}
     </Button>
   );
 }

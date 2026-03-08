@@ -41,9 +41,9 @@ const fadeUp = {
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" role="document">
       {/* ─── HERO ─── */}
-      <section className="relative min-h-[92vh] flex items-center bg-gradient-hero overflow-hidden">
+      <section className="relative min-h-[92vh] flex items-center bg-gradient-hero overflow-hidden" aria-label="Hero">
         <div className="absolute inset-0 opacity-[0.025]" style={{
           backgroundImage: "linear-gradient(hsl(187 100% 50%) 1px, transparent 1px), linear-gradient(90deg, hsl(187 100% 50%) 1px, transparent 1px)",
           backgroundSize: "60px 60px"
@@ -107,7 +107,7 @@ const Index = () => {
       </section>
 
       {/* ─── TRUSTED BY ─── */}
-      <section className="py-10 border-b border-border/30 bg-muted/20">
+      <section className="py-10 border-b border-border/30 bg-muted/20" aria-label="Trusted companies">
         <div className="container">
           <p className="text-center text-xs text-muted-foreground uppercase tracking-widest mb-6">Our learners work at</p>
           <div className="flex items-center justify-center gap-10 flex-wrap opacity-40">
@@ -119,7 +119,7 @@ const Index = () => {
       </section>
 
       {/* ─── STATS ─── */}
-      <section className="py-16 bg-background">
+      <section className="py-16 bg-background" aria-label="Platform statistics">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, i) => (
@@ -133,7 +133,7 @@ const Index = () => {
       </section>
 
       {/* ─── FEATURES ─── */}
-      <section className="py-24 bg-background">
+      <section className="py-24 bg-background" aria-label="Platform features">
         <div className="container">
           <motion.div {...fadeUp} className="text-center mb-16">
             <span className="text-xs text-primary uppercase tracking-widest font-medium">Platform</span>
@@ -168,7 +168,7 @@ const Index = () => {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section className="py-24 bg-muted/20 border-y border-border/30">
+      <section className="py-24 bg-muted/20 border-y border-border/30" aria-label="How it works">
         <div className="container">
           <motion.div {...fadeUp} className="text-center mb-16">
             <span className="text-xs text-primary uppercase tracking-widest font-medium">Process</span>
@@ -199,7 +199,7 @@ const Index = () => {
       </section>
 
       {/* ─── TESTIMONIALS ─── */}
-      <section className="py-24 bg-background">
+      <section className="py-24 bg-background" aria-label="Testimonials">
         <div className="container">
           <motion.div {...fadeUp} className="text-center mb-16">
             <span className="text-xs text-primary uppercase tracking-widest font-medium">Testimonials</span>
@@ -225,7 +225,7 @@ const Index = () => {
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="py-24 bg-gradient-hero relative overflow-hidden border-t border-border/30">
+      <section className="py-24 bg-gradient-hero relative overflow-hidden border-t border-border/30" aria-label="Call to action">
         <div className="absolute inset-0 bg-gradient-primary opacity-[0.03]" />
         <div className="container relative z-10 text-center">
           <motion.div {...fadeUp}>
@@ -246,7 +246,7 @@ const Index = () => {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="py-16 border-t border-border/50 bg-card/50">
+      <footer className="py-16 border-t border-border/50 bg-card/50" role="contentinfo">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
             {/* Brand */}
@@ -260,10 +260,15 @@ const Index = () => {
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 AI-powered learning platform for the next generation of developers.
               </p>
-              <div className="flex items-center gap-3">
-                {[Twitter, Github, Linkedin, Mail].map((Icon, i) => (
-                  <a key={i} href="#" className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
-                    <Icon className="w-4 h-4" />
+              <div className="flex items-center gap-3" role="list" aria-label="Social links">
+                {[
+                  { Icon: Twitter, label: "Twitter" },
+                  { Icon: Github, label: "GitHub" },
+                  { Icon: Linkedin, label: "LinkedIn" },
+                  { Icon: Mail, label: "Email" },
+                ].map(({ Icon, label }) => (
+                  <a key={label} href="#" className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" aria-label={label} role="listitem">
+                    <Icon className="w-4 h-4" aria-hidden="true" />
                   </a>
                 ))}
               </div>
