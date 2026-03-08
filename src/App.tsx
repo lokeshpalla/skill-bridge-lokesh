@@ -18,6 +18,7 @@ import PortfolioPage from "./pages/PortfolioPage";
 import AchievementsPage from "./pages/AchievementsPage";
 import CommunityPage from "./pages/CommunityPage";
 import InstallPage from "./pages/InstallPage";
+import InterviewPage from "./pages/InterviewPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
