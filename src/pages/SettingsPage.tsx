@@ -225,6 +225,56 @@ const SettingsPage = () => {
       {/* Profile Tab */}
       {tab === "profile" && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-6 space-y-4">
+          {/* Crop Modal */}
+          {cropImage && (
+            <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+              <div className="bg-card rounded-xl w-full max-w-md overflow-hidden">
+                <div className="flex items-center justify-between p-4 border-b border-border">
+                  <h3 className="text-sm font-semibold flex items-center gap-2"><Crop className="w-4 h-4" /> Crop Photo</h3>
+                  <button onClick={() => { setCropImage(null); setZoom(1); setCrop({ x: 0, y: 0 }); }}>
+                    <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                  </button>
+                </div>
+                <div className="relative h-72 bg-black">
+                  <Cropper
+                    image={cropImage}
+                    crop={crop}
+                    zoom={zoom}
+                    aspect={1}
+                    cropShape="round"
+                    showGrid={false}
+                    onCropChange={setCrop}
+                    onZoomChange={setZoom}
+                    onCropComplete={onCropComplete}
+                  />
+                </div>
+                <div className="p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <ZoomIn className="w-3.5 h-3.5 text-muted-foreground" />
+                    <input
+                      type="range"
+                      min={1}
+                      max={3}
+                      step={0.1}
+                      value={zoom}
+                      onChange={(e) => setZoom(Number(e.target.value))}
+                      className="flex-1 accent-primary"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="flex-1" onClick={() => { setCropImage(null); setZoom(1); setCrop({ x: 0, y: 0 }); }}>
+                      Cancel
+                    </Button>
+                    <Button className="flex-1 gap-1.5" onClick={saveCroppedAvatar} disabled={uploading}>
+                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Avatar Upload */}
           <div className="flex items-center gap-4">
             <div className="relative group">
@@ -237,12 +287,12 @@ const SettingsPage = () => {
               )}
               <label className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                 {uploading ? <Loader2 className="w-5 h-5 text-white animate-spin" /> : <Camera className="w-5 h-5 text-white" />}
-                <input type="file" accept="image/*" className="hidden" onChange={uploadAvatar} disabled={uploading} />
+                <input type="file" accept="image/*" className="hidden" onChange={handleFileSelect} disabled={uploading} />
               </label>
             </div>
             <div>
               <p className="text-sm font-medium">Profile Photo</p>
-              <p className="text-[11px] text-muted-foreground">Click to upload (max 2MB)</p>
+              <p className="text-[11px] text-muted-foreground">Click to upload & crop (max 5MB)</p>
               {avatarUrl && (
                 <button onClick={removeAvatar} disabled={uploading} className="text-[11px] text-destructive hover:underline mt-0.5 flex items-center gap-1">
                   <Trash2 className="w-3 h-3" /> Remove
