@@ -158,6 +158,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
   const [saving, setSaving] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [proctoringReady, setProctoringReady] = useState(false);
 
   // Coding question state
   const [userCode, setUserCode] = useState("");
@@ -168,6 +169,13 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
   const questions = courseExams[courseId] || [];
   const EXAM_DURATION = 30 * 60; // 30 minutes fixed
 
+  // Proctoring
+  const proctoring = useExamProctoring({
+    userId: user?.id,
+    courseId,
+    isActive: started && !showResult,
+  });
+
   const finishExam = useCallback((finalScores: (boolean | null)[]) => {
     if (timerRef.current) clearInterval(timerRef.current);
     const score = finalScores.filter(s => s === true).length;
@@ -176,7 +184,11 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
     setResult({ score, total: questions.length, pct, grade });
     setShowResult(true);
     saveResult(score, questions.length, pct, grade.grade, pct >= 50);
-  }, [questions]);
+    // Stop proctoring
+    proctoring.stopCamera();
+    proctoring.exitFullscreen();
+    proctoring.logEvent("exam_finished", { score, total: questions.length, pct, tabSwitches: proctoring.state.tabSwitchCount, copyPasteAttempts: proctoring.state.copyPasteAttempts });
+  }, [questions, proctoring]);
 
   useEffect(() => {
     if (!started || showResult) return;
@@ -202,7 +214,23 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
     setShowHint(false);
   };
 
-  const handleStart = () => {
+  const handleStartProctoring = async () => {
+    // Start camera
+    const cameraOk = await proctoring.startCamera();
+    if (!cameraOk) {
+      toast.error("Camera is required for exam proctoring. Please allow camera access and try again.");
+      return;
+    }
+    // Enter fullscreen
+    await proctoring.enterFullscreen();
+    setProctoringReady(true);
+  };
+
+  const handleStart = async () => {
+    if (!proctoringReady) {
+      await handleStartProctoring();
+      return;
+    }
     setStarted(true);
     setCurrentQ(0);
     setScores(new Array(questions.length).fill(null));
