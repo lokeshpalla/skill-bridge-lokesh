@@ -28,6 +28,7 @@ const diffColor: Record<string, string> = {
 const ITEMS_PER_PAGE = 50;
 
 const CodingPage = () => {
+  const { user } = useAuth();
   const [selected, setSelected] = useState<CodingProblem>(codingProblems[0]);
   const [language, setLanguage] = useState(languages[0]);
   const [showLangPicker, setShowLangPicker] = useState(false);
