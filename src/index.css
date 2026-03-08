@@ -91,13 +91,13 @@
     --warning: 38 92% 45%;
     --warning-foreground: 222 47% 11%;
 
-    --sidebar-background: 210 20% 96%;
+    --sidebar-background: 215 25% 90%;
     --sidebar-foreground: 222 30% 20%;
     --sidebar-primary: 187 85% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 20% 92%;
-    --sidebar-accent-foreground: 222 30% 20%;
-    --sidebar-border: 214 20% 88%;
+    --sidebar-accent: 215 20% 85%;
+    --sidebar-accent-foreground: 222 30% 15%;
+    --sidebar-border: 214 20% 82%;
     --sidebar-ring: 187 85% 40%;
 
     --gradient-primary: linear-gradient(135deg, hsl(187 85% 40%), hsl(262 70% 55%));
