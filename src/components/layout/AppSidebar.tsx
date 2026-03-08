@@ -90,7 +90,7 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border/40 bg-sidebar">
+    <Sidebar collapsible="icon" className="border-r border-border/40 bg-sidebar" aria-label="Sidebar navigation">
       <SidebarHeader className="p-4">
         <Link to="/" className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">
