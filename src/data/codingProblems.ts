@@ -951,6 +951,7 @@ function generateProblems(): CodingProblem[] {
           cat.problems.length
         ) as "Easy" | "Medium" | "Hard";
 
+        const extras = generateExamples(p.t, cat.name, difficulty);
         allProblems.push({
           id: id++,
           title: `${p.t} ${variation}`,
@@ -960,6 +961,8 @@ function generateProblems(): CodingProblem[] {
           solved: false,
           description: `${p.d} Solve this ${mod}.`,
           hint: p.h,
+          ...extras,
+        });
         });
 
         modIdx++;
