@@ -54,7 +54,7 @@ function AppRoutes() {
         <Route path="/internships" element={<InternshipsPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/portfolio/:userId" element={<PublicPortfolioPage />} />
-        <Route path="/achievements" element={<AchievementsPage />} />
+        
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/install" element={<InstallPage />} />
         <Route path="/interview" element={<InterviewPage />} />
