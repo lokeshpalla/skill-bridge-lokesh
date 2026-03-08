@@ -270,11 +270,15 @@ const AuthPage = () => {
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : forgotMode ? (
                   "Send Reset Link"
-                ) : mode === "login" ? (
-                  <span className="flex items-center gap-2">
-                    Sign In as {activeRole.label}
-                    <activeRole.icon className="w-4 h-4" />
-                  </span>
+                 ) : mode === "login" ? (
+                   showRoleSelector ? (
+                     <span className="flex items-center gap-2">
+                       Sign In as {activeRole.label}
+                       <activeRole.icon className="w-4 h-4" />
+                     </span>
+                   ) : (
+                     "Sign In"
+                   )
                 ) : (
                   "Create Account"
                 )}
