@@ -174,7 +174,7 @@ const PortfolioAIChat = ({ portfolioContext, externalOpen, onExternalOpenChange 
                   <p className="text-[10px] text-muted-foreground">Customize your portfolio with AI</p>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setOpen(false)}>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenChange(false)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
