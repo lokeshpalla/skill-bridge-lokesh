@@ -13,7 +13,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const isPublic = publicRoutes.includes(location.pathname) || location.pathname === "*";
   const is404 = !publicRoutes.includes(location.pathname) && ![
     "/dashboard", "/courses", "/coding", "/mentors",
-    "/leaderboard", "/internships", "/portfolio", "/playground"
+    "/leaderboard", "/internships", "/portfolio"
   ].includes(location.pathname) && !location.pathname.startsWith("/courses/");
 
   if (isPublic || is404) {

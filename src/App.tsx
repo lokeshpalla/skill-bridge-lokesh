@@ -15,7 +15,6 @@ import MentorsPage from "./pages/MentorsPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import InternshipsPage from "./pages/InternshipsPage";
 import PortfolioPage from "./pages/PortfolioPage";
-import PlaygroundPage from "./pages/PlaygroundPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,7 +38,6 @@ const App = () => (
               <Route path="/leaderboard" element={<LeaderboardPage />} />
               <Route path="/internships" element={<InternshipsPage />} />
               <Route path="/portfolio" element={<PortfolioPage />} />
-              <Route path="/playground" element={<PlaygroundPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
