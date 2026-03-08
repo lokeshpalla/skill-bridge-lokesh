@@ -239,12 +239,12 @@ const InternshipsPage = () => {
                   )}
 
                   <Button
-                    variant={appliedIds.has(intern.id) ? "secondary" : "hero"}
-                    className="w-full h-8 text-xs"
-                    disabled={appliedIds.has(intern.id)}
-                    onClick={() => applyToInternship(intern.id, intern.company)}
+                    variant="hero"
+                    className="w-full h-8 text-xs gap-1"
+                    onClick={() => applyToInternship(intern)}
                   >
-                    {appliedIds.has(intern.id) ? "✅ Applied" : "Apply Now"}
+                    <ExternalLink className="w-3 h-3" /> Apply Now
+                  </Button>
                   </Button>
                 </motion.div>
               ))}
