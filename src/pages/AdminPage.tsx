@@ -4,38 +4,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, BookOpen, Code2, Briefcase, MessageSquare, Brain, Trophy, TrendingUp, Shield } from "lucide-react";
+import { Users, BookOpen, Code2, Briefcase, MessageSquare, Brain, Trophy, TrendingUp, Shield, UserCog, AlertTriangle, Settings, Mail } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { motion } from "framer-motion";
+import AdminUserManagement from "@/components/admin/AdminUserManagement";
+import AdminModeration from "@/components/admin/AdminModeration";
 
 interface AdminStats {
-  overview: {
-    totalUsers: number;
-    totalCourses: number;
-    totalProblems: number;
-    totalSubmissions: number;
-    totalEnrollments: number;
-    totalInternships: number;
-    totalForumPosts: number;
-    totalInterviews: number;
-  };
-  recentUsers: Array<{
-    id: string;
-    user_id: string;
-    display_name: string;
-    email: string | null;
-    xp: number;
-    streak: number;
-    created_at: string;
-  }>;
-  topUsers: Array<{
-    id: string;
-    user_id: string;
-    display_name: string;
-    xp: number;
-    streak: number;
-  }>;
+  overview: Record<string, number>;
+  roleCounts: Record<string, number>;
+  recentUsers: any[];
+  topUsers: any[];
+  allUsers: any[];
+  recentPosts: any[];
+  recentComments: any[];
 }
 
 const CHART_COLORS = [
@@ -56,29 +39,16 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [tab, setTab] = useState<"overview" | "users" | "moderation" | "analytics">("overview");
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-
+    if (!user) { navigate("/auth"); return; }
     const checkAdmin = async () => {
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin");
-      
-      if (!data || data.length === 0) {
-        setError("Admin access required");
-        setLoading(false);
-        return;
-      }
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin");
+      if (!data || data.length === 0) { setError("Admin access required"); setLoading(false); return; }
       setIsAdmin(true);
       fetchStats();
     };
-
     checkAdmin();
   }, [user]);
 
@@ -97,205 +67,190 @@ export default function AdminPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
+    return <div className="flex items-center justify-center min-h-[60vh]"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   }
 
   if (error || !isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Shield className="w-16 h-16 text-destructive/50" />
-        <h2 className="text-xl font-bold text-foreground">Access Denied</h2>
-        <p className="text-muted-foreground">{error || "You need admin privileges to access this page."}</p>
+        <h2 className="text-xl font-bold">Access Denied</h2>
+        <p className="text-muted-foreground">{error || "Admin privileges required."}</p>
       </div>
     );
   }
 
   if (!stats) return null;
 
+  const ov = stats.overview;
   const overviewCards = [
-    { label: "Users", value: stats.overview.totalUsers, icon: Users, color: "text-blue-500" },
-    { label: "Courses", value: stats.overview.totalCourses, icon: BookOpen, color: "text-emerald-500" },
-    { label: "Problems", value: stats.overview.totalProblems, icon: Code2, color: "text-orange-500" },
-    { label: "Submissions", value: stats.overview.totalSubmissions, icon: TrendingUp, color: "text-purple-500" },
-    { label: "Enrollments", value: stats.overview.totalEnrollments, icon: Trophy, color: "text-amber-500" },
-    { label: "Internships", value: stats.overview.totalInternships, icon: Briefcase, color: "text-pink-500" },
-    { label: "Forum Posts", value: stats.overview.totalForumPosts, icon: MessageSquare, color: "text-cyan-500" },
-    { label: "Interviews", value: stats.overview.totalInterviews, icon: Brain, color: "text-red-500" },
+    { label: "Users", value: ov.totalUsers, icon: Users, accent: "text-primary" },
+    { label: "Courses", value: ov.totalCourses, icon: BookOpen, accent: "text-primary" },
+    { label: "Problems", value: ov.totalProblems, icon: Code2, accent: "text-primary" },
+    { label: "Submissions", value: ov.totalSubmissions, icon: TrendingUp, accent: "text-primary" },
+    { label: "Enrollments", value: ov.totalEnrollments, icon: Trophy, accent: "text-primary" },
+    { label: "Internships", value: ov.totalInternships, icon: Briefcase, accent: "text-primary" },
+    { label: "Forum Posts", value: ov.totalForumPosts, icon: MessageSquare, accent: "text-primary" },
+    { label: "Interviews", value: ov.totalInterviews, icon: Brain, accent: "text-primary" },
+    { label: "Applications", value: ov.totalApplications || 0, icon: Mail, accent: "text-primary" },
+    { label: "Messages", value: ov.totalMessages || 0, icon: MessageSquare, accent: "text-primary" },
   ];
 
-  const barData = overviewCards.map((c) => ({ name: c.label, value: c.value }));
-  const pieData = overviewCards.filter((c) => c.value > 0).map((c) => ({ name: c.label, value: c.value }));
+  const barData = overviewCards.filter(c => c.value > 0).map(c => ({ name: c.label, value: c.value }));
+  const roleData = Object.entries(stats.roleCounts || {}).map(([name, value]) => ({ name, value }));
+
+  const tabs = [
+    ["overview", "📊 Overview", Shield],
+    ["users", "👥 Users", UserCog],
+    ["moderation", "🛡️ Moderation", AlertTriangle],
+    ["analytics", "📈 Analytics", TrendingUp],
+  ] as const;
 
   return (
-    <div className="container mx-auto py-8 px-4 space-y-8 max-w-7xl">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-          <Shield className="w-5 h-5 text-primary-foreground" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Platform analytics & user management</p>
-        </div>
+    <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <Shield className="w-6 h-6 text-primary" /> Admin Dashboard
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">Platform management & oversight</p>
+      </motion.div>
+
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {overviewCards.slice(0, 5).map(card => {
+          const Icon = card.icon;
+          return (
+            <motion.div key={card.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+              className="rounded-xl border border-border/50 bg-card/60 p-4">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{card.label}</span>
+                <Icon className={`w-4 h-4 ${card.accent}`} />
+              </div>
+              <div className="text-2xl font-bold">{card.value}</div>
+            </motion.div>
+          );
+        })}
       </div>
 
-      {/* Overview Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {overviewCards.map((card) => (
-          <Card key={card.label} className="border-border/50">
-            <CardContent className="p-4 flex items-center gap-3">
-              <card.icon className={`w-8 h-8 ${card.color} flex-shrink-0`} />
-              <div>
-                <p className="text-2xl font-bold text-foreground">{card.value}</p>
-                <p className="text-xs text-muted-foreground">{card.label}</p>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Tabs */}
+      <div className="flex gap-2 flex-wrap">
+        {tabs.map(([t, label]) => (
+          <button key={t} onClick={() => setTab(t)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              tab === t ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground hover:text-foreground"
+            }`}>{label}</button>
         ))}
       </div>
 
-      <Tabs defaultValue="analytics" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="leaderboard">Top Performers</TabsTrigger>
-        </TabsList>
+      {/* Overview Tab */}
+      {tab === "overview" && (
+        <div className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Activity Bar Chart */}
+            <div className="rounded-xl border border-border/50 bg-card/60 p-5">
+              <h3 className="text-sm font-semibold mb-4">Platform Activity</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={barData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                  <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--foreground))" }} />
+                  <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
 
-        <TabsContent value="analytics" className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card className="border-border/50">
-              <CardHeader>
-                <CardTitle className="text-base">Platform Activity</CardTitle>
-                <CardDescription>Content & engagement breakdown</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={barData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
-                    <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
-                    <Tooltip
-                      contentStyle={{
-                        background: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: 8,
-                        color: "hsl(var(--foreground))",
-                      }}
-                    />
-                    <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/50">
-              <CardHeader>
-                <CardTitle className="text-base">Distribution</CardTitle>
-                <CardDescription>Content type distribution</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie data={pieData} cx="50%" cy="50%" outerRadius={100} dataKey="value" label={({ name, value }) => `${name}: ${value}`}>
-                      {pieData.map((_, i) => (
-                        <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        background: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: 8,
-                        color: "hsl(var(--foreground))",
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            {/* Role Distribution Pie */}
+            <div className="rounded-xl border border-border/50 bg-card/60 p-5">
+              <h3 className="text-sm font-semibold mb-4">Role Distribution</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie data={roleData} cx="50%" cy="50%" outerRadius={90} dataKey="value" label={({ name, value }) => `${name}: ${value}`}>
+                    {roleData.map((_, i) => (
+                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--foreground))" }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </TabsContent>
 
-        <TabsContent value="users">
-          <Card className="border-border/50">
-            <CardHeader>
-              <CardTitle className="text-base">Recent Users</CardTitle>
-              <CardDescription>Latest registered users on the platform</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>XP</TableHead>
-                    <TableHead>Streak</TableHead>
-                    <TableHead>Joined</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {stats.recentUsers.map((u) => (
-                    <TableRow key={u.id}>
-                      <TableCell className="font-medium">{u.display_name}</TableCell>
-                      <TableCell className="text-muted-foreground text-sm">{u.email || "—"}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{u.xp} XP</Badge>
-                      </TableCell>
-                      <TableCell>{u.streak}🔥</TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {new Date(u.created_at).toLocaleDateString()}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {stats.recentUsers.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                        No users yet
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          {/* Top Performers */}
+          <div className="rounded-xl border border-border/50 bg-card/60 p-5">
+            <h3 className="text-sm font-semibold mb-3">Top Performers</h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {stats.topUsers.slice(0, 5).map((u, i) => (
+                <div key={u.id} className="rounded-lg bg-secondary/30 p-3 text-center">
+                  <div className="text-lg font-bold">{["🥇", "🥈", "🥉", "4️⃣", "5️⃣"][i]}</div>
+                  <p className="text-xs font-medium truncate mt-1">{u.display_name}</p>
+                  <p className="text-[10px] text-primary font-semibold">{u.xp} XP</p>
+                  <p className="text-[10px] text-muted-foreground">{u.streak}🔥</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
-        <TabsContent value="leaderboard">
-          <Card className="border-border/50">
-            <CardHeader>
-              <CardTitle className="text-base">Top Performers</CardTitle>
-              <CardDescription>Users with highest XP on the platform</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>#</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>XP</TableHead>
-                    <TableHead>Streak</TableHead>
+      {/* Users Tab */}
+      {tab === "users" && (
+        <AdminUserManagement users={stats.allUsers} onRefresh={fetchStats} />
+      )}
+
+      {/* Moderation Tab */}
+      {tab === "moderation" && (
+        <AdminModeration posts={stats.recentPosts} comments={stats.recentComments} onRefresh={fetchStats} />
+      )}
+
+      {/* Analytics Tab */}
+      {tab === "analytics" && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            {overviewCards.map(card => {
+              const Icon = card.icon;
+              return (
+                <motion.div key={card.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                  className="rounded-xl border border-border/50 bg-card/60 p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{card.label}</span>
+                    <Icon className={`w-4 h-4 ${card.accent}`} />
+                  </div>
+                  <div className="text-xl font-bold">{card.value}</div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Recent Users Table */}
+          <div className="rounded-xl border border-border/50 bg-card/60 p-5">
+            <h3 className="text-sm font-semibold mb-3">Recent Signups</h3>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>XP</TableHead>
+                  <TableHead>Streak</TableHead>
+                  <TableHead>Joined</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {stats.recentUsers.map(u => (
+                  <TableRow key={u.id}>
+                    <TableCell className="font-medium text-sm">{u.display_name}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{u.email || "—"}</TableCell>
+                    <TableCell><Badge variant="secondary" className="text-[10px]">{u.xp} XP</Badge></TableCell>
+                    <TableCell className="text-xs">{u.streak}🔥</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {stats.topUsers.map((u, i) => (
-                    <TableRow key={u.id}>
-                      <TableCell className="font-bold text-muted-foreground">{i + 1}</TableCell>
-                      <TableCell className="font-medium">{u.display_name}</TableCell>
-                      <TableCell>
-                        <Badge variant={i < 3 ? "default" : "secondary"}>{u.xp} XP</Badge>
-                      </TableCell>
-                      <TableCell>{u.streak}🔥</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
