@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, User, Eye, EyeOff, Sparkles, Loader2, Phone, GraduationCap, Briefcase, Search, Shield, Info } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -15,8 +15,12 @@ const roles = [
 ] as const;
 
 const AuthPage = () => {
+  const [searchParams] = useSearchParams();
+  const roleParam = searchParams.get("role");
+  const showRoleSelector = roleParam && ["mentor", "recruiter", "admin"].includes(roleParam);
+
   const [mode, setMode] = useState<"login" | "register">("login");
-  const [selectedRole, setSelectedRole] = useState<string>("student");
+  const [selectedRole, setSelectedRole] = useState<string>(roleParam && roles.some(r => r.key === roleParam) ? roleParam : "student");
   const [showPw, setShowPw] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -112,7 +116,7 @@ const AuthPage = () => {
           </div>
 
           {/* Role Selector — visible on login */}
-          {mode === "login" && !forgotMode && (
+          {mode === "login" && !forgotMode && showRoleSelector && (
             <div className="mb-6">
               <p className="text-xs font-medium text-muted-foreground mb-3 text-center uppercase tracking-wider">I am a</p>
               <div className="grid grid-cols-4 gap-2">
@@ -266,11 +270,15 @@ const AuthPage = () => {
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : forgotMode ? (
                   "Send Reset Link"
-                ) : mode === "login" ? (
-                  <span className="flex items-center gap-2">
-                    Sign In as {activeRole.label}
-                    <activeRole.icon className="w-4 h-4" />
-                  </span>
+                 ) : mode === "login" ? (
+                   showRoleSelector ? (
+                     <span className="flex items-center gap-2">
+                       Sign In as {activeRole.label}
+                       <activeRole.icon className="w-4 h-4" />
+                     </span>
+                   ) : (
+                     "Sign In"
+                   )
                 ) : (
                   "Create Account"
                 )}
