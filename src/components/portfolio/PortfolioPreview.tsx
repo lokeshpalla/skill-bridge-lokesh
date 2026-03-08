@@ -30,7 +30,8 @@ interface Project {
 interface PortfolioPreviewProps {
   profile: Profile;
   projects: Project[];
-  onBack: () => void;
+  onBack?: () => void;
+  shareUserId?: string;
 }
 
 const PortfolioPreview = ({ profile, projects, onBack }: PortfolioPreviewProps) => {
