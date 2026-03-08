@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, Clock, Calendar, MessageCircle } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const mentors = [
   { id: 1, name: "Sarah Chen", role: "Senior Engineer @ Google", skills: ["React", "System Design", "TypeScript"], rating: 4.9, sessions: 234, price: "$60/hr", avatar: "👩‍💻", available: true },
@@ -12,6 +14,7 @@ const mentors = [
 ];
 
 const MentorsPage = () => {
+  const [booked, setBooked] = useState<Set<number>>(new Set());
   return (
     <div className="min-h-screen py-8">
       <div className="container">
@@ -56,12 +59,16 @@ const MentorsPage = () => {
               </div>
 
               <Button
-                variant={mentor.available ? "hero" : "secondary"}
+                variant={booked.has(mentor.id) ? "secondary" : mentor.available ? "hero" : "secondary"}
                 className="w-full"
                 size="sm"
-                disabled={!mentor.available}
+                disabled={!mentor.available || booked.has(mentor.id)}
+                onClick={() => {
+                  setBooked(prev => new Set(prev).add(mentor.id));
+                  toast({ title: "📅 Session Booked!", description: `Your session with ${mentor.name} has been scheduled.` });
+                }}
               >
-                {mentor.available ? (
+                {booked.has(mentor.id) ? "✓ Booked" : mentor.available ? (
                   <><Calendar className="w-3 h-3" /> Book Session</>
                 ) : "Unavailable"}
               </Button>

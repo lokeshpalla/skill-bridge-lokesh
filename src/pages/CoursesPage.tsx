@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { BookOpen, Clock, Users, Star, Play, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const courses = [
   { id: 1, title: "React & TypeScript Masterclass", category: "Web Dev", difficulty: "Intermediate", duration: "12h", enrolled: 2340, rating: 4.8, modules: 24, image: "🚀", progress: 65 },
@@ -22,6 +23,7 @@ const difficultyColor: Record<string, string> = {
 
 const CoursesPage = () => {
   const [activeCategory, setActiveCategory] = useState("All");
+  const navigate = useNavigate();
   const filtered = activeCategory === "All" ? courses : courses.filter(c => c.category === activeCategory);
 
   return (
@@ -56,6 +58,7 @@ const CoursesPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               className="glass-hover rounded-xl overflow-hidden group cursor-pointer"
+              onClick={() => navigate(`/courses/${course.id}`)}
             >
               {/* Card header */}
               <div className="h-32 bg-gradient-card flex items-center justify-center text-5xl relative">

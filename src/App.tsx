@@ -9,6 +9,7 @@ import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/Dashboard";
 import CoursesPage from "./pages/CoursesPage";
 import CodingPage from "./pages/CodingPage";
+import CourseDetail from "./pages/CourseDetail";
 import MentorsPage from "./pages/MentorsPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import InternshipsPage from "./pages/InternshipsPage";
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/courses/:id" element={<CourseDetail />} />
             <Route path="/coding" element={<CodingPage />} />
             <Route path="/mentors" element={<MentorsPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />

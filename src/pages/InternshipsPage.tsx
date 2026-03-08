@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Building2, ExternalLink, Sparkles, CheckCircle } from "lucide-react";
 import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 const internships = [
   { id: 1, title: "Frontend Engineer Intern", company: "Google", location: "Remote", duration: "3 months", skills: ["React", "TypeScript", "CSS"], match: 95, applied: false, logo: "🔵" },
@@ -15,8 +16,9 @@ const internships = [
 const InternshipsPage = () => {
   const [apps, setApps] = useState<Set<number>>(new Set(internships.filter(i => i.applied).map(i => i.id)));
 
-  const handleApply = (id: number) => {
+  const handleApply = (id: number, company: string) => {
     setApps(prev => new Set(prev).add(id));
+    toast({ title: "🚀 Application Submitted!", description: `Your application to ${company} has been sent.` });
   };
 
   return (
@@ -68,7 +70,7 @@ const InternshipsPage = () => {
                 size="sm"
                 className="w-full"
                 disabled={apps.has(intern.id)}
-                onClick={() => handleApply(intern.id)}
+                onClick={() => handleApply(intern.id, intern.company)}
               >
                 {apps.has(intern.id) ? (
                   <><CheckCircle className="w-3 h-3" /> Applied</>
