@@ -168,7 +168,7 @@ const Index = () => {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section className="py-24 bg-muted/20 border-y border-border/30">
+      <section className="py-24 bg-muted/20 border-y border-border/30" aria-label="How it works">
         <div className="container">
           <motion.div {...fadeUp} className="text-center mb-16">
             <span className="text-xs text-primary uppercase tracking-widest font-medium">Process</span>
