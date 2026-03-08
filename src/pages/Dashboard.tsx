@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
+import { DashboardSkeleton } from "@/components/ui/loading-skeletons";
 
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -35,6 +37,14 @@ const Dashboard = () => {
   const [recentActivity, setRecentActivity] = useState<RecentItem[]>([]);
   const [weeklyXp, setWeeklyXp] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
   const [loading, setLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check if user needs onboarding (no skills set yet)
+  useEffect(() => {
+    if (profile && (!profile.skills || profile.skills.length === 0) && !profile.bio) {
+      setShowOnboarding(true);
+    }
+  }, [profile]);
 
   const xp = profile?.xp ?? 0;
   const streak = profile?.streak ?? 0;
@@ -165,6 +175,14 @@ const Dashboard = () => {
     { icon: Code2, label: "Solved", value: String(solvedCount), change: solvedCount > 0 ? `${solvedCount}` : "—", up: solvedCount > 0, accent: "text-success" },
     { icon: Award, label: "Rank", value: `#${rank}`, change: rank > 0 ? `#${rank}` : "—", up: rank > 0, accent: "text-accent" },
   ];
+
+  if (showOnboarding) {
+    return <OnboardingFlow onComplete={() => setShowOnboarding(false)} />;
+  }
+
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
