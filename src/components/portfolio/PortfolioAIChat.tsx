@@ -19,12 +19,25 @@ interface Message {
 
 interface PortfolioAIChatProps {
   portfolioContext: PortfolioContext;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/portfolio-ai`;
 
-const PortfolioAIChat = ({ portfolioContext }: PortfolioAIChatProps) => {
+const PortfolioAIChat = ({ portfolioContext, externalOpen, onExternalOpenChange }: PortfolioAIChatProps) => {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (externalOpen !== undefined) {
+      setOpen(externalOpen);
+    }
+  }, [externalOpen]);
+
+  const handleOpenChange = (val: boolean) => {
+    setOpen(val);
+    onExternalOpenChange?.(val);
+  };
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
