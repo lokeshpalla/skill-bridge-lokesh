@@ -62,14 +62,10 @@ const InternshipsPage = () => {
     setLoading(false);
   };
 
-  const applyToInternship = (intern: Internship) => {
-    if (intern.apply_url) {
-      window.open(intern.apply_url, "_blank", "noopener,noreferrer");
-    } else {
-      // Fallback: search for the internship on Google
-      const query = encodeURIComponent(`${intern.company} ${intern.title} internship apply`);
-      window.open(`https://www.google.com/search?q=${query}`, "_blank", "noopener,noreferrer");
-    }
+  const getApplyUrl = (intern: Internship) => {
+    if (intern.apply_url) return intern.apply_url;
+    const query = encodeURIComponent(`${intern.company} ${intern.title} internship apply`);
+    return `https://www.google.com/search?q=${query}`;
   };
 
   const filtered = internships.filter(i => {
