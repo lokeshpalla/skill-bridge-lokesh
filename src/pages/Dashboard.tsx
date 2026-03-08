@@ -218,35 +218,46 @@ const Dashboard = () => {
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
-      {/* Header */}
+      {/* Student Header Banner */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        className="rounded-2xl p-6 relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, hsl(187 100% 50% / 0.12), hsl(262 80% 60% / 0.08))" }}
       >
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{greeting()}, {displayName} 👋</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {streak > 0 ? "Keep up the streak! You're on fire." : "Start solving problems to build your streak!"}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm px-4 py-2">
-            <Clock className="w-4 h-4 text-primary" />
-            <div className="text-right">
-              <p className="text-sm font-semibold tabular-nums">
-                {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-              </p>
-              <p className="text-[10px] text-muted-foreground">
-                {currentTime.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
-              </p>
+        <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-accent/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-primary/80">Student Dashboard</span>
             </div>
+            <h1 className="text-2xl font-bold tracking-tight">{greeting()}, {displayName} 👋</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {streak > 0 ? "Keep up the streak! You're on fire." : "Start solving problems to build your streak!"}
+            </p>
           </div>
-          <Link to="/coding">
-            <Button variant="hero" size="sm" className="gap-1.5">
-              <Zap className="w-3.5 h-3.5" /> Daily Challenge
-            </Button>
-          </Link>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-card/60 backdrop-blur-sm px-4 py-2">
+              <Clock className="w-4 h-4 text-primary" />
+              <div className="text-right">
+                <p className="text-sm font-semibold tabular-nums">
+                  {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {currentTime.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              </div>
+            </div>
+            <Link to="/coding">
+              <Button variant="hero" size="sm" className="gap-1.5">
+                <Zap className="w-3.5 h-3.5" /> Daily Challenge
+              </Button>
+            </Link>
+          </div>
         </div>
       </motion.div>
 
