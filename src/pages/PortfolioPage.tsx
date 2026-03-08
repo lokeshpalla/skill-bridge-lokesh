@@ -86,6 +86,17 @@ const PortfolioPage = () => {
     );
   }
 
+  const portfolioContext = {
+    display_name: profile?.display_name || "",
+    bio: profile?.bio || null,
+    skills: profile?.skills || [],
+    projects: projects.map(p => ({
+      title: p.title,
+      description: p.description,
+      tech_stack: p.tech_stack,
+    })),
+  };
+
   return (
     <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
       {previewMode && profile ? (
@@ -106,6 +117,7 @@ const PortfolioPage = () => {
           userId={user?.id}
         />
       )}
+      <PortfolioAIChat portfolioContext={portfolioContext} />
     </div>
   );
 };
