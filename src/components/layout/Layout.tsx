@@ -8,11 +8,13 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 
-const publicRoutes = ["/", "/auth"];
+const publicRoutes = ["/", "/auth", "/reset-password"];
+const hideNavbarRoutes = ["/auth", "/reset-password", "/"];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const isPublic = publicRoutes.includes(location.pathname) || location.pathname === "*";
+  const hideNavbar = hideNavbarRoutes.includes(location.pathname);
   const is404 = !publicRoutes.includes(location.pathname) && ![
     "/dashboard", "/courses", "/coding", "/mentors",
     "/leaderboard", "/internships", "/portfolio", "/achievements",
