@@ -180,35 +180,31 @@ const CodingPage = () => {
         parts.push(`\n⏱ Runtime: ${elapsed}ms | Language: ${language.label}`);
         setOutput(parts.join('\n\n'));
 
-        // Record activity & save submission on successful run
+        // Record activity & track solved problems
         if (user && !String(execResult?.result).startsWith('❌')) {
           const diffXp: Record<string, number> = { Easy: 20, Medium: 40, Hard: 80 };
           const baseXp = diffXp[selected.difficulty] ?? 30;
           const minutesSpent = Math.floor(timer / 60);
-          const runtimeMs = Math.round(parseFloat(elapsed));
 
-          // Save submission as accepted
-          supabase.from("coding_submissions").insert([{
-            user_id: user.id,
-            problem_id: selected.id,
-            code,
-            language: language.id,
-            status: "accepted",
-            xp_earned: baseXp,
-            runtime_ms: runtimeMs,
-          }]).then(() => {
-            // Update streak & XP
-            supabase.rpc("record_activity", {
-              _user_id: user.id,
-              _xp_amount: baseXp,
-              _minutes_spent: minutesSpent,
-            }).then(({ data }) => {
-              const result = data as { xp_earned: number; new_streak: number; streak_increased: boolean } | null;
-              if (result) {
-                const streakMsg = result.streak_increased ? ` | 🔥 Streak: ${result.new_streak}` : "";
-                toast({ title: "🎉 Problem Solved!", description: `+${result.xp_earned} XP${streakMsg}` });
-              }
-            });
+          // Track solved problems locally
+          const solvedKey = `solved_problems_${user.id}`;
+          const solved: number[] = JSON.parse(localStorage.getItem(solvedKey) || "[]");
+          if (!solved.includes(selected.id)) {
+            solved.push(selected.id);
+            localStorage.setItem(solvedKey, JSON.stringify(solved));
+          }
+
+          // Update streak & XP
+          supabase.rpc("record_activity", {
+            _user_id: user.id,
+            _xp_amount: baseXp,
+            _minutes_spent: minutesSpent,
+          }).then(({ data }) => {
+            const result = data as { xp_earned: number; new_streak: number; streak_increased: boolean } | null;
+            if (result) {
+              const streakMsg = result.streak_increased ? ` | 🔥 Streak: ${result.new_streak}` : "";
+              toast({ title: "🎉 Problem Solved!", description: `+${result.xp_earned} XP${streakMsg}` });
+            }
           });
         }
       } catch (e) {
