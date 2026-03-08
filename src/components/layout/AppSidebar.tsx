@@ -38,6 +38,7 @@ const socialItems = [
   { title: "Community", url: "/community", icon: MessageSquare },
   { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
   { title: "Achievements", url: "/achievements", icon: Award },
+  { title: "Certificates", url: "/certificates", icon: Award },
 ];
 
 const careerItems = [
