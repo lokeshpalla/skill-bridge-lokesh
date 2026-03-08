@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Lock, IndianRupee, Clock, CheckCircle, Loader2 } from "lucide-react";
+import { Lock, IndianRupee, Clock, CheckCircle, Loader2, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,10 +7,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 const PLATFORM_FEE = 499; // ₹499/month
+const FREE_TRIAL_DAYS = 10;
 
 export default function SubscriptionGate({ children }: { children: React.ReactNode }) {
   const { isActive, subscription, loading, requestSubscription } = useSubscription();
-  const { roles, rolesLoading } = useAuth();
+  const { roles, rolesLoading, profile } = useAuth();
   const [requesting, setRequesting] = useState(false);
 
   if (loading || rolesLoading) {
@@ -25,6 +26,29 @@ export default function SubscriptionGate({ children }: { children: React.ReactNo
   const isNonStudent = roles.some(r => ["admin", "mentor", "recruiter"].includes(r));
   if (isNonStudent || isActive) {
     return <>{children}</>;
+  }
+
+  // Free trial: allow access for first 10 days after account creation
+  const createdAt = profile?.created_at ? new Date(profile.created_at) : null;
+  const now = new Date();
+  const daysSinceCreation = createdAt ? Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)) : FREE_TRIAL_DAYS + 1;
+  const trialDaysLeft = Math.max(0, FREE_TRIAL_DAYS - daysSinceCreation);
+  const isInTrial = trialDaysLeft > 0;
+
+  if (isInTrial) {
+    return (
+      <>
+        <div className="mx-4 lg:mx-6 mb-4">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 flex items-center gap-3">
+            <Gift className="w-5 h-5 text-primary flex-shrink-0" />
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">Free trial:</span> {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''} remaining. Subscribe to continue after trial ends.
+            </p>
+          </div>
+        </div>
+        {children}
+      </>
+    );
   }
 
   const isPending = subscription?.status === "pending";
