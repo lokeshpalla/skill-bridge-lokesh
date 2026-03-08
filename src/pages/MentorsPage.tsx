@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Star, Calendar, MessageCircle, Search, Clock, IndianRupee } from "lucide-react";
+import { Star, Calendar, MessageCircle, Search, Clock, IndianRupee, VideoIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
