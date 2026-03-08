@@ -22,7 +22,7 @@ interface Internship {
   skills_required: string[];
   logo_emoji: string | null;
   created_at: string;
-  applied?: boolean;
+  apply_url: string | null;
 }
 
 const externalPlatforms = [
