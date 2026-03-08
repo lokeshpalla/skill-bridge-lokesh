@@ -211,18 +211,28 @@ const RecruiterDashboard = () => {
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-primary" /> Recruiter Dashboard
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage postings, pipeline, interviews & analytics</p>
-        </div>
-        <Dialog open={showPostDialog} onOpenChange={setShowPostDialog}>
-          <DialogTrigger asChild>
-            <Button variant="hero" size="sm" className="gap-1.5"><Plus className="w-3.5 h-3.5" /> Post Internship</Button>
-          </DialogTrigger>
+      {/* Recruiter Header Banner */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl p-6 relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, hsl(152 69% 45% / 0.12), hsl(170 60% 40% / 0.08))" }}
+      >
+        <div className="absolute top-0 right-0 w-48 h-48 bg-success/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-success/3 rounded-full translate-y-1/2 -translate-x-1/2" />
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-8 h-8 rounded-lg bg-success/20 flex items-center justify-center">
+                <Building2 className="w-4 h-4 text-success" />
+              </div>
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-success/80">Recruiter Dashboard</span>
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight">Talent Acquisition Hub</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Manage postings, pipeline, interviews & analytics</p>
+          </div>
+          <Dialog open={showPostDialog} onOpenChange={setShowPostDialog}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-1.5 bg-success text-success-foreground hover:bg-success/90"><Plus className="w-3.5 h-3.5" /> Post Internship</Button>
+            </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader><DialogTitle>Post New Internship</DialogTitle></DialogHeader>
             <div className="space-y-3 mt-2">
