@@ -1472,6 +1472,7 @@ export type Database = {
         Args: { _minutes_spent?: number; _user_id: string; _xp_amount: number }
         Returns: Json
       }
+      register_as_mentor: { Args: { _user_id: string }; Returns: boolean }
       restore_streak: { Args: { _user_id: string }; Returns: Json }
     }
     Enums: {
