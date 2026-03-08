@@ -167,14 +167,18 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(222 47% 6%);
+  background: hsl(var(--background));
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(222 30% 20%);
+  background: hsl(var(--border));
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(187 100% 50% / 0.5);
+  background: hsl(var(--primary) / 0.5);
+}
+
+.light .glass {
+  @apply bg-card/90 backdrop-blur-xl border border-border/60;
 }
 
 /* Animations */
