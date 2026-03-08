@@ -27,6 +27,7 @@ import AdminPage from "./pages/AdminPage";
 import RoomsPage from "./pages/RoomsPage";
 import LiveRoomPage from "./pages/LiveRoomPage";
 import TeamMatchingPage from "./pages/TeamMatchingPage";
+import TeamProjectRepoPage from "./pages/TeamProjectRepoPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import PublicPortfolioPage from "./pages/PublicPortfolioPage";
 import CertificatesPage from "./pages/CertificatesPage";
