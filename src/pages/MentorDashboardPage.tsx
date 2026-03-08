@@ -132,7 +132,7 @@ const MentorDashboardPage = () => {
       company: editForm.company,
       skills: editForm.skills.split(",").map((s: string) => s.trim()).filter(Boolean),
       hourly_rate: parseInt(editForm.hourly_rate) || 0,
-      availability_slots: editForm.slots.split(",").map((s: string) => s.trim()).filter(Boolean),
+      availability_slots: slotsToStrings(editForm.calendarSlots || []),
       available: editForm.available,
     }).eq("user_id", user.id);
     if (error) { toast.error("Failed to save"); return; }
