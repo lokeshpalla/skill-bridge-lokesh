@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
 } from "@/components/ui/dialog";
-import MentorAvailabilityCalendar, { AvailabilitySlot, stringsToSlots, slotsToStrings } from "@/components/mentors/MentorAvailabilityCalendar";
+import MentorAvailabilityCalendar, { AvailabilitySlot, stringsToSlots, slotsToStrings, WeeklyPattern, weeklyPatternToString, generateSlotsFromPattern } from "@/components/mentors/MentorAvailabilityCalendar";
 import { format } from "date-fns";
 
 interface MentorProfile {
