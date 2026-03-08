@@ -41,6 +41,7 @@ interface PortfolioFormProps {
   onDelete: (id: string) => Promise<void>;
   onPreview: () => void;
   saving: boolean;
+  userId?: string;
 }
 
 export interface ProjectForm {
