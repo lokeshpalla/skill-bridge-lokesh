@@ -107,9 +107,12 @@ export default function AdminPage() {
   const tabs = [
     ["overview", "📊 Overview", Shield],
     ["users", "👥 Users", UserCog],
+    ["courses", "📚 Courses", GraduationCap],
+    ["mentors", "👨‍🏫 Mentors", Users],
     ["moderation", "🛡️ Moderation", AlertTriangle],
     ["payouts", "💰 Payouts", IndianRupee],
     ["analytics", "📈 Analytics", TrendingUp],
+    ["announcements", "📢 Announcements", Megaphone],
   ] as const;
 
   return (
