@@ -8,7 +8,7 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 
-const publicRoutes = ["/", "/auth", "/reset-password"];
+const publicRoutes = ["/", "/auth", "/reset-password", "/landing"];
 const hideNavbarRoutes = ["/auth", "/reset-password", "/"];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
