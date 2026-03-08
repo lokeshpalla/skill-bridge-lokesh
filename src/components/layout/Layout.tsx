@@ -27,7 +27,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <a href="#main-content" className="skip-to-content">
           Skip to main content
         </a>
-        <Navbar />
+        {!hideNavbar && <Navbar />}
         <AnimatePresence mode="wait">
           <motion.main
             id="main-content"
