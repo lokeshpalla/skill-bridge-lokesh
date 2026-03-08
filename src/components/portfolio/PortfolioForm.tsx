@@ -52,12 +52,21 @@ export interface ProjectForm {
   live_url: string;
 }
 
-const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, saving }: PortfolioFormProps) => {
+const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, saving, userId }: PortfolioFormProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [form, setForm] = useState<ProjectForm>({
     title: "", description: "", tech_stack: "", github_url: "", live_url: "",
   });
+
+  const handleShareLink = async () => {
+    if (!userId) return;
+    const url = `${window.location.origin}/portfolio/${userId}`;
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const openCreate = () => {
     setEditingId(null);
