@@ -58,11 +58,12 @@ export function AppSidebar() {
   const [isMentor, setIsMentor] = useState(false);
 
   useEffect(() => {
-    if (!user) { setIsAdmin(false); setIsRecruiter(false); return; }
+    if (!user) { setIsAdmin(false); setIsRecruiter(false); setIsMentor(false); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id)
       .then(({ data }) => {
         setIsAdmin(!!(data && data.some((r: any) => r.role === "admin")));
         setIsRecruiter(!!(data && data.some((r: any) => r.role === "recruiter" || r.role === "admin")));
+        setIsMentor(!!(data && data.some((r: any) => r.role === "mentor")));
       });
   }, [user]);
 
