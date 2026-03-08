@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import PortfolioForm, { type ProjectForm } from "@/components/portfolio/PortfolioForm";
 import PortfolioPreview from "@/components/portfolio/PortfolioPreview";
+import PortfolioAIChat from "@/components/portfolio/PortfolioAIChat";
 
 interface PortfolioProject {
   id: string;
