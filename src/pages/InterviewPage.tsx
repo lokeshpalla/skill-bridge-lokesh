@@ -67,6 +67,73 @@ const InterviewPage = () => {
     return `${m}:${String(s % 60).padStart(2, "0")}`;
   };
 
+  // Speech Recognition (mic)
+  const toggleMic = useCallback(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Speech recognition not supported in this browser");
+      return;
+    }
+
+    if (isRecording && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let transcript = "";
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setInput(transcript);
+    };
+
+    recognition.onerror = () => {
+      setIsRecording(false);
+      toast.error("Mic error — please try again");
+    };
+
+    recognition.onend = () => setIsRecording(false);
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsRecording(true);
+  }, [isRecording]);
+
+  // Auto-speak: read assistant responses aloud
+  const speakText = useCallback((text: string) => {
+    if (!autoSpeak || !text) return;
+    // Strip markdown formatting for cleaner speech
+    const clean = text.replace(/[#*_`~\[\]()>]/g, "").replace(/\n+/g, ". ");
+    if (clean === lastSpokenRef.current) return;
+    lastSpokenRef.current = clean;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(clean);
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+  }, [autoSpeak]);
+
+  // Speak when a new assistant message is finalized
+  useEffect(() => {
+    if (!autoSpeak || isLoading) return;
+    const last = messages[messages.length - 1];
+    if (last?.role === "assistant") {
+      speakText(last.content);
+    }
+  }, [messages, isLoading, autoSpeak, speakText]);
+
+  // Stop speech when auto-speak is disabled
+  useEffect(() => {
+    if (!autoSpeak) window.speechSynthesis.cancel();
+  }, [autoSpeak]);
+
   const startInterview = async () => {
     if (!user) return toast.error("Sign in to start an interview");
 
