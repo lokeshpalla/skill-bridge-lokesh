@@ -268,7 +268,15 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
       </div>
 
       <div className="p-5">
-        <h3 className="text-sm font-semibold mb-4">{q.question}</h3>
+        <h3 className="text-sm font-semibold mb-3">{q.question}</h3>
+        {q.codeSnippet && (
+          <pre
+            className="mb-4 p-3 rounded-lg bg-[#0a0f1a] border border-border/30 overflow-x-auto text-[12px] leading-relaxed"
+            style={{ fontFamily: "'JetBrains Mono', monospace", color: "#a5b4fc" }}
+          >
+            <code>{q.codeSnippet}</code>
+          </pre>
+        )}
         <div className="space-y-2">
           {q.options.map((opt, i) => (
             <button
