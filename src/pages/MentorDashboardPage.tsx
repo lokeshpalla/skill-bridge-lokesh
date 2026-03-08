@@ -267,7 +267,7 @@ const MentorDashboardPage = () => {
                 {b.status === "confirmed" && (
                   <div className="flex gap-2 mt-3 pt-2 border-t border-border/30">
                     <Button variant="outline" size="sm" className="h-7 text-xs gap-1"
-                      onClick={() => navigate(`/mentor-session?mentor=You&slot=${new Date(b.scheduled_at).toLocaleString()}`)}>
+                      onClick={() => navigate(`/mentor-session?mentor=You&slot=${new Date(b.scheduled_at).toLocaleString()}&booking=${b.id}`)}>
                       <VideoIcon className="w-3 h-3" /> Start Session
                     </Button>
                     <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={() => updateBookingStatus(b.id, "completed")}>

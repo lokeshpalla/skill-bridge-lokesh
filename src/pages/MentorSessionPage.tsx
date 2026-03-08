@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useWebRTC } from "@/hooks/useWebRTC";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,7 +12,7 @@ import {
 import {
   Mic, MicOff, VideoIcon, VideoOff, Monitor, MonitorOff,
   Phone, Send, MessageSquare, Users, Clock, Code2,
-  Hand, Play, Copy, Check, Save, Terminal
+  Hand, Play, Copy, Check, Save, Terminal, Wifi, WifiOff
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -34,10 +35,11 @@ const LANG_TEMPLATES: Record<string, string> = {
 export default function MentorSessionPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
 
   const mentorName = searchParams.get("mentor") || "Mentor";
   const slot = searchParams.get("slot") || "";
+  const bookingId = searchParams.get("booking") || "session";
 
   const [isMicOn, setIsMicOn] = useState(true);
   const [isVideoOn, setIsVideoOn] = useState(true);
@@ -57,30 +59,47 @@ export default function MentorSessionPage() {
   const [saved, setSaved] = useState(false);
   const [customInput, setCustomInput] = useState("");
   const [output, setOutput] = useState("");
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const [connectionState, setConnectionState] = useState("new");
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+
+  const handleRemoteStream = useCallback((stream: MediaStream) => {
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = stream;
+    }
+  }, []);
+
+  const { isConnected, startCall, endCall: endWebRTC, toggleAudio, toggleVideo } = useWebRTC({
+    roomId: bookingId,
+    userId: user?.id || "anonymous",
+    onRemoteStream: handleRemoteStream,
+    onConnectionState: setConnectionState,
+  });
+
+  // Start video call on mount
+  useEffect(() => {
+    const init = async () => {
+      const stream = await startCall(true, true);
+      if (stream && localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+    };
+    if (user) init();
+  }, [user]);
 
   useEffect(() => {
     const interval = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(interval);
   }, []);
 
+  // Sync audio/video toggles
   useEffect(() => {
-    if (isVideoOn) {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: isMicOn }).then((stream) => {
-        streamRef.current = stream;
-        if (videoRef.current) videoRef.current.srcObject = stream;
-      }).catch(() => {});
-    } else {
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      if (videoRef.current) videoRef.current.srcObject = null;
-    }
-    return () => { streamRef.current?.getTracks().forEach((t) => t.stop()); };
-  }, [isVideoOn]);
+    toggleAudio(isMicOn);
+  }, [isMicOn, toggleAudio]);
 
   useEffect(() => {
-    streamRef.current?.getAudioTracks().forEach((t) => (t.enabled = isMicOn));
-  }, [isMicOn]);
+    toggleVideo(isVideoOn);
+  }, [isVideoOn, toggleVideo]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -99,7 +118,7 @@ export default function MentorSessionPage() {
   };
 
   const endCall = () => {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
+    endWebRTC();
     navigate("/mentors");
   };
 
@@ -174,6 +193,12 @@ export default function MentorSessionPage() {
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+            isConnected ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
+          }`}>
+            {isConnected ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
+            {isConnected ? "Connected" : "Waiting..."}
+          </div>
           <span className="text-xs text-muted-foreground font-mono">{formatTime(elapsed)}</span>
           <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
         </div>
@@ -183,18 +208,28 @@ export default function MentorSessionPage() {
         {/* Main video area */}
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 p-4 grid grid-cols-2 gap-3">
-            {/* Mentor video */}
+            {/* Remote video (Mentor/Other participant) */}
             <div className="rounded-2xl bg-secondary/30 border border-border/30 flex items-center justify-center relative overflow-hidden">
-              <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-4xl">👨‍🏫</div>
+              {isConnected ? (
+                <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover rounded-2xl" />
+              ) : (
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-4xl">👨‍🏫</div>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <WifiOff className="w-3 h-3" /> Waiting for {mentorName} to join...
+                  </div>
+                </div>
+              )}
               <div className="absolute bottom-3 left-3 bg-background/80 backdrop-blur-sm rounded-lg px-2.5 py-1 text-[11px] font-medium flex items-center gap-1.5">
-                <Mic className="w-3 h-3 text-success" /> {mentorName}
+                {isConnected ? <Wifi className="w-3 h-3 text-success" /> : <WifiOff className="w-3 h-3 text-muted-foreground" />}
+                {mentorName}
               </div>
             </div>
 
             {/* Your video */}
             <div className="rounded-2xl bg-secondary/30 border border-border/30 flex items-center justify-center relative overflow-hidden">
               {isVideoOn ? (
-                <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover rounded-2xl" />
+                <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover rounded-2xl" />
               ) : (
                 <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-4xl">🧑‍💻</div>
               )}
