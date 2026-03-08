@@ -43,8 +43,9 @@ const MentorDashboardPage = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"bookings" | "reviews" | "analytics" | "settings">("bookings");
+  const [tab, setTab] = useState<"bookings" | "reviews" | "earnings" | "analytics" | "settings">("bookings");
   const [editForm, setEditForm] = useState<any>(null);
+  const [payments, setPayments] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) fetchData();
@@ -104,6 +105,14 @@ const MentorDashboardPage = () => {
       })));
     }
 
+    // Fetch payments
+    const { data: pays } = await supabase
+      .from("mentor_payments")
+      .select("*")
+      .eq("mentor_id", user.id)
+      .order("created_at", { ascending: false });
+    if (pays) setPayments(pays);
+
     setLoading(false);
   };
 
@@ -148,12 +157,15 @@ const MentorDashboardPage = () => {
   const pending = bookings.filter(b => b.status === "pending");
   const confirmed = bookings.filter(b => b.status === "confirmed");
   const completed = bookings.filter(b => b.status === "completed");
-  const totalEarnings = completed.length * (mentorProfile.hourly_rate || 0);
+  const totalEarnings = mentorProfile.total_earnings || 0;
+  const paidEarnings = payments.filter(p => p.status === "paid").reduce((s: number, p: any) => s + Number(p.amount), 0);
+  const pendingEarnings = payments.filter(p => p.status === "pending").reduce((s: number, p: any) => s + Number(p.amount), 0);
   const avgRating = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : "—";
 
   const tabs = [
     ["bookings", `📅 Bookings (${pending.length} pending)`],
     ["reviews", `⭐ Reviews (${reviews.length})`],
+    ["earnings", `💰 Earnings (${payments.length})`],
     ["analytics", "📊 Analytics"],
     ["settings", "⚙️ Settings"],
   ] as const;
@@ -307,6 +319,44 @@ const MentorDashboardPage = () => {
                 </div>
                 {r.review && <p className="text-xs text-muted-foreground mt-2">"{r.review}"</p>}
                 <p className="text-[10px] text-muted-foreground mt-1">{new Date(r.created_at).toLocaleDateString()}</p>
+              </motion.div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Earnings Tab */}
+      {tab === "earnings" && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { label: "Total Earnings", value: formatRupees(totalEarnings), color: "text-warning" },
+              { label: "Paid Out", value: formatRupees(paidEarnings), color: "text-green-500" },
+              { label: "Pending Payout", value: formatRupees(pendingEarnings), color: "text-yellow-500" },
+            ].map(s => (
+              <div key={s.label} className="rounded-xl border border-border/50 bg-card/60 p-4">
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{s.label}</span>
+                <div className={`text-xl font-bold mt-1 ${s.color}`}>{s.value}</div>
+              </div>
+            ))}
+          </div>
+          {payments.length === 0 ? (
+            <div className="text-center py-16 rounded-xl border border-border/50 bg-card/60">
+              <IndianRupee className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+              <h3 className="text-sm font-medium mb-1">No earnings yet</h3>
+              <p className="text-xs text-muted-foreground">Complete sessions to start earning.</p>
+            </div>
+          ) : (
+            payments.map((p: any, i: number) => (
+              <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                className="rounded-xl border border-border/50 bg-card/60 p-4 flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-semibold">{formatRupees(Number(p.amount))}</div>
+                  <div className="text-[11px] text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</div>
+                </div>
+                <Badge variant={p.status === "paid" ? "default" : "secondary"} className="text-[10px]">
+                  {p.status === "paid" ? "✅ Paid" : "⏳ Pending"}
+                </Badge>
               </motion.div>
             ))
           )}

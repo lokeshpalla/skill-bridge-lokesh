@@ -5,11 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, BookOpen, Code2, Briefcase, MessageSquare, Brain, Trophy, TrendingUp, Shield, UserCog, AlertTriangle, Settings, Mail } from "lucide-react";
+import { Users, BookOpen, Code2, Briefcase, MessageSquare, Brain, Trophy, TrendingUp, Shield, UserCog, AlertTriangle, Settings, Mail, IndianRupee } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { motion } from "framer-motion";
 import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminModeration from "@/components/admin/AdminModeration";
+import AdminPayouts from "@/components/admin/AdminPayouts";
 
 interface AdminStats {
   overview: Record<string, number>;
@@ -39,7 +40,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [tab, setTab] = useState<"overview" | "users" | "moderation" | "analytics">("overview");
+  const [tab, setTab] = useState<"overview" | "users" | "moderation" | "analytics" | "payouts">("overview");
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -103,6 +104,7 @@ export default function AdminPage() {
     ["overview", "📊 Overview", Shield],
     ["users", "👥 Users", UserCog],
     ["moderation", "🛡️ Moderation", AlertTriangle],
+    ["payouts", "💰 Payouts", IndianRupee],
     ["analytics", "📈 Analytics", TrendingUp],
   ] as const;
 
@@ -218,6 +220,9 @@ export default function AdminPage() {
       {tab === "moderation" && (
         <AdminModeration posts={stats.recentPosts} comments={stats.recentComments} onRefresh={fetchStats} />
       )}
+
+      {/* Payouts Tab */}
+      {tab === "payouts" && <AdminPayouts />}
 
       {/* Analytics Tab */}
       {tab === "analytics" && (

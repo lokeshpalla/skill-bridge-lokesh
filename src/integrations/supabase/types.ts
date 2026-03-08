@@ -902,6 +902,53 @@ export type Database = {
         }
         Relationships: []
       }
+      mentor_payments: {
+        Row: {
+          amount: number
+          booking_id: string
+          created_at: string
+          id: string
+          mentor_id: string
+          notes: string | null
+          paid_at: string | null
+          payment_method: string | null
+          status: string
+          student_id: string
+        }
+        Insert: {
+          amount?: number
+          booking_id: string
+          created_at?: string
+          id?: string
+          mentor_id: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string
+          student_id: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string
+          created_at?: string
+          id?: string
+          mentor_id?: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_payments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "mentor_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mentor_profiles: {
         Row: {
           availability_slots: string[] | null
