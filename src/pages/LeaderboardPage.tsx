@@ -61,6 +61,7 @@ const LeaderboardPage = () => {
           streak: p.streak ?? 0,
           level: getLevel(p.xp ?? 0),
           avatar: getAvatar(i + 1),
+          avatar_url: p.avatar_url ?? null,
           user_id: p.user_id,
         }));
         setLeaderboard(mapped);
