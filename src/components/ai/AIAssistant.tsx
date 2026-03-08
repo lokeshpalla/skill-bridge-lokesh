@@ -229,24 +229,29 @@ const AIAssistant = () => {
   const speak = useCallback((text: string) => {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text.replace(/[*#`_~]/g, ""));
+    const cleanText = text.replace(/[*#`_~\[\]]/g, "");
+    const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = language;
-    utterance.rate = 0.95;
+    utterance.rate = 0.9;
 
-    // Find a voice matching the selected language
-    const voices = window.speechSynthesis.getVoices();
+    // Find the best voice for the selected language
     const langPrefix = language.split("-")[0]; // e.g. "hi" from "hi-IN"
     const matchedVoice =
       voices.find((v) => v.lang === language) ||
-      voices.find((v) => v.lang.startsWith(langPrefix)) ||
-      voices.find((v) => v.lang.startsWith("en"));
-    if (matchedVoice) utterance.voice = matchedVoice;
+      voices.find((v) => v.lang.replace("_", "-") === language) ||
+      voices.find((v) => v.lang.startsWith(langPrefix + "-")) ||
+      voices.find((v) => v.lang.startsWith(langPrefix));
+    
+    if (matchedVoice) {
+      utterance.voice = matchedVoice;
+      utterance.lang = matchedVoice.lang; // ensure lang matches the voice
+    }
 
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
     window.speechSynthesis.speak(utterance);
-  }, [language]);
+  }, [language, voices]);
 
   const stopSpeaking = useCallback(() => {
     window.speechSynthesis?.cancel();
