@@ -13,6 +13,7 @@ import CoursesPage from "./pages/CoursesPage";
 import CourseDetail from "./pages/CourseDetail";
 import CodingPage from "./pages/CodingPage";
 import MentorsPage from "./pages/MentorsPage";
+import MentorSessionPage from "./pages/MentorSessionPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import InternshipsPage from "./pages/InternshipsPage";
 import PortfolioPage from "./pages/PortfolioPage";
@@ -46,7 +47,8 @@ function AppRoutes() {
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<CourseDetail />} />
         <Route path="/coding" element={<CodingPage />} />
-        <Route path="/mentors" element={<MentorsPage />} />
+         <Route path="/mentors" element={<MentorsPage />} />
+          <Route path="/mentor-session" element={<MentorSessionPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/internships" element={<InternshipsPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />

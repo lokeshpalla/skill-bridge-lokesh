@@ -1,9 +1,13 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Star, Calendar, MessageCircle, Search, Clock, IndianRupee } from "lucide-react";
+import { Star, Calendar, MessageCircle, Search, Clock, IndianRupee, VideoIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
+} from "@/components/ui/dialog";
 
 const mentors = [
   { id: 1, name: "Sarah Chen", role: "Senior Engineer @ Google", skills: ["React", "System Design", "TypeScript"], rating: 4.9, sessions: 234, price: 4500, avatar: "👩‍💻", available: true, freeSlots: ["Mon 6–8 PM", "Wed 7–9 PM", "Sat 10 AM–12 PM"] },
@@ -17,13 +21,25 @@ const mentors = [
 const formatRupees = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
 
 const MentorsPage = () => {
+  const navigate = useNavigate();
   const [booked, setBooked] = useState<Set<number>>(new Set());
   const [search, setSearch] = useState("");
+  const [selectedMentor, setSelectedMentor] = useState<typeof mentors[0] | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
   const filtered = mentors.filter(m =>
     m.name.toLowerCase().includes(search.toLowerCase()) ||
     m.skills.some(s => s.toLowerCase().includes(search.toLowerCase()))
   );
+
+  const handleConfirmBooking = () => {
+    if (!selectedMentor || !selectedSlot) return;
+    setBooked(prev => new Set(prev).add(selectedMentor.id));
+    setSelectedMentor(null);
+    toast({ title: "📅 Session Booked!", description: `Joining session with ${selectedMentor.name}...` });
+    // Navigate to the video call
+    navigate(`/mentor-session?mentor=${encodeURIComponent(selectedMentor.name)}&slot=${encodeURIComponent(selectedSlot)}`);
+  };
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
@@ -97,8 +113,8 @@ const MentorsPage = () => {
               className="w-full h-8 text-xs"
               disabled={!mentor.available || booked.has(mentor.id)}
               onClick={() => {
-                setBooked(prev => new Set(prev).add(mentor.id));
-                toast({ title: "📅 Session Booked!", description: `Your session with ${mentor.name} has been scheduled.` });
+                setSelectedMentor(mentor);
+                setSelectedSlot(null);
               }}
             >
               {booked.has(mentor.id) ? "✓ Booked" : mentor.available ? <><Calendar className="w-3 h-3" /> Book Session</> : "Unavailable"}
@@ -106,6 +122,59 @@ const MentorsPage = () => {
           </motion.div>
         ))}
       </div>
+
+      {/* Slot picker dialog */}
+      <Dialog open={!!selectedMentor} onOpenChange={(open) => { if (!open) setSelectedMentor(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="text-2xl">{selectedMentor?.avatar}</span>
+              Book Session with {selectedMentor?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Select a time slot • {selectedMentor && formatRupees(selectedMentor.price)}/hr
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2 py-2">
+            <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5" /> Choose a time slot
+            </p>
+            <div className="grid grid-cols-1 gap-2">
+              {selectedMentor?.freeSlots.map((slot) => (
+                <button
+                  key={slot}
+                  onClick={() => setSelectedSlot(slot)}
+                  className={`text-left px-4 py-3 rounded-xl border text-sm transition-all ${
+                    selectedSlot === slot
+                      ? "border-primary bg-primary/10 text-primary font-medium ring-1 ring-primary/20"
+                      : "border-border/50 bg-card/60 hover:border-primary/30 text-foreground"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    {slot}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button variant="outline" className="flex-1" onClick={() => setSelectedMentor(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="hero"
+              className="flex-1 gap-1"
+              disabled={!selectedSlot}
+              onClick={handleConfirmBooking}
+            >
+              <VideoIcon className="w-4 h-4" /> Join Session
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
