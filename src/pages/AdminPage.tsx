@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, BookOpen, Code2, Briefcase, MessageSquare, Brain, Trophy, TrendingUp, Shield, UserCog, AlertTriangle, Settings, Mail } from "lucide-react";
+import { Users, BookOpen, Code2, Briefcase, MessageSquare, Brain, Trophy, TrendingUp, Shield, UserCog, AlertTriangle, Settings, Mail, IndianRupee } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { motion } from "framer-motion";
 import AdminUserManagement from "@/components/admin/AdminUserManagement";
