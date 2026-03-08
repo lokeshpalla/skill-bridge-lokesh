@@ -247,15 +247,20 @@ const MentorsPage = () => {
                 )}
               </div>
 
-              {mentor.availability_slots.length > 0 && (
+              {stringsToSlots(mentor.availability_slots).length > 0 && (
                 <div className="mb-4 p-2.5 rounded-lg bg-secondary/40 border border-border/30">
                   <p className="text-[10px] font-medium text-muted-foreground flex items-center gap-1 mb-1.5">
                     <Clock className="w-3 h-3" /> Available Slots
                   </p>
                   <div className="flex flex-wrap gap-1">
-                    {mentor.availability_slots.map(slot => (
-                      <span key={slot} className="text-[10px] px-2 py-0.5 rounded-md bg-background/80 border border-border/40 text-foreground">{slot}</span>
+                    {stringsToSlots(mentor.availability_slots).slice(0, 6).map(slot => (
+                      <span key={`${slot.date}-${slot.time}`} className="text-[10px] px-2 py-0.5 rounded-md bg-background/80 border border-border/40 text-foreground">
+                        {format(new Date(slot.date + "T00:00:00"), "MMM d")} · {slot.time}
+                      </span>
                     ))}
+                    {stringsToSlots(mentor.availability_slots).length > 6 && (
+                      <span className="text-[10px] px-2 py-0.5 text-muted-foreground">+{stringsToSlots(mentor.availability_slots).length - 6} more</span>
+                    )}
                   </div>
                 </div>
               )}
