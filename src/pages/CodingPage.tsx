@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Play, CheckCircle, Search, ChevronDown, RotateCcw, Timer, Lightbulb, Terminal, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { codingProblems, problemCategories, defaultHints, defaultDescriptions, CodingProblem } from "@/data/codingProblems";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
 
 const languages = [
   { id: "javascript", label: "JavaScript", icon: "JS", color: "text-warning" },
@@ -25,6 +28,7 @@ const diffColor: Record<string, string> = {
 const ITEMS_PER_PAGE = 50;
 
 const CodingPage = () => {
+  const { user } = useAuth();
   const [selected, setSelected] = useState<CodingProblem>(codingProblems[0]);
   const [language, setLanguage] = useState(languages[0]);
   const [showLangPicker, setShowLangPicker] = useState(false);
@@ -175,6 +179,24 @@ const CodingPage = () => {
         }
         parts.push(`\n⏱ Runtime: ${elapsed}ms | Language: ${language.label}`);
         setOutput(parts.join('\n\n'));
+
+        // Record activity: award XP based on difficulty + time spent
+        if (user && !String(execResult?.result).startsWith('❌')) {
+          const diffXp: Record<string, number> = { Easy: 20, Medium: 40, Hard: 80 };
+          const baseXp = diffXp[selected.difficulty] ?? 30;
+          const minutesSpent = Math.floor(timer / 60);
+          supabase.rpc("record_activity", {
+            _user_id: user.id,
+            _xp_amount: baseXp,
+            _minutes_spent: minutesSpent,
+          }).then(({ data }) => {
+            const result = data as { xp_earned: number; new_streak: number; streak_increased: boolean } | null;
+            if (result) {
+              const streakMsg = result.streak_increased ? ` | 🔥 Streak: ${result.new_streak}` : "";
+              toast({ title: "🎉 XP Earned!", description: `+${result.xp_earned} XP${streakMsg}` });
+            }
+          });
+        }
       } catch (e) {
         const elapsed = (performance.now() - startTime).toFixed(1);
         setOutput(`❌ Error:\n${(e as Error).message}\n\n⏱ Runtime: ${elapsed}ms`);

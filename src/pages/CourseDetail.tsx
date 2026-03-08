@@ -118,7 +118,7 @@ const CourseDetail = () => {
     setActiveModule(index);
   };
 
-  const handleCompleteModule = () => {
+  const handleCompleteModule = async () => {
     if (activeModule === null) return;
     const updated = [...modules];
     updated[activeModule] = { ...updated[activeModule], completed: true };
@@ -126,7 +126,25 @@ const CourseDetail = () => {
     // Persist to localStorage
     const completedIndices = updated.map((m, i) => m.completed ? i : -1).filter(i => i >= 0);
     localStorage.setItem(`course_progress_${id}`, JSON.stringify(completedIndices));
-    toast({ title: "✅ Module Completed!", description: `"${modules[activeModule].title}" marked as complete. +50 XP` });
+
+    // Parse module duration to estimate minutes spent
+    const durationStr = modules[activeModule].duration || "30min";
+    const minutesSpent = parseInt(durationStr) || 30;
+
+    // Record activity: award 50 base XP + time-based bonus, update streak
+    if (user) {
+      const { data } = await supabase.rpc("record_activity", {
+        _user_id: user.id,
+        _xp_amount: 50,
+        _minutes_spent: minutesSpent,
+      });
+      const result = data as { xp_earned: number; new_streak: number; streak_increased: boolean } | null;
+      const xpEarned = result?.xp_earned ?? 50;
+      const streakMsg = result?.streak_increased ? ` 🔥 Streak: ${result.new_streak} days!` : "";
+      toast({ title: "✅ Module Completed!", description: `"${modules[activeModule].title}" — +${xpEarned} XP${streakMsg}` });
+    } else {
+      toast({ title: "✅ Module Completed!", description: `"${modules[activeModule].title}" marked as complete.` });
+    }
     setActiveModule(null);
   };
 
