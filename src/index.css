@@ -145,16 +145,6 @@
     }
   }
 
-  /* Ensure minimum touch target size */
-  button, a, [role="button"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  /* Allow smaller targets inside dense UIs */
-  .dense-ui button, .dense-ui a {
-    min-height: unset;
-    min-width: unset;
-  }
 }
 
 @layer utilities {
