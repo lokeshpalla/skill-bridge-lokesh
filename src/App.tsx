@@ -41,6 +41,7 @@ const App = () => (
               <Route path="/internships" element={<InternshipsPage />} />
               <Route path="/portfolio" element={<PortfolioPage />} />
               <Route path="/achievements" element={<AchievementsPage />} />
+              <Route path="/community" element={<CommunityPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
