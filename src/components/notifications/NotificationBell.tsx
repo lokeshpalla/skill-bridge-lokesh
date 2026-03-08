@@ -156,7 +156,7 @@ export function NotificationBell() {
               {notifications.map((n) => (
                 <button
                   key={n.id}
-                  onClick={() => { markAsRead(n.id); if (n.link) window.location.href = n.link; }}
+                  onClick={() => { markAsRead(n.id); if (n.link) { setOpen(false); navigate(n.link); } }}
                   className={cn(
                     "w-full text-left p-3 hover:bg-muted/50 transition-colors flex gap-2.5",
                     !n.read && "bg-primary/5"
