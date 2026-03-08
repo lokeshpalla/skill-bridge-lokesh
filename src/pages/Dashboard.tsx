@@ -46,10 +46,10 @@ const Dashboard = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { icon: Zap, label: "Total XP", value: "4,820", change: "+320", up: true, accent: "text-primary" },
-          { icon: Flame, label: "Day Streak", value: "12", change: "Best!", up: true, accent: "text-warning" },
-          { icon: Code2, label: "Solved", value: "87", change: "+5", up: true, accent: "text-success" },
-          { icon: Award, label: "Rank", value: "#23", change: "Top 5%", up: true, accent: "text-accent" },
+          { icon: Zap, label: "Total XP", value: "0", change: "—", up: false, accent: "text-primary" },
+          { icon: Flame, label: "Day Streak", value: "0", change: "—", up: false, accent: "text-warning" },
+          { icon: Code2, label: "Solved", value: "0", change: "—", up: false, accent: "text-success" },
+          { icon: Award, label: "Rank", value: "#0", change: "—", up: false, accent: "text-accent" },
         ].map((stat, i) => {
           const Icon = stat.icon;
           return (
