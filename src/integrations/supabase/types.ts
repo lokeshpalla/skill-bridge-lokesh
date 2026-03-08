@@ -575,6 +575,42 @@ export type Database = {
         }
         Relationships: []
       }
+      learning_paths: {
+        Row: {
+          course_ids: string[] | null
+          created_at: string
+          description: string | null
+          difficulty: string
+          estimated_hours: number | null
+          icon_emoji: string | null
+          id: string
+          tags: string[] | null
+          title: string
+        }
+        Insert: {
+          course_ids?: string[] | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          estimated_hours?: number | null
+          icon_emoji?: string | null
+          id?: string
+          tags?: string[] | null
+          title: string
+        }
+        Update: {
+          course_ids?: string[] | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          estimated_hours?: number | null
+          icon_emoji?: string | null
+          id?: string
+          tags?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
       mentor_bookings: {
         Row: {
           created_at: string
@@ -883,6 +919,44 @@ export type Database = {
             columns: ["badge_id"]
             isOneToOne: false
             referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_learning_paths: {
+        Row: {
+          completed_at: string | null
+          current_course_index: number
+          id: string
+          path_id: string
+          progress: number
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          current_course_index?: number
+          id?: string
+          path_id: string
+          progress?: number
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          current_course_index?: number
+          id?: string
+          path_id?: string
+          progress?: number
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_learning_paths_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
             referencedColumns: ["id"]
           },
         ]

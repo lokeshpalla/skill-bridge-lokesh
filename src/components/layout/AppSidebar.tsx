@@ -1,6 +1,6 @@
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
-  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award, MessageSquare, Download, Brain
+  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award, MessageSquare, Download, Brain, Compass
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate, Link } from "react-router-dom";
@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Courses", url: "/courses", icon: BookOpen },
+  { title: "Paths", url: "/paths", icon: Compass },
   { title: "Coding", url: "/coding", icon: Code2 },
   { title: "Interview", url: "/interview", icon: Brain },
 ];
