@@ -1,45 +1,154 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Star, Calendar, MessageCircle, Search, Clock, IndianRupee, VideoIcon } from "lucide-react";
+import { Star, Calendar, Search, Clock, IndianRupee, VideoIcon, Plus, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
 } from "@/components/ui/dialog";
 
-const mentors = [
-  { id: 1, name: "Sarah Chen", role: "Senior Engineer @ Google", skills: ["React", "System Design", "TypeScript"], rating: 4.9, sessions: 234, price: 4500, avatar: "👩‍💻", available: true, freeSlots: ["Mon 6–8 PM", "Wed 7–9 PM", "Sat 10 AM–12 PM"] },
-  { id: 2, name: "James Wilson", role: "Staff Engineer @ Meta", skills: ["Python", "ML", "Data Pipelines"], rating: 4.8, sessions: 189, price: 5500, avatar: "👨‍💼", available: true, freeSlots: ["Tue 5–7 PM", "Thu 6–8 PM"] },
-  { id: 3, name: "Priya Sharma", role: "Tech Lead @ Microsoft", skills: ["Cloud", "DevOps", "Kubernetes"], rating: 4.9, sessions: 312, price: 4000, avatar: "👩‍🔬", available: false, freeSlots: ["Fri 4–6 PM"] },
-  { id: 4, name: "Alex Kim", role: "CTO @ Startup", skills: ["Full-Stack", "Architecture", "Leadership"], rating: 4.7, sessions: 156, price: 6000, avatar: "🧑‍💻", available: true, freeSlots: ["Mon 8–10 PM", "Sat 2–5 PM", "Sun 10 AM–1 PM"] },
-  { id: 5, name: "Maria Garcia", role: "AI Researcher @ DeepMind", skills: ["Deep Learning", "NLP", "PyTorch"], rating: 5.0, sessions: 98, price: 7000, avatar: "👩‍🏫", available: true, freeSlots: ["Wed 6–8 PM", "Sun 4–6 PM"] },
-  { id: 6, name: "David Park", role: "Mobile Lead @ Uber", skills: ["React Native", "iOS", "Android"], rating: 4.6, sessions: 145, price: 3500, avatar: "👨‍🎓", available: false, freeSlots: ["Thu 5–7 PM", "Sat 11 AM–1 PM"] },
-];
+interface MentorProfile {
+  id: string;
+  user_id: string;
+  title: string;
+  bio: string | null;
+  company: string | null;
+  skills: string[];
+  rating: number;
+  total_sessions: number;
+  hourly_rate: number | null;
+  available: boolean;
+  availability_slots: string[];
+  display_name?: string;
+  avatar_url?: string | null;
+}
 
 const formatRupees = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
 
 const MentorsPage = () => {
   const navigate = useNavigate();
-  const [booked, setBooked] = useState<Set<number>>(new Set());
+  const { user, profile } = useAuth();
+  const [mentors, setMentors] = useState<MentorProfile[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [selectedMentor, setSelectedMentor] = useState<typeof mentors[0] | null>(null);
+  const [selectedMentor, setSelectedMentor] = useState<MentorProfile | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [bookingNotes, setBookingNotes] = useState("");
+  const [showRegister, setShowRegister] = useState(false);
+  const [isMentor, setIsMentor] = useState(false);
+  const [regForm, setRegForm] = useState({
+    title: "", bio: "", company: "", skills: "", hourly_rate: "3000",
+    slots: "Mon 6-8 PM, Wed 7-9 PM",
+  });
+
+  useEffect(() => {
+    fetchMentors();
+    if (user) checkIsMentor();
+  }, [user]);
+
+  const checkIsMentor = async () => {
+    if (!user) return;
+    const { data } = await supabase.from("mentor_profiles").select("id").eq("user_id", user.id).maybeSingle();
+    setIsMentor(!!data);
+  };
+
+  const fetchMentors = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("mentor_profiles")
+      .select("*")
+      .order("rating", { ascending: false });
+
+    if (data && data.length > 0) {
+      const userIds = data.map((m: any) => m.user_id);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, avatar_url")
+        .in("user_id", userIds);
+
+      setMentors(data.map((m: any) => ({
+        ...m,
+        skills: m.skills || [],
+        availability_slots: m.availability_slots || [],
+        display_name: profiles?.find((p: any) => p.user_id === m.user_id)?.display_name || "Mentor",
+        avatar_url: profiles?.find((p: any) => p.user_id === m.user_id)?.avatar_url || null,
+      })));
+    } else {
+      setMentors([]);
+    }
+    setLoading(false);
+  };
+
+  const registerAsMentor = async () => {
+    if (!user || !regForm.title) return;
+    const { error } = await supabase.from("mentor_profiles").insert({
+      user_id: user.id,
+      title: regForm.title,
+      bio: regForm.bio || null,
+      company: regForm.company || null,
+      skills: regForm.skills.split(",").map(s => s.trim()).filter(Boolean),
+      hourly_rate: parseInt(regForm.hourly_rate) || 3000,
+      availability_slots: regForm.slots.split(",").map(s => s.trim()).filter(Boolean),
+      available: true,
+    });
+    if (error) { toast.error("Failed to register"); return; }
+
+    // Update user role to mentor
+    const { data: existingRole } = await supabase.from("user_roles").select("id").eq("user_id", user.id).eq("role", "mentor").maybeSingle();
+    if (!existingRole) {
+      await supabase.from("user_roles").insert({ user_id: user.id, role: "mentor" as any });
+    }
+
+    toast.success("You're now a mentor! 🎉");
+    setShowRegister(false);
+    setIsMentor(true);
+    fetchMentors();
+  };
+
+  const bookSession = async () => {
+    if (!user || !selectedMentor || !selectedSlot) return;
+    // Parse slot into a scheduled_at (use next occurrence)
+    const scheduledAt = getNextSlotDate(selectedSlot);
+
+    const { error } = await supabase.from("mentor_bookings").insert({
+      mentor_id: selectedMentor.user_id,
+      student_id: user.id,
+      scheduled_at: scheduledAt.toISOString(),
+      duration_min: 60,
+      notes: bookingNotes || null,
+      status: "pending",
+    });
+    if (error) { toast.error("Failed to book session"); return; }
+    toast.success(`Session booked with ${selectedMentor.display_name}! 📅`);
+    setSelectedMentor(null);
+    setBookingNotes("");
+    setSelectedSlot(null);
+  };
+
+  const getNextSlotDate = (slot: string): Date => {
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const now = new Date();
+    const parts = slot.match(/(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/i);
+    const timeParts = slot.match(/(\d{1,2})/);
+    const dayIdx = parts ? days.findIndex(d => d.toLowerCase() === parts[1].toLowerCase().slice(0, 3)) : now.getDay();
+    let diff = dayIdx - now.getDay();
+    if (diff <= 0) diff += 7;
+    const date = new Date(now);
+    date.setDate(date.getDate() + diff);
+    date.setHours(timeParts ? parseInt(timeParts[1]) + (slot.toLowerCase().includes("pm") && parseInt(timeParts[1]) < 12 ? 12 : 0) : 18, 0, 0, 0);
+    return date;
+  };
 
   const filtered = mentors.filter(m =>
-    m.name.toLowerCase().includes(search.toLowerCase()) ||
+    m.display_name?.toLowerCase().includes(search.toLowerCase()) ||
+    m.title.toLowerCase().includes(search.toLowerCase()) ||
     m.skills.some(s => s.toLowerCase().includes(search.toLowerCase()))
   );
-
-  const handleConfirmBooking = () => {
-    if (!selectedMentor || !selectedSlot) return;
-    setBooked(prev => new Set(prev).add(selectedMentor.id));
-    setSelectedMentor(null);
-    toast({ title: "📅 Session Booked!", description: `Joining session with ${selectedMentor.name}...` });
-    // Navigate to the video call
-    navigate(`/mentor-session?mentor=${encodeURIComponent(selectedMentor.name)}&slot=${encodeURIComponent(selectedSlot)}`);
-  };
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
@@ -48,130 +157,155 @@ const MentorsPage = () => {
           <h1 className="text-2xl font-bold tracking-tight mb-1">Find a Mentor</h1>
           <p className="text-sm text-muted-foreground">Book 1:1 sessions with industry professionals</p>
         </div>
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Search mentors or skills..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-card/60 border-border/50 h-9 text-sm" />
+        <div className="flex items-center gap-2">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input placeholder="Search mentors or skills..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 bg-card/60 border-border/50 h-9 text-sm" />
+          </div>
+          {user && !isMentor && (
+            <Dialog open={showRegister} onOpenChange={setShowRegister}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5 h-9 whitespace-nowrap">
+                  <Plus className="w-3.5 h-3.5" /> Become a Mentor
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader><DialogTitle>Register as Mentor</DialogTitle></DialogHeader>
+                <div className="space-y-3 mt-2">
+                  <Input placeholder="Your title (e.g. Senior Engineer @ Google) *" value={regForm.title} onChange={e => setRegForm(f => ({ ...f, title: e.target.value }))} />
+                  <Input placeholder="Company" value={regForm.company} onChange={e => setRegForm(f => ({ ...f, company: e.target.value }))} />
+                  <Textarea placeholder="Bio - Tell students about your expertise..." value={regForm.bio} onChange={e => setRegForm(f => ({ ...f, bio: e.target.value }))} rows={3} />
+                  <Input placeholder="Skills (comma separated)" value={regForm.skills} onChange={e => setRegForm(f => ({ ...f, skills: e.target.value }))} />
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input placeholder="Hourly rate (₹)" type="number" value={regForm.hourly_rate} onChange={e => setRegForm(f => ({ ...f, hourly_rate: e.target.value }))} />
+                  </div>
+                  <Input placeholder="Available slots (e.g. Mon 6-8 PM, Wed 7-9 PM)" value={regForm.slots} onChange={e => setRegForm(f => ({ ...f, slots: e.target.value }))} />
+                  <Button variant="hero" className="w-full" onClick={registerAsMentor} disabled={!regForm.title}>
+                    Register as Mentor
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+          {isMentor && (
+            <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => navigate("/mentor-dashboard")}>
+              My Dashboard
+            </Button>
+          )}
         </div>
       </motion.div>
 
-      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {filtered.map((mentor, i) => (
-          <motion.div
-            key={mentor.id}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.04 }}
-            className="rounded-xl border border-border/50 bg-card/60 p-5 relative hover:border-primary/20 transition-all"
-          >
-            {mentor.available && (
-              <div className="absolute top-4 right-4 flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                <span className="text-[10px] text-success font-medium">Online</span>
+      {loading ? (
+        <p className="text-sm text-muted-foreground text-center py-12">Loading mentors...</p>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-16 rounded-xl border border-border/50 bg-card/60">
+          <Search className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+          <h3 className="text-sm font-medium mb-1">No mentors found</h3>
+          <p className="text-xs text-muted-foreground mb-4">Be the first to register as a mentor!</p>
+          {user && !isMentor && (
+            <Button variant="hero" size="sm" onClick={() => setShowRegister(true)}>
+              <Plus className="w-3.5 h-3.5 mr-1" /> Become a Mentor
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filtered.map((mentor, i) => (
+            <motion.div key={mentor.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+              className="rounded-xl border border-border/50 bg-card/60 p-5 relative hover:border-primary/20 transition-all">
+              {mentor.available && (
+                <div className="absolute top-4 right-4 flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                  <span className="text-[10px] text-success font-medium">Available</span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 mb-4">
+                {mentor.avatar_url ? (
+                  <img src={mentor.avatar_url} alt="" className="w-12 h-12 rounded-xl object-cover" />
+                ) : (
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-xl font-bold text-primary">
+                    {mentor.display_name?.charAt(0) || "M"}
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-sm font-semibold">{mentor.display_name}</h3>
+                  <p className="text-[11px] text-muted-foreground">{mentor.title}</p>
+                  {mentor.company && <p className="text-[10px] text-muted-foreground">@ {mentor.company}</p>}
+                </div>
               </div>
-            )}
 
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-secondary/80 flex items-center justify-center text-2xl">
-                {mentor.avatar}
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold">{mentor.name}</h3>
-                <p className="text-[11px] text-muted-foreground">{mentor.role}</p>
-              </div>
-            </div>
+              {mentor.bio && <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{mentor.bio}</p>}
 
-            <div className="flex flex-wrap gap-1 mb-3">
-              {mentor.skills.map((s) => (
-                <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">{s}</span>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-3">
-              <span className="flex items-center gap-1"><Star className="w-3 h-3 text-warning" />{mentor.rating}</span>
-              <span className="flex items-center gap-1"><MessageCircle className="w-3 h-3" />{mentor.sessions}</span>
-              <span className="flex items-center gap-0.5 font-semibold text-foreground">
-                <IndianRupee className="w-3 h-3" />{formatRupees(mentor.price)}/hr
-              </span>
-            </div>
-
-            {/* Free time slots */}
-            <div className="mb-4 p-2.5 rounded-lg bg-secondary/40 border border-border/30">
-              <p className="text-[10px] font-medium text-muted-foreground flex items-center gap-1 mb-1.5">
-                <Clock className="w-3 h-3" /> Available Slots
-              </p>
-              <div className="flex flex-wrap gap-1">
-                {mentor.freeSlots.map((slot) => (
-                  <span key={slot} className="text-[10px] px-2 py-0.5 rounded-md bg-background/80 border border-border/40 text-foreground">
-                    {slot}
-                  </span>
+              <div className="flex flex-wrap gap-1 mb-3">
+                {mentor.skills.slice(0, 4).map(s => (
+                  <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">{s}</span>
                 ))}
               </div>
-            </div>
 
-            <Button
-              variant={booked.has(mentor.id) ? "secondary" : mentor.available ? "hero" : "secondary"}
-              className="w-full h-8 text-xs"
-              disabled={!mentor.available || booked.has(mentor.id)}
-              onClick={() => {
-                setSelectedMentor(mentor);
-                setSelectedSlot(null);
-              }}
-            >
-              {booked.has(mentor.id) ? "✓ Booked" : mentor.available ? <><Calendar className="w-3 h-3" /> Book Session</> : "Unavailable"}
-            </Button>
-          </motion.div>
-        ))}
-      </div>
+              <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-3">
+                <span className="flex items-center gap-1"><Star className="w-3 h-3 text-warning" />{mentor.rating || 0}</span>
+                <span className="flex items-center gap-1"><MessageCircle className="w-3 h-3" />{mentor.total_sessions || 0} sessions</span>
+                {mentor.hourly_rate && (
+                  <span className="flex items-center gap-0.5 font-semibold text-foreground">
+                    <IndianRupee className="w-3 h-3" />{formatRupees(mentor.hourly_rate)}/hr
+                  </span>
+                )}
+              </div>
 
-      {/* Slot picker dialog */}
-      <Dialog open={!!selectedMentor} onOpenChange={(open) => { if (!open) setSelectedMentor(null); }}>
+              {mentor.availability_slots.length > 0 && (
+                <div className="mb-4 p-2.5 rounded-lg bg-secondary/40 border border-border/30">
+                  <p className="text-[10px] font-medium text-muted-foreground flex items-center gap-1 mb-1.5">
+                    <Clock className="w-3 h-3" /> Available Slots
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {mentor.availability_slots.map(slot => (
+                      <span key={slot} className="text-[10px] px-2 py-0.5 rounded-md bg-background/80 border border-border/40 text-foreground">{slot}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <Button variant={mentor.available ? "hero" : "secondary"} className="w-full h-8 text-xs"
+                disabled={!mentor.available || mentor.user_id === user?.id}
+                onClick={() => { setSelectedMentor(mentor); setSelectedSlot(null); setBookingNotes(""); }}>
+                {mentor.user_id === user?.id ? "Your Profile" : mentor.available ? <><Calendar className="w-3 h-3" /> Book Session</> : "Unavailable"}
+              </Button>
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      {/* Booking Dialog */}
+      <Dialog open={!!selectedMentor} onOpenChange={open => { if (!open) setSelectedMentor(null); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <span className="text-2xl">{selectedMentor?.avatar}</span>
-              Book Session with {selectedMentor?.name}
-            </DialogTitle>
-            <DialogDescription>
-              Select a time slot • {selectedMentor && formatRupees(selectedMentor.price)}/hr
-            </DialogDescription>
+            <DialogTitle>Book Session with {selectedMentor?.display_name}</DialogTitle>
           </DialogHeader>
-
-          <div className="space-y-2 py-2">
-            <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" /> Choose a time slot
-            </p>
+          <div className="space-y-3 py-2">
+            {selectedMentor?.hourly_rate && (
+              <p className="text-xs text-muted-foreground">Rate: <span className="font-semibold text-foreground">{formatRupees(selectedMentor.hourly_rate)}/hr</span></p>
+            )}
+            <p className="text-xs font-medium text-muted-foreground flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Choose a time slot</p>
             <div className="grid grid-cols-1 gap-2">
-              {selectedMentor?.freeSlots.map((slot) => (
-                <button
-                  key={slot}
-                  onClick={() => setSelectedSlot(slot)}
+              {selectedMentor?.availability_slots.map(slot => (
+                <button key={slot} onClick={() => setSelectedSlot(slot)}
                   className={`text-left px-4 py-3 rounded-xl border text-sm transition-all ${
                     selectedSlot === slot
                       ? "border-primary bg-primary/10 text-primary font-medium ring-1 ring-primary/20"
                       : "border-border/50 bg-card/60 hover:border-primary/30 text-foreground"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    {slot}
-                  </div>
+                  }`}>
+                  <div className="flex items-center gap-2"><Calendar className="w-4 h-4" />{slot}</div>
                 </button>
               ))}
             </div>
-          </div>
-
-          <div className="flex gap-2 pt-2">
-            <Button variant="outline" className="flex-1" onClick={() => setSelectedMentor(null)}>
-              Cancel
-            </Button>
-            <Button
-              variant="hero"
-              className="flex-1 gap-1"
-              disabled={!selectedSlot}
-              onClick={handleConfirmBooking}
-            >
-              <VideoIcon className="w-4 h-4" /> Join Session
-            </Button>
+            <Textarea placeholder="Notes for the mentor (optional)..." value={bookingNotes} onChange={e => setBookingNotes(e.target.value)} rows={2} />
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setSelectedMentor(null)}>Cancel</Button>
+              <Button variant="hero" className="flex-1 gap-1" disabled={!selectedSlot} onClick={bookSession}>
+                <Calendar className="w-4 h-4" /> Confirm Booking
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
