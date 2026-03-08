@@ -116,7 +116,7 @@ const AuthPage = () => {
           </div>
 
           {/* Role Selector — visible on login */}
-          {mode === "login" && !forgotMode && (
+          {mode === "login" && !forgotMode && showRoleSelector && (
             <div className="mb-6">
               <p className="text-xs font-medium text-muted-foreground mb-3 text-center uppercase tracking-wider">I am a</p>
               <div className="grid grid-cols-4 gap-2">
