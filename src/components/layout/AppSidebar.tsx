@@ -32,6 +32,7 @@ const mainItems = [
 
 const socialItems = [
   { title: "Mentors", url: "/mentors", icon: Users },
+  { title: "Rooms", url: "/rooms", icon: Video },
   { title: "Community", url: "/community", icon: MessageSquare },
   { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
   { title: "Achievements", url: "/achievements", icon: Award },
