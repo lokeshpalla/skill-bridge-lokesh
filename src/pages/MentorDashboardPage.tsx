@@ -449,6 +449,8 @@ const MentorDashboardPage = () => {
               <MentorAvailabilityCalendar
                 slots={editForm.calendarSlots || []}
                 onChange={(slots) => setEditForm((f: any) => ({ ...f, calendarSlots: slots }))}
+                weeklyPattern={editForm.weeklyPattern || {}}
+                onWeeklyPatternChange={(pattern) => setEditForm((f: any) => ({ ...f, weeklyPattern: pattern }))}
               />
             ) : (
               <MentorAvailabilityCalendar
