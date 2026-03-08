@@ -206,6 +206,35 @@ const CourseDetail = () => {
             })}
           </div>
         </div>
+
+        {/* Course Exam - show after all modules completed */}
+        {allCompleted && enrolled && (
+          <div className="space-y-4">
+            <CourseExam
+              courseId={course.id}
+              courseTitle={course.title}
+              onCertificateEarned={fetchCertificate}
+            />
+          </div>
+        )}
+
+        {/* Certificate */}
+        {certificate && user && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 px-1">
+              <Award className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold">Your Certificate</span>
+            </div>
+            <CertificateCard
+              displayName={user.user_metadata?.display_name || user.email || "Student"}
+              courseTitle={certificate.course_title}
+              grade={certificate.grade}
+              percentage={Number(certificate.percentage)}
+              certificateNumber={certificate.certificate_number}
+              issuedAt={certificate.issued_at}
+            />
+          </div>
+        )}
       </motion.div>
     </div>
   );
