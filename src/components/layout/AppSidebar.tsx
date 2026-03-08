@@ -106,6 +106,7 @@ export function AppSidebar() {
         {renderGroup("Learn", mainItems)}
         {renderGroup("Community", socialItems)}
         {renderGroup("Career", careerItems)}
+        {isAdmin && renderGroup("Admin", [{ title: "Admin", url: "/admin", icon: Shield }])}
       </SidebarContent>
 
       <SidebarFooter className="p-3 border-t border-border/40">
