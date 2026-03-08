@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Building2, ExternalLink, Sparkles, CheckCircle } from "lucide-react";
 import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 const internships = [
   { id: 1, title: "Frontend Engineer Intern", company: "Google", location: "Remote", duration: "3 months", skills: ["React", "TypeScript", "CSS"], match: 95, applied: false, logo: "🔵" },
