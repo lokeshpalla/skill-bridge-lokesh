@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import {
   Mic, MicOff, VideoIcon, VideoOff, Monitor, MonitorOff,
-  Phone, Send, MessageSquare, Users, ChevronRight
+  Phone, Send, MessageSquare, Users, ChevronRight, Link2, Copy, Check, Settings
 } from "lucide-react";
 
 interface Participant {
