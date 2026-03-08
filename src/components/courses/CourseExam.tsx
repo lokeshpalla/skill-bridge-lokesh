@@ -148,13 +148,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
       setCurrentQ(currentQ + 1);
       setSelectedOption(null);
     } else {
-      // Calculate results
-      const score = newAnswers.reduce((acc, a, i) => acc + (a === questions[i].correctIndex ? 1 : 0), 0);
-      const pct = Math.round((score / questions.length) * 100);
-      const grade = getGrade(pct);
-      setResult({ score, total: questions.length, pct, grade });
-      setShowResult(true);
-      saveResult(score, questions.length, pct, grade.grade, pct >= 50, newAnswers);
+      finishExam(newAnswers);
     }
   };
 
