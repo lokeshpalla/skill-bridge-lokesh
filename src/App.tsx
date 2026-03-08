@@ -17,7 +17,7 @@ import MentorSessionPage from "./pages/MentorSessionPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import InternshipsPage from "./pages/InternshipsPage";
 import PortfolioPage from "./pages/PortfolioPage";
-import AchievementsPage from "./pages/AchievementsPage";
+
 import CommunityPage from "./pages/CommunityPage";
 import InstallPage from "./pages/InstallPage";
 import InterviewPage from "./pages/InterviewPage";
