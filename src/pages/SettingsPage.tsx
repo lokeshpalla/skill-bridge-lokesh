@@ -36,7 +36,7 @@ interface GitHubProfile {
 }
 
 const SettingsPage = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [skills, setSkills] = useState("");
