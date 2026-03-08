@@ -126,7 +126,7 @@ const InstallPage = () => {
         </p>
         <div className="bg-white rounded-xl p-3 inline-block shadow-sm">
           <img
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(window.location.origin)}&bgcolor=ffffff&color=000000&margin=8`}
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent("https://skill-bridge-lokesh.lovable.app")}&bgcolor=ffffff&color=000000&margin=8`}
             alt="QR Code to install SkillBridge"
             className="w-[180px] h-[180px]"
           />
