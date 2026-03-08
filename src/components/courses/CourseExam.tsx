@@ -645,6 +645,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
         )}
       </div>
     </motion.div>
+    </div>
   );
 };
 
