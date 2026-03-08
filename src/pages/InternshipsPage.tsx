@@ -16,8 +16,9 @@ const internships = [
 const InternshipsPage = () => {
   const [apps, setApps] = useState<Set<number>>(new Set(internships.filter(i => i.applied).map(i => i.id)));
 
-  const handleApply = (id: number) => {
+  const handleApply = (id: number, company: string) => {
     setApps(prev => new Set(prev).add(id));
+    toast({ title: "🚀 Application Submitted!", description: `Your application to ${company} has been sent.` });
   };
 
   return (
