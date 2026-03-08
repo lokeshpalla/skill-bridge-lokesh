@@ -163,7 +163,7 @@ const MentorsPage = () => {
                   <Plus className="w-3.5 h-3.5" /> Become a Mentor
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader><DialogTitle>Register as Mentor</DialogTitle></DialogHeader>
                 <div className="space-y-3 mt-2">
                   <Input placeholder="Your title (e.g. Senior Engineer @ Google) *" value={regForm.title} onChange={e => setRegForm(f => ({ ...f, title: e.target.value }))} />
