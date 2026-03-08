@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Users, ChevronRight, XCircle, Calendar, Eye, Trophy, Code2, Award, ExternalLink, Brain, Sparkles } from "lucide-react";
+import { Users, ChevronRight, XCircle, Calendar, Eye, Trophy, Code2, Award, ExternalLink, Brain, Sparkles, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
