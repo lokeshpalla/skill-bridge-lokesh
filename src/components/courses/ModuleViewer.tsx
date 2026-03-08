@@ -237,7 +237,6 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
             {output || "// Click 'Run Code' to see output"}
           </pre>
         </div>
-        </div>
       </div>
 
       {/* Notes & Bookmarks */}
