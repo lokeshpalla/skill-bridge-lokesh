@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Trophy, Medal, Flame, TrendingUp, Crown } from "lucide-react";
+import { Flame, Crown } from "lucide-react";
 
 const leaderboard = [
   { rank: 1, name: "Arjun Patel", xp: 12450, solved: 342, streak: 45, level: "Grandmaster", avatar: "🏆" },
@@ -14,78 +14,80 @@ const leaderboard = [
   { rank: 10, name: "Tom Fischer", xp: 6800, solved: 195, streak: 10, level: "Intermediate", avatar: "🔥" },
 ];
 
-const rankColor = (rank: number) => {
-  if (rank === 1) return "text-warning";
-  if (rank === 2) return "text-muted-foreground";
-  if (rank === 3) return "text-warning/70";
+const rankStyle = (rank: number) => {
+  if (rank === 1) return "text-warning font-bold";
+  if (rank === 2) return "text-muted-foreground font-bold";
+  if (rank === 3) return "text-warning/70 font-bold";
   return "text-foreground";
 };
 
 const LeaderboardPage = () => {
   return (
-    <div className="min-h-screen py-8">
-      <div className="container max-w-4xl">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold mb-2">Leaderboard</h1>
-          <p className="text-muted-foreground mb-8">Top performers ranked by XP</p>
-        </motion.div>
+    <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="text-2xl font-bold tracking-tight mb-1">Leaderboard</h1>
+        <p className="text-sm text-muted-foreground">Top performers ranked by XP</p>
+      </motion.div>
 
-        {/* Top 3 podium */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          {[leaderboard[1], leaderboard[0], leaderboard[2]].map((user, i) => {
-            const order = [2, 1, 3][i];
-            const heights = ["h-28", "h-36", "h-24"];
-            return (
-              <motion.div
-                key={user.rank}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.15 }}
-                className="flex flex-col items-center"
-              >
-                <div className="text-3xl mb-2">{user.avatar}</div>
-                <p className="text-sm font-semibold text-center truncate w-full">{user.name}</p>
-                <p className="text-xs text-primary font-mono">{user.xp.toLocaleString()} XP</p>
-                <div className={`${heights[i]} w-full mt-3 rounded-t-xl bg-gradient-primary opacity-${order === 1 ? "100" : order === 2 ? "70" : "50"} flex items-center justify-center`}>
-                  <span className="text-2xl font-bold text-primary-foreground">#{order}</span>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Table */}
-        <div className="glass rounded-xl overflow-hidden">
-          <div className="grid grid-cols-12 gap-4 px-5 py-3 text-xs text-muted-foreground font-medium border-b border-border/50">
-            <span className="col-span-1">Rank</span>
-            <span className="col-span-4">User</span>
-            <span className="col-span-2 text-right">XP</span>
-            <span className="col-span-2 text-right">Solved</span>
-            <span className="col-span-1 text-right">Streak</span>
-            <span className="col-span-2 text-right">Level</span>
-          </div>
-          {leaderboard.map((user, i) => (
+      {/* Podium */}
+      <div className="grid grid-cols-3 gap-3 mb-2">
+        {[leaderboard[1], leaderboard[0], leaderboard[2]].map((user, i) => {
+          const order = [2, 1, 3][i];
+          const heights = ["h-24", "h-32", "h-20"];
+          const isFirst = order === 1;
+          return (
             <motion.div
               key={user.rank}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: i * 0.03 }}
-              className="grid grid-cols-12 gap-4 px-5 py-3 items-center border-b border-border/30 last:border-0 hover:bg-secondary/50 transition-colors"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.12 }}
+              className="flex flex-col items-center"
             >
-              <span className={`col-span-1 font-bold ${rankColor(user.rank)}`}>#{user.rank}</span>
-              <div className="col-span-4 flex items-center gap-2">
-                <span className="text-lg">{user.avatar}</span>
-                <span className="text-sm font-medium truncate">{user.name}</span>
+              <div className="relative">
+                {isFirst && <Crown className="w-4 h-4 text-warning absolute -top-5 left-1/2 -translate-x-1/2" />}
+                <span className="text-2xl">{user.avatar}</span>
               </div>
-              <span className="col-span-2 text-right text-sm font-mono text-primary">{user.xp.toLocaleString()}</span>
-              <span className="col-span-2 text-right text-sm text-muted-foreground">{user.solved}</span>
-              <span className="col-span-1 text-right text-sm flex items-center justify-end gap-1">
-                <Flame className="w-3 h-3 text-warning" />{user.streak}
-              </span>
-              <span className="col-span-2 text-right text-xs text-muted-foreground">{user.level}</span>
+              <p className="text-xs font-semibold text-center truncate w-full mt-1">{user.name}</p>
+              <p className="text-[10px] text-primary font-mono">{user.xp.toLocaleString()} XP</p>
+              <div className={`${heights[i]} w-full mt-2 rounded-t-lg ${isFirst ? "bg-gradient-primary shadow-glow" : "bg-primary/15"} flex items-center justify-center`}>
+                <span className={`text-lg font-bold ${isFirst ? "text-primary-foreground" : "text-primary"}`}>#{order}</span>
+              </div>
             </motion.div>
-          ))}
+          );
+        })}
+      </div>
+
+      {/* Table */}
+      <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden">
+        <div className="grid grid-cols-12 gap-3 px-4 py-2.5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider border-b border-border/40">
+          <span className="col-span-1">#</span>
+          <span className="col-span-4">User</span>
+          <span className="col-span-2 text-right">XP</span>
+          <span className="col-span-2 text-right">Solved</span>
+          <span className="col-span-1 text-right">Streak</span>
+          <span className="col-span-2 text-right">Level</span>
         </div>
+        {leaderboard.map((user, i) => (
+          <motion.div
+            key={user.rank}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 + i * 0.03 }}
+            className="grid grid-cols-12 gap-3 px-4 py-2.5 items-center border-b border-border/20 last:border-0 hover:bg-secondary/30 transition-colors"
+          >
+            <span className={`col-span-1 text-sm ${rankStyle(user.rank)}`}>{user.rank}</span>
+            <div className="col-span-4 flex items-center gap-2">
+              <span className="text-base">{user.avatar}</span>
+              <span className="text-xs font-medium truncate">{user.name}</span>
+            </div>
+            <span className="col-span-2 text-right text-xs font-mono text-primary">{user.xp.toLocaleString()}</span>
+            <span className="col-span-2 text-right text-xs text-muted-foreground">{user.solved}</span>
+            <span className="col-span-1 text-right text-xs flex items-center justify-end gap-1">
+              <Flame className="w-3 h-3 text-warning" />{user.streak}
+            </span>
+            <span className="col-span-2 text-right text-[11px] text-muted-foreground">{user.level}</span>
+          </motion.div>
+        ))}
       </div>
     </div>
   );
