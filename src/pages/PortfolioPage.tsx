@@ -1,20 +1,10 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
-} from "@/components/ui/dialog";
-import {
-  Plus, Github, Globe, User, Trash2, Edit2, ExternalLink, FolderKanban
-} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import PortfolioForm, { type ProjectForm } from "@/components/portfolio/PortfolioForm";
+import PortfolioPreview from "@/components/portfolio/PortfolioPreview";
 
 interface PortfolioProject {
   id: string;
@@ -32,12 +22,8 @@ const PortfolioPage = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingProject, setEditingProject] = useState<PortfolioProject | null>(null);
-  const [form, setForm] = useState({
-    title: "", description: "", tech_stack: "", github_url: "", live_url: "",
-  });
   const [saving, setSaving] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -52,41 +38,16 @@ const PortfolioPage = () => {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
-    if (error) {
-      toast.error("Failed to load projects");
-    } else {
-      setProjects(data || []);
-    }
+    if (error) toast.error("Failed to load projects");
+    else setProjects(data || []);
     setLoading(false);
   };
 
-  const openCreate = () => {
-    setEditingProject(null);
-    setForm({ title: "", description: "", tech_stack: "", github_url: "", live_url: "" });
-    setDialogOpen(true);
-  };
-
-  const openEdit = (p: PortfolioProject) => {
-    setEditingProject(p);
-    setForm({
-      title: p.title,
-      description: p.description || "",
-      tech_stack: (p.tech_stack || []).join(", "),
-      github_url: p.github_url || "",
-      live_url: p.live_url || "",
-    });
-    setDialogOpen(true);
-  };
-
-  const handleSave = async () => {
+  const handleSave = async (form: ProjectForm, editingId: string | null) => {
     if (!user || !form.title.trim()) return;
     setSaving(true);
 
-    const techStack = form.tech_stack
-      .split(",")
-      .map(s => s.trim())
-      .filter(Boolean);
-
+    const techStack = form.tech_stack.split(",").map(s => s.trim()).filter(Boolean);
     const payload = {
       title: form.title.trim(),
       description: form.description.trim() || null,
@@ -96,36 +57,24 @@ const PortfolioPage = () => {
       user_id: user.id,
     };
 
-    if (editingProject) {
-      const { error } = await supabase
-        .from("portfolio_projects")
-        .update(payload)
-        .eq("id", editingProject.id);
+    if (editingId) {
+      const { error } = await supabase.from("portfolio_projects").update(payload).eq("id", editingId);
       if (error) toast.error("Failed to update project");
       else toast.success("Project updated!");
     } else {
-      const { error } = await supabase
-        .from("portfolio_projects")
-        .insert(payload);
+      const { error } = await supabase.from("portfolio_projects").insert(payload);
       if (error) toast.error("Failed to add project");
       else toast.success("Project added! 🎉");
     }
 
     setSaving(false);
-    setDialogOpen(false);
     fetchProjects();
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase
-      .from("portfolio_projects")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("portfolio_projects").delete().eq("id", id);
     if (error) toast.error("Failed to delete project");
-    else {
-      toast.success("Project removed");
-      fetchProjects();
-    }
+    else { toast.success("Project removed"); fetchProjects(); }
   };
 
   if (loading) {
@@ -138,214 +87,22 @@ const PortfolioPage = () => {
 
   return (
     <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
-      {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-            <FolderKanban className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">My Portfolio</h1>
-            <p className="text-sm text-muted-foreground">Showcase your best work</p>
-          </div>
-        </div>
-        <Button variant="default" size="sm" className="gap-1.5" onClick={openCreate}>
-          <Plus className="w-4 h-4" /> Add Project
-        </Button>
-      </motion.div>
-
-      {/* Profile card */}
-      {profile && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-xl border border-border/50 bg-card/60 p-5"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-primary flex items-center justify-center">
-              {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="w-14 h-14 rounded-2xl object-cover" />
-              ) : (
-                <User className="w-6 h-6 text-primary-foreground" />
-              )}
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-foreground">{profile.display_name}</h2>
-              <p className="text-xs text-muted-foreground">
-                {profile.xp} XP • {profile.streak} day streak
-                {profile.bio && ` • ${profile.bio}`}
-              </p>
-              {profile.skills && profile.skills.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {profile.skills.slice(0, 6).map((s) => (
-                    <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">{s}</span>
-                  ))}
-                  {profile.skills.length > 6 && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                      +{profile.skills.length - 6}
-                    </span>
-                  )}
-                </div>
-              )}
-              <div className="flex gap-2 mt-2">
-                {profile.github_url && (
-                  <a href={profile.github_url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
-                    <Github className="w-3 h-3" /> GitHub
-                  </a>
-                )}
-                {profile.portfolio_url && (
-                  <a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
-                    <Globe className="w-3 h-3" /> Website
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Projects */}
-      {projects.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="rounded-xl border border-dashed border-border/50 bg-card/30 p-12 text-center"
-        >
-          <FolderKanban className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-1">No projects yet</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Add your first project to start building your portfolio
-          </p>
-          <Button variant="default" size="sm" className="gap-1.5" onClick={openCreate}>
-            <Plus className="w-4 h-4" /> Add Your First Project
-          </Button>
-        </motion.div>
+      {previewMode && profile ? (
+        <PortfolioPreview
+          profile={profile}
+          projects={projects}
+          onBack={() => setPreviewMode(false)}
+        />
       ) : (
-        <div className="space-y-3">
-          {projects.map((project, i) => (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 + i * 0.06 }}
-              className="rounded-xl border border-border/50 bg-card/60 p-5 hover:border-primary/20 transition-all group"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-secondary/80 flex items-center justify-center text-xl flex-shrink-0">
-                  📦
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-foreground">{project.title}</h3>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(project)}>
-                        <Edit2 className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(project.id)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </div>
-                  {project.description && (
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{project.description}</p>
-                  )}
-                  {project.tech_stack.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2.5">
-                      {project.tech_stack.map((t) => (
-                        <Badge key={t} variant="secondary" className="text-[10px] px-2 py-0.5">{t}</Badge>
-                      ))}
-                    </div>
-                  )}
-                  <div className="flex gap-2 mt-3">
-                    {project.github_url && (
-                      <a href={project.github_url} target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline" size="sm" className="h-7 text-[11px] px-3 gap-1">
-                          <Github className="w-3 h-3" /> Code
-                        </Button>
-                      </a>
-                    )}
-                    {project.live_url && (
-                      <a href={project.live_url} target="_blank" rel="noopener noreferrer">
-                        <Button variant="ghost" size="sm" className="h-7 text-[11px] px-3 gap-1">
-                          <ExternalLink className="w-3 h-3" /> Demo
-                        </Button>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        <PortfolioForm
+          profile={profile}
+          projects={projects}
+          onSave={handleSave}
+          onDelete={handleDelete}
+          onPreview={() => setPreviewMode(true)}
+          saving={saving}
+        />
       )}
-
-      {/* Add/Edit Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingProject ? "Edit Project" : "Add Project"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <div className="space-y-2">
-              <Label>Project Name</Label>
-              <Input
-                placeholder="e.g. AI Resume Builder"
-                value={form.title}
-                onChange={e => setForm({ ...form, title: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea
-                placeholder="What does this project do?"
-                value={form.description}
-                onChange={e => setForm({ ...form, description: e.target.value })}
-                rows={3}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Tech Stack (comma separated)</Label>
-              <Input
-                placeholder="e.g. React, Node.js, PostgreSQL"
-                value={form.tech_stack}
-                onChange={e => setForm({ ...form, tech_stack: e.target.value })}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>GitHub URL</Label>
-                <Input
-                  placeholder="https://github.com/..."
-                  value={form.github_url}
-                  onChange={e => setForm({ ...form, github_url: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Live Demo URL</Label>
-                <Input
-                  placeholder="https://..."
-                  value={form.live_url}
-                  onChange={e => setForm({ ...form, live_url: e.target.value })}
-                />
-              </div>
-            </div>
-            <Button
-              onClick={handleSave}
-              className="w-full"
-              disabled={!form.title.trim() || saving}
-            >
-              {saving ? "Saving..." : editingProject ? "Update Project" : "Add Project"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
