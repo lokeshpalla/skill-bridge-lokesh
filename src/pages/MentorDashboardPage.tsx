@@ -419,6 +419,7 @@ const MentorDashboardPage = () => {
                   skills: (mentorProfile.skills || []).join(", "),
                   hourly_rate: String(mentorProfile.hourly_rate || 0),
                   calendarSlots: stringsToSlots(mentorProfile.availability_slots || []),
+                  weeklyPattern: stringToWeeklyPattern(mentorProfile.weekly_pattern || null),
                   available: mentorProfile.available,
                 })}>Edit Profile</Button>
               </div>
