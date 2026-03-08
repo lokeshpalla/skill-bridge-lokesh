@@ -4,6 +4,7 @@ import Navbar from "./Navbar";
 import { AppSidebar } from "./AppSidebar";
 import AIAssistant from "@/components/ai/AIAssistant";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 
@@ -48,7 +49,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <SidebarTrigger className="text-muted-foreground hover:text-foreground">
               <Menu className="w-5 h-5" />
             </SidebarTrigger>
-            <NotificationBell />
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
+              <NotificationBell />
+            </div>
           </header>
           <AnimatePresence mode="wait">
             <motion.main
