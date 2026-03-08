@@ -112,6 +112,7 @@ export default function AdminPage() {
     ["courses", "📚 Courses", GraduationCap],
     ["mentors", "👨‍🏫 Mentors", Users],
     ["recruiters", "💼 Recruiters", Briefcase],
+    ["subscriptions", "💳 Subscriptions", IndianRupee],
     ["moderation", "🛡️ Moderation", AlertTriangle],
     ["payouts", "💰 Payouts", IndianRupee],
     ["analytics", "📈 Analytics", TrendingUp],
