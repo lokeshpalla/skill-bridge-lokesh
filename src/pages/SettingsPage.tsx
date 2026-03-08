@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Github, Linkedin, Save, Loader2, Star, GitFork, Import,
-  ExternalLink, User, Globe, Check
+  ExternalLink, User, Globe, Check, Camera, Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,8 @@ const SettingsPage = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [saving, setSaving] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   // GitHub sync state
   const [ghProfile, setGhProfile] = useState<GitHubProfile | null>(null);
@@ -60,8 +62,45 @@ const SettingsPage = () => {
       setGithubUrl(profile.github_url || "");
       setLinkedinUrl(profile.linkedin_url || "");
       setPortfolioUrl(profile.portfolio_url || "");
+      setAvatarUrl(profile.avatar_url || null);
     }
   }, [profile]);
+
+  const uploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.size > 2 * 1024 * 1024) return toast.error("Image must be under 2MB");
+    
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/avatar.${ext}`;
+
+    const { error: uploadErr } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true });
+
+    if (uploadErr) {
+      setUploading(false);
+      return toast.error("Upload failed");
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+    const urlWithCache = `${publicUrl}?t=${Date.now()}`;
+
+    await supabase.from("profiles").update({ avatar_url: urlWithCache }).eq("user_id", user.id);
+    setAvatarUrl(urlWithCache);
+    setUploading(false);
+    toast.success("Avatar updated!");
+  };
+
+  const removeAvatar = async () => {
+    if (!user) return;
+    setUploading(true);
+    await supabase.from("profiles").update({ avatar_url: null }).eq("user_id", user.id);
+    setAvatarUrl(null);
+    setUploading(false);
+    toast.success("Avatar removed");
+  };
 
   const saveProfile = async () => {
     if (!user) return;
@@ -158,6 +197,32 @@ const SettingsPage = () => {
       {/* Profile Tab */}
       {tab === "profile" && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-6 space-y-4">
+          {/* Avatar Upload */}
+          <div className="flex items-center gap-4">
+            <div className="relative group">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" className="w-16 h-16 rounded-full object-cover border-2 border-border" />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center border-2 border-border">
+                  <User className="w-7 h-7 text-muted-foreground" />
+                </div>
+              )}
+              <label className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                {uploading ? <Loader2 className="w-5 h-5 text-white animate-spin" /> : <Camera className="w-5 h-5 text-white" />}
+                <input type="file" accept="image/*" className="hidden" onChange={uploadAvatar} disabled={uploading} />
+              </label>
+            </div>
+            <div>
+              <p className="text-sm font-medium">Profile Photo</p>
+              <p className="text-[11px] text-muted-foreground">Click to upload (max 2MB)</p>
+              {avatarUrl && (
+                <button onClick={removeAvatar} disabled={uploading} className="text-[11px] text-destructive hover:underline mt-0.5 flex items-center gap-1">
+                  <Trash2 className="w-3 h-3" /> Remove
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-medium text-muted-foreground">Display Name</label>
