@@ -54,6 +54,8 @@ export default function MentorSessionPage() {
   const [code, setCode] = useState(LANG_TEMPLATES.javascript);
   const [language, setLanguage] = useState("javascript");
   const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [customInput, setCustomInput] = useState("");
   const [output, setOutput] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
