@@ -24,6 +24,7 @@ const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Courses", url: "/courses", icon: BookOpen },
   { title: "Coding", url: "/coding", icon: Code2 },
+  { title: "Interview", url: "/interview", icon: Brain },
 ];
 
 const socialItems = [
