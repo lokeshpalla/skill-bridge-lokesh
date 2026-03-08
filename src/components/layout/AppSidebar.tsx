@@ -118,9 +118,13 @@ export function AppSidebar() {
           <div className="space-y-2">
             {!collapsed && (
               <div className="flex items-center gap-2.5 px-2 py-1.5">
-                <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center flex-shrink-0">
-                  <User className="w-3.5 h-3.5 text-primary-foreground" />
-                </div>
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center flex-shrink-0">
+                    <User className="w-3.5 h-3.5 text-primary-foreground" />
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium truncate">{profile?.display_name || "User"}</p>
                   <p className="text-[10px] text-muted-foreground truncate">{profile?.xp || 0} XP</p>
