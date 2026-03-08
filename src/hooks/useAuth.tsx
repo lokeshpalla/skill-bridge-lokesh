@@ -36,7 +36,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const fetchRoles = async (userId: string) => {
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    if (data) setRoles(data.map((r) => r.role));
+  };
+
+  const getRedirectPath = () => {
+    if (roles.includes("admin")) return "/admin";
+    if (roles.includes("recruiter")) return "/recruiter";
+    if (roles.includes("mentor")) return "/mentor-dashboard";
+    return "/dashboard";
+  };
 
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
