@@ -8,11 +8,13 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 
-const publicRoutes = ["/", "/auth"];
+const publicRoutes = ["/", "/auth", "/reset-password"];
+const hideNavbarRoutes = ["/auth", "/reset-password", "/"];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const isPublic = publicRoutes.includes(location.pathname) || location.pathname === "*";
+  const hideNavbar = hideNavbarRoutes.includes(location.pathname);
   const is404 = !publicRoutes.includes(location.pathname) && ![
     "/dashboard", "/courses", "/coding", "/mentors",
     "/leaderboard", "/internships", "/portfolio", "/achievements",
@@ -25,7 +27,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <a href="#main-content" className="skip-to-content">
           Skip to main content
         </a>
-        <Navbar />
+        {!hideNavbar && <Navbar />}
         <AnimatePresence mode="wait">
           <motion.main
             id="main-content"
@@ -34,7 +36,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="pt-16"
+            className={hideNavbar ? "" : "pt-16"}
             role="main"
             aria-label="Page content"
           >
