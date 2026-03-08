@@ -402,44 +402,61 @@ const MentorDashboardPage = () => {
 
       {/* Settings Tab */}
       {tab === "settings" && (
-        <div className="rounded-xl border border-border/50 bg-card/60 p-5 max-w-lg">
-          <h3 className="text-sm font-semibold mb-4 flex items-center gap-2"><Settings className="w-4 h-4 text-primary" /> Edit Profile</h3>
-          {!editForm ? (
-            <div className="space-y-3">
-              <div className="text-sm"><span className="text-muted-foreground">Title:</span> <span className="font-medium">{mentorProfile.title}</span></div>
-              <div className="text-sm"><span className="text-muted-foreground">Company:</span> <span className="font-medium">{mentorProfile.company || "—"}</span></div>
-              <div className="text-sm"><span className="text-muted-foreground">Rate:</span> <span className="font-medium">{formatRupees(mentorProfile.hourly_rate || 0)}/hr</span></div>
-              <div className="text-sm"><span className="text-muted-foreground">Available:</span> <span className="font-medium">{mentorProfile.available ? "Yes ✅" : "No ❌"}</span></div>
-              <div className="text-sm"><span className="text-muted-foreground">Skills:</span> <span className="font-medium">{(mentorProfile.skills || []).join(", ")}</span></div>
-              <div className="text-sm"><span className="text-muted-foreground">Slots:</span> <span className="font-medium">{(mentorProfile.availability_slots || []).join(", ")}</span></div>
-              <Button variant="outline" size="sm" className="mt-2" onClick={() => setEditForm({
-                title: mentorProfile.title,
-                bio: mentorProfile.bio || "",
-                company: mentorProfile.company || "",
-                skills: (mentorProfile.skills || []).join(", "),
-                hourly_rate: String(mentorProfile.hourly_rate || 0),
-                slots: (mentorProfile.availability_slots || []).join(", "),
-                available: mentorProfile.available,
-              })}>Edit Profile</Button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <Input placeholder="Title *" value={editForm.title} onChange={e => setEditForm((f: any) => ({ ...f, title: e.target.value }))} />
-              <Input placeholder="Company" value={editForm.company} onChange={e => setEditForm((f: any) => ({ ...f, company: e.target.value }))} />
-              <Textarea placeholder="Bio" value={editForm.bio} onChange={e => setEditForm((f: any) => ({ ...f, bio: e.target.value }))} rows={3} />
-              <Input placeholder="Skills (comma separated)" value={editForm.skills} onChange={e => setEditForm((f: any) => ({ ...f, skills: e.target.value }))} />
-              <Input placeholder="Hourly rate (₹)" type="number" value={editForm.hourly_rate} onChange={e => setEditForm((f: any) => ({ ...f, hourly_rate: e.target.value }))} />
-              <Input placeholder="Slots (comma separated)" value={editForm.slots} onChange={e => setEditForm((f: any) => ({ ...f, slots: e.target.value }))} />
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={editForm.available} onChange={e => setEditForm((f: any) => ({ ...f, available: e.target.checked }))} />
-                Available for bookings
-              </label>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setEditForm(null)}>Cancel</Button>
-                <Button variant="hero" size="sm" onClick={saveProfile}>Save Changes</Button>
+        <div className="space-y-4">
+          <div className="rounded-xl border border-border/50 bg-card/60 p-5 max-w-lg">
+            <h3 className="text-sm font-semibold mb-4 flex items-center gap-2"><Settings className="w-4 h-4 text-primary" /> Edit Profile</h3>
+            {!editForm ? (
+              <div className="space-y-3">
+                <div className="text-sm"><span className="text-muted-foreground">Title:</span> <span className="font-medium">{mentorProfile.title}</span></div>
+                <div className="text-sm"><span className="text-muted-foreground">Company:</span> <span className="font-medium">{mentorProfile.company || "—"}</span></div>
+                <div className="text-sm"><span className="text-muted-foreground">Rate:</span> <span className="font-medium">{formatRupees(mentorProfile.hourly_rate || 0)}/hr</span></div>
+                <div className="text-sm"><span className="text-muted-foreground">Available:</span> <span className="font-medium">{mentorProfile.available ? "Yes ✅" : "No ❌"}</span></div>
+                <div className="text-sm"><span className="text-muted-foreground">Skills:</span> <span className="font-medium">{(mentorProfile.skills || []).join(", ")}</span></div>
+                <Button variant="outline" size="sm" className="mt-2" onClick={() => setEditForm({
+                  title: mentorProfile.title,
+                  bio: mentorProfile.bio || "",
+                  company: mentorProfile.company || "",
+                  skills: (mentorProfile.skills || []).join(", "),
+                  hourly_rate: String(mentorProfile.hourly_rate || 0),
+                  calendarSlots: stringsToSlots(mentorProfile.availability_slots || []),
+                  available: mentorProfile.available,
+                })}>Edit Profile</Button>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="space-y-3">
+                <Input placeholder="Title *" value={editForm.title} onChange={e => setEditForm((f: any) => ({ ...f, title: e.target.value }))} />
+                <Input placeholder="Company" value={editForm.company} onChange={e => setEditForm((f: any) => ({ ...f, company: e.target.value }))} />
+                <Textarea placeholder="Bio" value={editForm.bio} onChange={e => setEditForm((f: any) => ({ ...f, bio: e.target.value }))} rows={3} />
+                <Input placeholder="Skills (comma separated)" value={editForm.skills} onChange={e => setEditForm((f: any) => ({ ...f, skills: e.target.value }))} />
+                <Input placeholder="Hourly rate (₹)" type="number" value={editForm.hourly_rate} onChange={e => setEditForm((f: any) => ({ ...f, hourly_rate: e.target.value }))} />
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={editForm.available} onChange={e => setEditForm((f: any) => ({ ...f, available: e.target.checked }))} />
+                  Available for bookings
+                </label>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setEditForm(null)}>Cancel</Button>
+                  <Button variant="hero" size="sm" onClick={saveProfile}>Save Changes</Button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Availability Calendar */}
+          <div className="rounded-xl border border-border/50 bg-card/60 p-5">
+            <h3 className="text-sm font-semibold mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-warning" /> Availability Calendar</h3>
+            {editForm ? (
+              <MentorAvailabilityCalendar
+                slots={editForm.calendarSlots || []}
+                onChange={(slots) => setEditForm((f: any) => ({ ...f, calendarSlots: slots }))}
+              />
+            ) : (
+              <MentorAvailabilityCalendar
+                slots={stringsToSlots(mentorProfile.availability_slots || [])}
+                onChange={() => {}}
+                readOnly
+              />
+            )}
+          </div>
         </div>
       )}
     </div>
