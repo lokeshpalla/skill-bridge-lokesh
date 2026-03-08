@@ -61,10 +61,21 @@ export default function TeamMatchingPage() {
 
   const userSkills = (profile?.skills || []).map(s => s.toLowerCase());
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
     fetchProjects();
   }, [user]);
+
+  // Auto-join via shared link
+  useEffect(() => {
+    const joinId = searchParams.get("join");
+    if (joinId && user && !loading) {
+      handleJoin(joinId);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, user, loading]);
 
   const fetchProjects = async () => {
     setLoading(true);
