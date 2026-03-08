@@ -216,13 +216,23 @@ const AIAssistant = () => {
     setIsListening(true);
   }, [isListening, language]);
 
-  // Text-to-speech
+  // Text-to-speech with proper voice selection for Indian languages
   const speak = useCallback((text: string) => {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text.replace(/[*#`_~]/g, ""));
     utterance.lang = language;
     utterance.rate = 0.95;
+
+    // Find a voice matching the selected language
+    const voices = window.speechSynthesis.getVoices();
+    const langPrefix = language.split("-")[0]; // e.g. "hi" from "hi-IN"
+    const matchedVoice =
+      voices.find((v) => v.lang === language) ||
+      voices.find((v) => v.lang.startsWith(langPrefix)) ||
+      voices.find((v) => v.lang.startsWith("en"));
+    if (matchedVoice) utterance.voice = matchedVoice;
+
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
