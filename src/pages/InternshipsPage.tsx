@@ -245,7 +245,6 @@ const InternshipsPage = () => {
                   >
                     <ExternalLink className="w-3 h-3" /> Apply Now
                   </Button>
-                  </Button>
                 </motion.div>
               ))}
             </div>
