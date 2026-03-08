@@ -179,6 +179,24 @@ const CodingPage = () => {
         }
         parts.push(`\n⏱ Runtime: ${elapsed}ms | Language: ${language.label}`);
         setOutput(parts.join('\n\n'));
+
+        // Record activity: award XP based on difficulty + time spent
+        if (user && !String(execResult?.result).startsWith('❌')) {
+          const diffXp: Record<string, number> = { Easy: 20, Medium: 40, Hard: 80 };
+          const baseXp = diffXp[selected.difficulty] ?? 30;
+          const minutesSpent = Math.floor(timer / 60);
+          supabase.rpc("record_activity", {
+            _user_id: user.id,
+            _xp_amount: baseXp,
+            _minutes_spent: minutesSpent,
+          }).then(({ data }) => {
+            const result = data as { xp_earned: number; new_streak: number; streak_increased: boolean } | null;
+            if (result) {
+              const streakMsg = result.streak_increased ? ` | 🔥 Streak: ${result.new_streak}` : "";
+              toast({ title: "🎉 XP Earned!", description: `+${result.xp_earned} XP${streakMsg}` });
+            }
+          });
+        }
       } catch (e) {
         const elapsed = (performance.now() - startTime).toFixed(1);
         setOutput(`❌ Error:\n${(e as Error).message}\n\n⏱ Runtime: ${elapsed}ms`);
