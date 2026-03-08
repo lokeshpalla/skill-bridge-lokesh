@@ -40,6 +40,7 @@ interface PortfolioFormProps {
   onSave: (form: ProjectForm, editingId: string | null) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onPreview: () => void;
+  onOpenAI?: () => void;
   saving: boolean;
   userId?: string;
 }
