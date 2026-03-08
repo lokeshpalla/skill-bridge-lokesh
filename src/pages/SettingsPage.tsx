@@ -62,8 +62,45 @@ const SettingsPage = () => {
       setGithubUrl(profile.github_url || "");
       setLinkedinUrl(profile.linkedin_url || "");
       setPortfolioUrl(profile.portfolio_url || "");
+      setAvatarUrl(profile.avatar_url || null);
     }
   }, [profile]);
+
+  const uploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.size > 2 * 1024 * 1024) return toast.error("Image must be under 2MB");
+    
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/avatar.${ext}`;
+
+    const { error: uploadErr } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true });
+
+    if (uploadErr) {
+      setUploading(false);
+      return toast.error("Upload failed");
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+    const urlWithCache = `${publicUrl}?t=${Date.now()}`;
+
+    await supabase.from("profiles").update({ avatar_url: urlWithCache }).eq("user_id", user.id);
+    setAvatarUrl(urlWithCache);
+    setUploading(false);
+    toast.success("Avatar updated!");
+  };
+
+  const removeAvatar = async () => {
+    if (!user) return;
+    setUploading(true);
+    await supabase.from("profiles").update({ avatar_url: null }).eq("user_id", user.id);
+    setAvatarUrl(null);
+    setUploading(false);
+    toast.success("Avatar removed");
+  };
 
   const saveProfile = async () => {
     if (!user) return;
