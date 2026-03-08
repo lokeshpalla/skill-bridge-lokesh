@@ -228,8 +228,17 @@ export default function AdminPage() {
         <AdminModeration posts={stats.recentPosts} comments={stats.recentComments} onRefresh={fetchStats} />
       )}
 
+      {/* Courses Tab */}
+      {tab === "courses" && <AdminCourseManagement />}
+
+      {/* Mentors Tab */}
+      {tab === "mentors" && <AdminMentorManagement />}
+
       {/* Payouts Tab */}
       {tab === "payouts" && <AdminPayouts />}
+
+      {/* Announcements Tab */}
+      {tab === "announcements" && <AdminAnnouncements />}
 
       {/* Analytics Tab */}
       {tab === "analytics" && (
