@@ -650,6 +650,74 @@ export type Database = {
         }
         Relationships: []
       }
+      mock_interview_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          interview_id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          interview_id: string
+          role: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          interview_id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mock_interview_messages_interview_id_fkey"
+            columns: ["interview_id"]
+            isOneToOne: false
+            referencedRelation: "mock_interviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mock_interviews: {
+        Row: {
+          completed_at: string | null
+          difficulty: string
+          feedback: string | null
+          id: string
+          score: number | null
+          started_at: string
+          status: string
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          difficulty?: string
+          feedback?: string | null
+          id?: string
+          score?: number | null
+          started_at?: string
+          status?: string
+          topic?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          difficulty?: string
+          feedback?: string | null
+          id?: string
+          score?: number | null
+          started_at?: string
+          status?: string
+          topic?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       portfolio_projects: {
         Row: {
           created_at: string
