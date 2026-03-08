@@ -280,7 +280,36 @@ const Dashboard = () => {
         })}
       </div>
 
-      <div className="grid lg:grid-cols-5 gap-4">
+      {/* Restore Streak Banner */}
+      {streak === 0 && xp >= 1000 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="rounded-xl border border-warning/30 bg-warning/5 backdrop-blur-sm p-4 flex flex-col sm:flex-row items-center justify-between gap-3"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center flex-shrink-0">
+              <Flame className="w-5 h-5 text-warning" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Your streak was broken! 😢</p>
+              <p className="text-xs text-muted-foreground">Spend <strong>1,000 XP</strong> to restore your streak back to 1 day.</p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 border-warning/40 text-warning hover:bg-warning/10 hover:text-warning flex-shrink-0"
+            onClick={handleRestoreStreak}
+            disabled={restoringStreak}
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${restoringStreak ? "animate-spin" : ""}`} />
+            {restoringStreak ? "Restoring..." : "Restore Streak (1000 XP)"}
+          </Button>
+        </motion.div>
+      )}
+
         {/* XP Chart */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
