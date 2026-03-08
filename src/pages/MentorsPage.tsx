@@ -95,7 +95,7 @@ const MentorsPage = () => {
       company: regForm.company || null,
       skills: regForm.skills.split(",").map(s => s.trim()).filter(Boolean),
       hourly_rate: parseInt(regForm.hourly_rate) || 3000,
-      availability_slots: regForm.slots.split(",").map(s => s.trim()).filter(Boolean),
+      availability_slots: slotsToStrings(regSlots),
       available: true,
     });
     if (error) { toast.error("Failed to register"); return; }
