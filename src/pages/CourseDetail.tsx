@@ -1,10 +1,14 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, BookOpen, Star, Users, Play, CheckCircle, Lock } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Clock, BookOpen, Star, Users, Play, CheckCircle, Lock, Award } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import ModuleViewer from "@/components/courses/ModuleViewer";
+import CourseExam from "@/components/courses/CourseExam";
+import CertificateCard from "@/components/courses/CertificateCard";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const coursesData: Record<number, {
   id: number; title: string; category: string; difficulty: string; duration: string;
@@ -47,6 +51,25 @@ const CourseDetail = () => {
   const [modules, setModules] = useState(course?.modules || []);
   const [enrolled, setEnrolled] = useState(course ? modules.some(m => m.completed) : false);
   const [activeModule, setActiveModule] = useState<number | null>(null);
+  const [certificate, setCertificate] = useState<any>(null);
+  const { user } = useAuth();
+
+  const allCompleted = modules.length > 0 && modules.every(m => m.completed);
+
+  useEffect(() => {
+    if (user && course) fetchCertificate();
+  }, [user, course]);
+
+  const fetchCertificate = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("course_certificates")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("course_id", Number(id))
+      .maybeSingle();
+    if (data) setCertificate(data);
+  };
 
   if (!course) {
     return (
@@ -183,6 +206,35 @@ const CourseDetail = () => {
             })}
           </div>
         </div>
+
+        {/* Course Exam - show after all modules completed */}
+        {allCompleted && enrolled && (
+          <div className="space-y-4">
+            <CourseExam
+              courseId={course.id}
+              courseTitle={course.title}
+              onCertificateEarned={fetchCertificate}
+            />
+          </div>
+        )}
+
+        {/* Certificate */}
+        {certificate && user && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 px-1">
+              <Award className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold">Your Certificate</span>
+            </div>
+            <CertificateCard
+              displayName={user.user_metadata?.display_name || user.email || "Student"}
+              courseTitle={certificate.course_title}
+              grade={certificate.grade}
+              percentage={Number(certificate.percentage)}
+              certificateNumber={certificate.certificate_number}
+              issuedAt={certificate.issued_at}
+            />
+          </div>
+        )}
       </motion.div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import CourseNotes from "./CourseNotes";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Play, Code2, ChevronDown, Copy, Check } from "lucide-react";
@@ -237,6 +238,9 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
           </pre>
         </div>
       </div>
+
+      {/* Notes & Bookmarks */}
+      <CourseNotes courseId={courseId} moduleIndex={moduleIndex} />
     </motion.div>
   );
 };
