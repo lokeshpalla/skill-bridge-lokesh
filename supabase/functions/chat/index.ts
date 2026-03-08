@@ -13,8 +13,16 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const languageInstruction = language && language !== "en-IN"
-      ? `IMPORTANT: Always respond in the language indicated by code "${language}". If the user writes in any language, respond in the language matching "${language}".`
+    const LANG_NAMES: Record<string, string> = {
+      "hi-IN": "Hindi (हिन्दी)", "bn-IN": "Bengali (বাংলা)", "ta-IN": "Tamil (தமிழ்)",
+      "te-IN": "Telugu (తెలుగు)", "mr-IN": "Marathi (मराठी)", "gu-IN": "Gujarati (ગુજરાતી)",
+      "kn-IN": "Kannada (ಕನ್ನಡ)", "ml-IN": "Malayalam (മലയാളം)", "pa-IN": "Punjabi (ਪੰਜਾਬੀ)",
+      "or-IN": "Odia (ଓଡ଼ିଆ)", "as-IN": "Assamese (অসমীয়া)", "ur-IN": "Urdu (اردو)",
+      "ne-IN": "Nepali (नेपाली)", "sa-IN": "Sanskrit (संस्कृतम्)",
+    };
+    const langName = language ? LANG_NAMES[language] : null;
+    const languageInstruction = langName
+      ? `\n\nCRITICAL INSTRUCTION: You MUST respond ENTIRELY in ${langName}. Do NOT respond in English. Every single word of your response must be in ${langName}. Use the ${langName} script/alphabet. This is mandatory and non-negotiable. Even code explanations should have surrounding text in ${langName}.`
       : "";
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
