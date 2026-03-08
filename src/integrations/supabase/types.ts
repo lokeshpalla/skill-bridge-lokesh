@@ -266,6 +266,39 @@ export type Database = {
         }
         Relationships: []
       }
+      course_certificates: {
+        Row: {
+          certificate_number: string
+          course_id: number
+          course_title: string
+          grade: string
+          id: string
+          issued_at: string
+          percentage: number
+          user_id: string
+        }
+        Insert: {
+          certificate_number?: string
+          course_id: number
+          course_title: string
+          grade: string
+          id?: string
+          issued_at?: string
+          percentage: number
+          user_id: string
+        }
+        Update: {
+          certificate_number?: string
+          course_id?: number
+          course_title?: string
+          grade?: string
+          id?: string
+          issued_at?: string
+          percentage?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       course_enrollments: {
         Row: {
           completed_at: string | null
@@ -303,6 +336,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      course_exam_results: {
+        Row: {
+          answers: Json
+          completed_at: string
+          course_id: number
+          grade: string
+          id: string
+          passed: boolean
+          percentage: number
+          score: number
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          completed_at?: string
+          course_id: number
+          grade?: string
+          id?: string
+          passed?: boolean
+          percentage?: number
+          score?: number
+          total_questions?: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string
+          course_id?: number
+          grade?: string
+          id?: string
+          passed?: boolean
+          percentage?: number
+          score?: number
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      course_notes: {
+        Row: {
+          course_id: number
+          created_at: string
+          id: string
+          module_index: number
+          note: string
+          timestamp_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          course_id: number
+          created_at?: string
+          id?: string
+          module_index: number
+          note: string
+          timestamp_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          course_id?: number
+          created_at?: string
+          id?: string
+          module_index?: number
+          note?: string
+          timestamp_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: []
       }
       courses: {
         Row: {
