@@ -260,11 +260,17 @@ const Index = () => {
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 AI-powered learning platform for the next generation of developers.
               </p>
-              <div className="flex items-center gap-3">
-                {[Twitter, Github, Linkedin, Mail].map((Icon, i) => (
-                  <a key={i} href="#" className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
-                    <Icon className="w-4 h-4" />
+              <div className="flex items-center gap-3" role="list" aria-label="Social links">
+                {[
+                  { Icon: Twitter, label: "Twitter" },
+                  { Icon: Github, label: "GitHub" },
+                  { Icon: Linkedin, label: "LinkedIn" },
+                  { Icon: Mail, label: "Email" },
+                ].map(({ Icon, label }) => (
+                  <a key={label} href="#" className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" aria-label={label} role="listitem">
+                    <Icon className="w-4 h-4" aria-hidden="true" />
                   </a>
+                ))}
                 ))}
               </div>
             </div>
