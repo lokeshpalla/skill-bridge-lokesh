@@ -1,10 +1,14 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, BookOpen, Star, Users, Play, CheckCircle, Lock } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Clock, BookOpen, Star, Users, Play, CheckCircle, Lock, Award } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import ModuleViewer from "@/components/courses/ModuleViewer";
+import CourseExam from "@/components/courses/CourseExam";
+import CertificateCard from "@/components/courses/CertificateCard";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const coursesData: Record<number, {
   id: number; title: string; category: string; difficulty: string; duration: string;
