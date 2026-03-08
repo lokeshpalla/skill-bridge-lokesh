@@ -41,6 +41,7 @@ interface PortfolioFormProps {
   onDelete: (id: string) => Promise<void>;
   onPreview: () => void;
   onOpenAI?: () => void;
+  onResume?: () => void;
   saving: boolean;
   userId?: string;
 }
