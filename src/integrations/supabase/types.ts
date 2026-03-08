@@ -448,6 +448,33 @@ export type Database = {
         }
         Relationships: []
       }
+      exam_proctoring_logs: {
+        Row: {
+          course_id: number
+          created_at: string
+          event_data: Json
+          event_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          course_id: number
+          created_at?: string
+          event_data?: Json
+          event_type?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          course_id?: number
+          created_at?: string
+          event_data?: Json
+          event_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       forum_comments: {
         Row: {
           content: string

@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ClipboardCheck, ChevronRight, Trophy, AlertCircle, Timer, Play, Code2, CheckCircle, XCircle } from "lucide-react";
+import { ClipboardCheck, ChevronRight, Trophy, AlertCircle, Timer, Play, Code2, CheckCircle, XCircle, Camera, Maximize, ShieldAlert, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useExamProctoring } from "@/hooks/useExamProctoring";
 
 // ----- Types -----
 interface MCQQuestion {
@@ -157,6 +158,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
   const [saving, setSaving] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [proctoringReady, setProctoringReady] = useState(false);
 
   // Coding question state
   const [userCode, setUserCode] = useState("");
@@ -167,6 +169,13 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
   const questions = courseExams[courseId] || [];
   const EXAM_DURATION = 30 * 60; // 30 minutes fixed
 
+  // Proctoring
+  const proctoring = useExamProctoring({
+    userId: user?.id,
+    courseId,
+    isActive: started && !showResult,
+  });
+
   const finishExam = useCallback((finalScores: (boolean | null)[]) => {
     if (timerRef.current) clearInterval(timerRef.current);
     const score = finalScores.filter(s => s === true).length;
@@ -175,7 +184,11 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
     setResult({ score, total: questions.length, pct, grade });
     setShowResult(true);
     saveResult(score, questions.length, pct, grade.grade, pct >= 50);
-  }, [questions]);
+    // Stop proctoring
+    proctoring.stopCamera();
+    proctoring.exitFullscreen();
+    proctoring.logEvent("exam_finished", { score, total: questions.length, pct, tabSwitches: proctoring.state.tabSwitchCount, copyPasteAttempts: proctoring.state.copyPasteAttempts });
+  }, [questions, proctoring]);
 
   useEffect(() => {
     if (!started || showResult) return;
@@ -201,7 +214,23 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
     setShowHint(false);
   };
 
-  const handleStart = () => {
+  const handleStartProctoring = async () => {
+    // Start camera
+    const cameraOk = await proctoring.startCamera();
+    if (!cameraOk) {
+      toast.error("Camera is required for exam proctoring. Please allow camera access and try again.");
+      return;
+    }
+    // Enter fullscreen
+    await proctoring.enterFullscreen();
+    setProctoringReady(true);
+  };
+
+  const handleStart = async () => {
+    if (!proctoringReady) {
+      await handleStartProctoring();
+      return;
+    }
     setStarted(true);
     setCurrentQ(0);
     setScores(new Array(questions.length).fill(null));
@@ -282,11 +311,47 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
         <p className="text-xs text-muted-foreground mb-1">
           {questions.length} questions • {mcqCount} MCQs + {codingCount} coding challenges
         </p>
-        <p className="text-xs text-muted-foreground mb-4">
+        <p className="text-xs text-muted-foreground mb-3">
           30 min timer • Pass mark: 50% • Earn a certificate!
         </p>
+
+        {/* Proctoring requirements */}
+        <div className="rounded-lg border border-warning/30 bg-warning/5 p-3 mb-4 text-left">
+          <div className="flex items-center gap-2 mb-2">
+            <ShieldAlert className="w-4 h-4 text-warning" />
+            <span className="text-xs font-semibold text-warning">Exam Proctoring Active</span>
+          </div>
+          <ul className="text-[11px] text-muted-foreground space-y-1">
+            <li className="flex items-center gap-2">
+              <Camera className="w-3 h-3" /> Camera will be turned on for monitoring
+            </li>
+            <li className="flex items-center gap-2">
+              <Maximize className="w-3 h-3" /> Fullscreen mode is required
+            </li>
+            <li className="flex items-center gap-2">
+              <Eye className="w-3 h-3" /> Tab switches & copy/paste are monitored
+            </li>
+          </ul>
+        </div>
+
+        {/* Camera preview if ready */}
+        {proctoringReady && proctoring.state.isCameraOn && (
+          <div className="mb-4 flex justify-center">
+            <div className="relative rounded-lg overflow-hidden border border-success/30 w-32 h-24">
+              <video
+                ref={proctoring.videoRef}
+                autoPlay
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-success animate-pulse" />
+            </div>
+          </div>
+        )}
+
         <Button variant="hero" size="sm" className="gap-1.5" onClick={handleStart}>
-          Start Exam <ChevronRight className="w-4 h-4" />
+          {proctoringReady ? "Start Exam" : "Enable Proctoring & Start"} <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
     );
@@ -316,16 +381,28 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
         </p>
 
         {result.pct >= 50 ? (
-          <div className="flex items-center justify-center gap-2 text-xs mt-3 mb-4 px-3 py-2 rounded-lg bg-success/10 text-success border border-success/20">
+          <div className="flex items-center justify-center gap-2 text-xs mt-3 mb-2 px-3 py-2 rounded-lg bg-success/10 text-success border border-success/20">
             <Trophy className="w-4 h-4" /> Certificate earned! Check your certificates.
           </div>
         ) : (
-          <div className="flex items-center justify-center gap-2 text-xs mt-3 mb-4 px-3 py-2 rounded-lg bg-destructive/10 text-destructive border border-destructive/20">
+          <div className="flex items-center justify-center gap-2 text-xs mt-3 mb-2 px-3 py-2 rounded-lg bg-destructive/10 text-destructive border border-destructive/20">
             <AlertCircle className="w-4 h-4" /> You need 50% to pass. Try again!
           </div>
         )}
 
-        <Button variant="outline" size="sm" onClick={handleStart}>
+        {/* Proctoring summary */}
+        <div className="mb-4 px-3 py-2 rounded-lg bg-secondary/50 border border-border/30 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 mb-1">
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span className="font-semibold text-foreground">Proctoring Report</span>
+          </div>
+          <div className="flex gap-4">
+            <span>Tab switches: <strong className={proctoring.state.tabSwitchCount > 0 ? "text-destructive" : "text-success"}>{proctoring.state.tabSwitchCount}</strong></span>
+            <span>Copy/paste attempts: <strong className={proctoring.state.copyPasteAttempts > 0 ? "text-destructive" : "text-success"}>{proctoring.state.copyPasteAttempts}</strong></span>
+          </div>
+        </div>
+
+        <Button variant="outline" size="sm" onClick={() => { setProctoringReady(false); handleStart(); }}>
           Retake Exam
         </Button>
       </motion.div>
@@ -335,14 +412,58 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
   const q = questions[currentQ];
   const isCoding = q.type === "coding";
 
-  // ----- Question screen -----
   return (
-    <motion.div
-      key={currentQ}
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="rounded-xl border border-border/50 bg-card/60 overflow-hidden"
-    >
+    <div className="space-y-3">
+      {/* Proctoring warnings banner */}
+      {proctoring.state.warnings.length > 0 && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2">
+          <div className="flex items-center gap-2 mb-1">
+            <ShieldAlert className="w-3.5 h-3.5 text-destructive" />
+            <span className="text-[10px] font-semibold text-destructive uppercase tracking-wider">Proctoring Alerts</span>
+            <span className="text-[10px] text-muted-foreground ml-auto">
+              Tab switches: {proctoring.state.tabSwitchCount} | Copy attempts: {proctoring.state.copyPasteAttempts}
+            </span>
+          </div>
+          <p className="text-[11px] text-destructive/80">{proctoring.state.warnings[proctoring.state.warnings.length - 1]}</p>
+        </div>
+      )}
+
+      {/* Camera feed (small floating) */}
+      {proctoring.state.isCameraOn && (
+        <div className="fixed bottom-4 right-4 z-50 rounded-lg overflow-hidden border-2 border-primary/30 shadow-lg w-28 h-20">
+          <video
+            ref={proctoring.videoRef}
+            autoPlay
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute top-1 left-1 flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/60 text-[8px] text-white font-semibold">
+            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+            REC
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen reminder */}
+      {!proctoring.state.isFullscreen && (
+        <div className="rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs text-warning">
+            <Maximize className="w-3.5 h-3.5" />
+            <span>You exited fullscreen mode!</span>
+          </div>
+          <Button variant="outline" size="sm" className="h-6 text-[10px] px-2" onClick={proctoring.enterFullscreen}>
+            Return to Fullscreen
+          </Button>
+        </div>
+      )}
+
+      <motion.div
+        key={currentQ}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="rounded-xl border border-border/50 bg-card/60 overflow-hidden"
+      >
       {/* Progress bar */}
       <div className="px-4 py-2.5 border-b border-border/40 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -524,6 +645,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
         )}
       </div>
     </motion.div>
+    </div>
   );
 };
 
