@@ -1,18 +1,20 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Star, Calendar, MessageCircle, Search } from "lucide-react";
+import { Star, Calendar, MessageCircle, Search, Clock, IndianRupee } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 
 const mentors = [
-  { id: 1, name: "Sarah Chen", role: "Senior Engineer @ Google", skills: ["React", "System Design", "TypeScript"], rating: 4.9, sessions: 234, price: "$60/hr", avatar: "👩‍💻", available: true },
-  { id: 2, name: "James Wilson", role: "Staff Engineer @ Meta", skills: ["Python", "ML", "Data Pipelines"], rating: 4.8, sessions: 189, price: "$75/hr", avatar: "👨‍💼", available: true },
-  { id: 3, name: "Priya Sharma", role: "Tech Lead @ Microsoft", skills: ["Cloud", "DevOps", "Kubernetes"], rating: 4.9, sessions: 312, price: "$55/hr", avatar: "👩‍🔬", available: false },
-  { id: 4, name: "Alex Kim", role: "CTO @ Startup", skills: ["Full-Stack", "Architecture", "Leadership"], rating: 4.7, sessions: 156, price: "$80/hr", avatar: "🧑‍💻", available: true },
-  { id: 5, name: "Maria Garcia", role: "AI Researcher @ DeepMind", skills: ["Deep Learning", "NLP", "PyTorch"], rating: 5.0, sessions: 98, price: "$90/hr", avatar: "👩‍🏫", available: true },
-  { id: 6, name: "David Park", role: "Mobile Lead @ Uber", skills: ["React Native", "iOS", "Android"], rating: 4.6, sessions: 145, price: "$50/hr", avatar: "👨‍🎓", available: false },
+  { id: 1, name: "Sarah Chen", role: "Senior Engineer @ Google", skills: ["React", "System Design", "TypeScript"], rating: 4.9, sessions: 234, price: 4500, avatar: "👩‍💻", available: true, freeSlots: ["Mon 6–8 PM", "Wed 7–9 PM", "Sat 10 AM–12 PM"] },
+  { id: 2, name: "James Wilson", role: "Staff Engineer @ Meta", skills: ["Python", "ML", "Data Pipelines"], rating: 4.8, sessions: 189, price: 5500, avatar: "👨‍💼", available: true, freeSlots: ["Tue 5–7 PM", "Thu 6–8 PM"] },
+  { id: 3, name: "Priya Sharma", role: "Tech Lead @ Microsoft", skills: ["Cloud", "DevOps", "Kubernetes"], rating: 4.9, sessions: 312, price: 4000, avatar: "👩‍🔬", available: false, freeSlots: ["Fri 4–6 PM"] },
+  { id: 4, name: "Alex Kim", role: "CTO @ Startup", skills: ["Full-Stack", "Architecture", "Leadership"], rating: 4.7, sessions: 156, price: 6000, avatar: "🧑‍💻", available: true, freeSlots: ["Mon 8–10 PM", "Sat 2–5 PM", "Sun 10 AM–1 PM"] },
+  { id: 5, name: "Maria Garcia", role: "AI Researcher @ DeepMind", skills: ["Deep Learning", "NLP", "PyTorch"], rating: 5.0, sessions: 98, price: 7000, avatar: "👩‍🏫", available: true, freeSlots: ["Wed 6–8 PM", "Sun 4–6 PM"] },
+  { id: 6, name: "David Park", role: "Mobile Lead @ Uber", skills: ["React Native", "iOS", "Android"], rating: 4.6, sessions: 145, price: 3500, avatar: "👨‍🎓", available: false, freeSlots: ["Thu 5–7 PM", "Sat 11 AM–1 PM"] },
 ];
+
+const formatRupees = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
 
 const MentorsPage = () => {
   const [booked, setBooked] = useState<Set<number>>(new Set());
@@ -68,10 +70,26 @@ const MentorsPage = () => {
               ))}
             </div>
 
-            <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-4">
+            <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-3">
               <span className="flex items-center gap-1"><Star className="w-3 h-3 text-warning" />{mentor.rating}</span>
               <span className="flex items-center gap-1"><MessageCircle className="w-3 h-3" />{mentor.sessions}</span>
-              <span className="font-semibold text-foreground">{mentor.price}</span>
+              <span className="flex items-center gap-0.5 font-semibold text-foreground">
+                <IndianRupee className="w-3 h-3" />{formatRupees(mentor.price)}/hr
+              </span>
+            </div>
+
+            {/* Free time slots */}
+            <div className="mb-4 p-2.5 rounded-lg bg-secondary/40 border border-border/30">
+              <p className="text-[10px] font-medium text-muted-foreground flex items-center gap-1 mb-1.5">
+                <Clock className="w-3 h-3" /> Available Slots
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {mentor.freeSlots.map((slot) => (
+                  <span key={slot} className="text-[10px] px-2 py-0.5 rounded-md bg-background/80 border border-border/40 text-foreground">
+                    {slot}
+                  </span>
+                ))}
+              </div>
             </div>
 
             <Button
