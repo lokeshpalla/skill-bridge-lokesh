@@ -57,7 +57,7 @@ function AppRoutes() {
         <Route path="/dashboard" element={<SubscriptionGate><Dashboard /></SubscriptionGate>} />
         <Route path="/courses" element={<SubscriptionGate><CoursesPage /></SubscriptionGate>} />
         <Route path="/courses/:id" element={<SubscriptionGate><CourseDetail /></SubscriptionGate>} />
-        <Route path="/coding" element={<CodingPage />} />
+        <Route path="/coding" element={<SubscriptionGate><CodingPage /></SubscriptionGate>} />
          <Route path="/mentors" element={<MentorsPage />} />
           <Route path="/mentor-session" element={<MentorSessionPage />} />
         <Route path="/mentor-dashboard" element={<MentorDashboardPage />} />
