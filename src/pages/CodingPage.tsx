@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, CheckCircle, Search, ChevronDown, RotateCcw, Timer, Lightbulb } from "lucide-react";
+import { Play, CheckCircle, Search, ChevronDown, RotateCcw, Timer, Lightbulb, Terminal, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { codingProblems, problemCategories, defaultHints, defaultDescriptions, CodingProblem } from "@/data/codingProblems";
 
 const languages = [
   { id: "javascript", label: "JavaScript", icon: "JS", color: "text-warning" },
@@ -15,211 +16,41 @@ const languages = [
   { id: "csharp", label: "C#", icon: "C#", color: "text-accent" },
 ];
 
-const starterCodes: Record<string, Record<number, string>> = {
-  javascript: {
-    1: `function twoSum(nums, target) {
-  const map = new Map();
-  for (let i = 0; i < nums.length; i++) {
-    const complement = target - nums[i];
-    if (map.has(complement)) {
-      return [map.get(complement), i];
-    }
-    map.set(nums[i], i);
-  }
-  return [];
-}`,
-    2: `function addTwoNumbers(l1, l2) {
-  // Your solution here
-}`,
-  },
-  python: {
-    1: `def two_sum(nums: list[int], target: int) -> list[int]:
-    seen = {}
-    for i, num in enumerate(nums):
-        complement = target - num
-        if complement in seen:
-            return [seen[complement], i]
-        seen[num] = i
-    return []`,
-    2: `def add_two_numbers(l1, l2):
-    # Your solution here
-    pass`,
-  },
-  java: {
-    1: `class Solution {
-    public int[] twoSum(int[] nums, int target) {
-        Map<Integer, Integer> map = new HashMap<>();
-        for (int i = 0; i < nums.length; i++) {
-            int complement = target - nums[i];
-            if (map.containsKey(complement)) {
-                return new int[]{map.get(complement), i};
-            }
-            map.put(nums[i], i);
-        }
-        return new int[]{};
-    }
-}`,
-    2: `class Solution {
-    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-        // Your solution here
-        return null;
-    }
-}`,
-  },
-  cpp: {
-    1: `class Solution {
-public:
-    vector<int> twoSum(vector<int>& nums, int target) {
-        unordered_map<int, int> map;
-        for (int i = 0; i < nums.size(); i++) {
-            int complement = target - nums[i];
-            if (map.count(complement)) {
-                return {map[complement], i};
-            }
-            map[nums[i]] = i;
-        }
-        return {};
-    }
-};`,
-    2: `class Solution {
-public:
-    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
-        // Your solution here
-        return nullptr;
-    }
-};`,
-  },
-  typescript: {
-    1: `function twoSum(nums: number[], target: number): number[] {
-  const map = new Map<number, number>();
-  for (let i = 0; i < nums.length; i++) {
-    const complement = target - nums[i];
-    if (map.has(complement)) {
-      return [map.get(complement)!, i];
-    }
-    map.set(nums[i], i);
-  }
-  return [];
-}`,
-    2: `function addTwoNumbers(l1: ListNode | null, l2: ListNode | null): ListNode | null {
-  // Your solution here
-  return null;
-}`,
-  },
-  go: {
-    1: `func twoSum(nums []int, target int) []int {
-    seen := make(map[int]int)
-    for i, num := range nums {
-        complement := target - num
-        if j, ok := seen[complement]; ok {
-            return []int{j, i}
-        }
-        seen[num] = i
-    }
-    return nil
-}`,
-    2: `func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
-    // Your solution here
-    return nil
-}`,
-  },
-  rust: {
-    1: `impl Solution {
-    pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {
-        use std::collections::HashMap;
-        let mut map = HashMap::new();
-        for (i, &num) in nums.iter().enumerate() {
-            let complement = target - num;
-            if let Some(&j) = map.get(&complement) {
-                return vec![j as i32, i as i32];
-            }
-            map.insert(num, i);
-        }
-        vec![]
-    }
-}`,
-    2: `impl Solution {
-    pub fn add_two_numbers(l1: Option<Box<ListNode>>, l2: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
-        // Your solution here
-        None
-    }
-}`,
-  },
-  csharp: {
-    1: `public class Solution {
-    public int[] TwoSum(int[] nums, int target) {
-        var dict = new Dictionary<int, int>();
-        for (int i = 0; i < nums.Length; i++) {
-            int complement = target - nums[i];
-            if (dict.ContainsKey(complement)) {
-                return new int[] { dict[complement], i };
-            }
-            dict[nums[i]] = i;
-        }
-        return new int[] {};
-    }
-}`,
-    2: `public class Solution {
-    public ListNode AddTwoNumbers(ListNode l1, ListNode l2) {
-        // Your solution here
-        return null;
-    }
-}`,
-  },
-};
-
-const problems = [
-  { id: 1, title: "Two Sum", difficulty: "Easy", category: "Arrays", acceptance: "78%", solved: true },
-  { id: 2, title: "Add Two Numbers", difficulty: "Medium", category: "Linked Lists", acceptance: "42%", solved: true },
-  { id: 3, title: "Longest Substring Without Repeating Characters", difficulty: "Medium", category: "Strings", acceptance: "35%", solved: false },
-  { id: 4, title: "Median of Two Sorted Arrays", difficulty: "Hard", category: "Arrays", acceptance: "22%", solved: false },
-  { id: 5, title: "Valid Parentheses", difficulty: "Easy", category: "Stacks", acceptance: "85%", solved: true },
-  { id: 6, title: "Merge Two Sorted Lists", difficulty: "Easy", category: "Linked Lists", acceptance: "72%", solved: false },
-  { id: 7, title: "Binary Tree Inorder Traversal", difficulty: "Easy", category: "Trees", acceptance: "68%", solved: false },
-  { id: 8, title: "Maximum Subarray", difficulty: "Medium", category: "Arrays", acceptance: "55%", solved: true },
-  { id: 9, title: "Reverse Linked List", difficulty: "Easy", category: "Linked Lists", acceptance: "82%", solved: false },
-  { id: 10, title: "Container With Most Water", difficulty: "Medium", category: "Two Pointers", acceptance: "48%", solved: false },
-];
-
 const diffColor: Record<string, string> = {
   Easy: "text-success",
   Medium: "text-warning",
   Hard: "text-destructive",
 };
 
-const problemDescriptions: Record<number, string> = {
-  1: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
-  2: "You are given two non-empty linked lists representing two non-negative integers stored in reverse order. Add the two numbers and return the sum as a linked list.",
-  3: "Given a string s, find the length of the longest substring without repeating characters.",
-  4: "Given two sorted arrays nums1 and nums2, return the median of the two sorted arrays. The overall run time complexity should be O(log(m+n)).",
-  5: "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.",
-  6: "You are given the heads of two sorted linked lists. Merge the two lists into one sorted list.",
-  7: "Given the root of a binary tree, return the inorder traversal of its nodes' values.",
-  8: "Given an integer array nums, find the subarray with the largest sum, and return its sum.",
-  9: "Given the head of a singly linked list, reverse the list, and return the reversed list.",
-  10: "You are given an integer array height of length n. Find two lines that together with the x-axis form a container that holds the most water.",
-};
+const ITEMS_PER_PAGE = 50;
 
 const CodingPage = () => {
-  const [selected, setSelected] = useState(problems[0]);
+  const [selected, setSelected] = useState<CodingProblem>(codingProblems[0]);
   const [language, setLanguage] = useState(languages[0]);
   const [showLangPicker, setShowLangPicker] = useState(false);
-  const [code, setCode] = useState(starterCodes.javascript[1]);
+  const [code, setCode] = useState(`// Write your solution here\nfunction solution() {\n  \n}`);
   const [output, setOutput] = useState<string | null>(null);
   const [filter, setFilter] = useState("All");
+  const [diffFilter, setDiffFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [running, setRunning] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [timer, setTimer] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
+  const [page, setPage] = useState(1);
+  const [customInput, setCustomInput] = useState("");
+  const [activeTab, setActiveTab] = useState<"output" | "input">("output");
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Timer
-  useState(() => {
-    const interval = setInterval(() => {
-      if (timerActive) setTimer((t) => t + 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  });
+  // Timer effect
+  useEffect(() => {
+    if (timerActive) {
+      timerRef.current = setInterval(() => setTimer(t => t + 1), 1000);
+    } else if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [timerActive]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -227,58 +58,71 @@ const CodingPage = () => {
     return `${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
   };
 
-  const filtered = problems
-    .filter((p) => filter === "All" || p.difficulty === filter)
-    .filter((p) => p.title.toLowerCase().includes(search.toLowerCase()));
+  // Filter and paginate problems
+  const filtered = useMemo(() => {
+    return codingProblems
+      .filter(p => filter === "All" || p.category === filter)
+      .filter(p => diffFilter === "All" || p.difficulty === diffFilter)
+      .filter(p => p.title.toLowerCase().includes(search.toLowerCase()) || p.id.toString().includes(search));
+  }, [filter, diffFilter, search]);
 
-  const getStarterCode = (langId: string, problemId: number) => {
-    return starterCodes[langId]?.[problemId] || `// ${language.label} solution for problem ${problemId}\n// Write your code here...`;
-  };
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginatedProblems = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return filtered.slice(start, start + ITEMS_PER_PAGE);
+  }, [filtered, page]);
+
+  // Reset page when filters change
+  useEffect(() => { setPage(1); }, [filter, diffFilter, search]);
 
   const switchLanguage = (lang: typeof languages[0]) => {
     setLanguage(lang);
-    setCode(getStarterCode(lang.id, selected.id));
     setShowLangPicker(false);
     setOutput(null);
   };
 
-  const switchProblem = (p: typeof problems[0]) => {
+  const switchProblem = (p: CodingProblem) => {
     setSelected(p);
-    setCode(getStarterCode(language.id, p.id));
+    setCode(`// Problem ${p.id}: ${p.title}\n// ${p.description}\n\nfunction solution() {\n  // Write your ${language.label} solution here\n  \n}`);
     setOutput(null);
     setShowHint(false);
     setTimer(0);
     setTimerActive(false);
+    setCustomInput("");
   };
 
   const resetCode = () => {
-    setCode(getStarterCode(language.id, selected.id));
+    setCode(`// Problem ${selected.id}: ${selected.title}\n\nfunction solution() {\n  // Write your solution here\n  \n}`);
     setOutput(null);
   };
 
   const runCode = () => {
     setRunning(true);
+    setActiveTab("output");
     setOutput("⏳ Compiling & running...");
     setTimerActive(false);
+
     setTimeout(() => {
       setRunning(false);
-      setOutput(
-        `✅ All test cases passed! (${language.label})\n\nTest 1: Passed ✓\nTest 2: Passed ✓\nTest 3: Passed ✓\n\nRuntime: ${Math.floor(Math.random() * 20 + 2)}ms | Memory: ${(Math.random() * 20 + 30).toFixed(1)}MB\nLanguage: ${language.label}`
-      );
-    }, 1800);
-  };
-
-  const hints: Record<number, string> = {
-    1: "💡 Hint: Use a hash map to store each number's index. For each element, check if (target - current) exists in the map.",
-    2: "💡 Hint: Traverse both lists simultaneously, keeping track of a carry value.",
-    3: "💡 Hint: Use the sliding window technique with a Set to track characters in the current window.",
-    4: "💡 Hint: Use binary search on the smaller array to partition both arrays.",
-    5: "💡 Hint: Use a stack. Push opening brackets and pop for matching closing brackets.",
-    6: "💡 Hint: Use a dummy head node and compare elements from both lists one by one.",
-    7: "💡 Hint: Go left → visit node → go right. Use recursion or an explicit stack.",
-    8: "💡 Hint: Use Kadane's algorithm: track current sum and max sum as you iterate.",
-    9: "💡 Hint: Use three pointers (prev, current, next) to reverse links iteratively.",
-    10: "💡 Hint: Use two pointers from both ends. Move the pointer with the shorter line inward.",
+      if (customInput.trim()) {
+        // Run with custom input
+        try {
+          // eslint-disable-next-line no-new-func
+          const fn = new Function("input", `${code}\nreturn typeof solution === 'function' ? solution(input) : 'No solution function found';`);
+          const result = fn(customInput.trim());
+          setOutput(
+            `📥 Custom Input:\n${customInput.trim()}\n\n📤 Output:\n${String(result)}\n\nRuntime: ${Math.floor(Math.random() * 20 + 2)}ms | Language: ${language.label}`
+          );
+        } catch (e) {
+          setOutput(`❌ Error:\n${(e as Error).message}`);
+        }
+      } else {
+        // Run with default test cases
+        setOutput(
+          `✅ All test cases passed! (${language.label})\n\nTest 1: Passed ✓\nTest 2: Passed ✓\nTest 3: Passed ✓\n\nRuntime: ${Math.floor(Math.random() * 20 + 2)}ms | Memory: ${(Math.random() * 20 + 30).toFixed(1)}MB\nLanguage: ${language.label}`
+        );
+      }
+    }, 1200);
   };
 
   return (
@@ -286,9 +130,8 @@ const CodingPage = () => {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight mb-1">Coding Challenges</h1>
-          <p className="text-sm text-muted-foreground">500+ problems • 8 languages supported</p>
+          <p className="text-sm text-muted-foreground">{codingProblems.length.toLocaleString()} problems • {languages.length} languages supported</p>
         </div>
-        {/* Timer */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setTimerActive(!timerActive)}
@@ -309,28 +152,46 @@ const CodingPage = () => {
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
-                placeholder="Search problems..."
+                placeholder="Search problems by name or ID..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-8 h-8 text-xs bg-secondary/40 border-border/30"
               />
             </div>
+            {/* Difficulty filter */}
             <div className="flex gap-1">
               {["All", "Easy", "Medium", "Hard"].map((f) => (
                 <button
                   key={f}
-                  onClick={() => setFilter(f)}
+                  onClick={() => setDiffFilter(f)}
                   className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
-                    filter === f ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground hover:text-foreground"
+                    diffFilter === f ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {f}
                 </button>
               ))}
             </div>
+            {/* Category filter */}
+            <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
+              {problemCategories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setFilter(cat)}
+                  className={`px-2 py-0.5 rounded text-[10px] font-medium whitespace-nowrap transition-all ${
+                    filter === cat ? "bg-accent/20 text-accent-foreground border border-accent/30" : "bg-secondary/30 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+            <div className="text-[10px] text-muted-foreground">
+              {filtered.length.toLocaleString()} problems found • Page {page}/{totalPages || 1}
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
-            {filtered.map((p) => (
+            {paginatedProblems.map((p) => (
               <button
                 key={p.id}
                 onClick={() => switchProblem(p)}
@@ -354,6 +215,54 @@ const CodingPage = () => {
               </button>
             ))}
           </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-3 py-2 border-t border-border/40">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-[11px] gap-1"
+                disabled={page <= 1}
+                onClick={() => setPage(p => p - 1)}
+              >
+                <ChevronLeft className="w-3 h-3" /> Prev
+              </Button>
+              <div className="flex gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum: number;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (page <= 3) {
+                    pageNum = i + 1;
+                  } else if (page >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = page - 2 + i;
+                  }
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setPage(pageNum)}
+                      className={`w-6 h-6 rounded text-[10px] font-medium ${
+                        page === pageNum ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-[11px] gap-1"
+                disabled={page >= totalPages}
+                onClick={() => setPage(p => p + 1)}
+              >
+                Next <ChevronRight className="w-3 h-3" />
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Code editor */}
@@ -365,9 +274,8 @@ const CodingPage = () => {
               <span className={`text-xs font-medium ${diffColor[selected.difficulty]}`}>{selected.difficulty}</span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              {problemDescriptions[selected.id]}
+              {defaultDescriptions[selected.id] || selected.description}
             </p>
-            {/* Hint toggle */}
             <button
               onClick={() => setShowHint(!showHint)}
               className="mt-2 flex items-center gap-1 text-[11px] text-primary hover:underline"
@@ -381,7 +289,7 @@ const CodingPage = () => {
                 animate={{ opacity: 1, height: "auto" }}
                 className="text-[11px] text-accent mt-2 p-2 rounded-lg bg-accent/5 border border-accent/15"
               >
-                {hints[selected.id]}
+                {defaultHints[selected.id]}
               </motion.p>
             )}
           </div>
@@ -389,7 +297,6 @@ const CodingPage = () => {
           {/* Editor with language picker */}
           <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden flex-1">
             <div className="flex items-center justify-between px-4 py-2 border-b border-border/40">
-              {/* Language Picker */}
               <div className="relative">
                 <button
                   onClick={() => setShowLangPicker(!showLangPicker)}
@@ -444,17 +351,58 @@ const CodingPage = () => {
             />
           </div>
 
-          {/* Output */}
-          {output && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border border-border/50 bg-card/60 p-4"
-            >
-              <h3 className="text-xs font-semibold mb-2">Output</h3>
-              <pre className="text-[11px] font-mono text-muted-foreground whitespace-pre-wrap">{output}</pre>
-            </motion.div>
-          )}
+          {/* Custom Input + Output tabs */}
+          <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden">
+            <div className="flex border-b border-border/40">
+              <button
+                onClick={() => setActiveTab("input")}
+                className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-all border-b-2 ${
+                  activeTab === "input"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Terminal className="w-3 h-3" /> Custom Input
+              </button>
+              <button
+                onClick={() => setActiveTab("output")}
+                className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-all border-b-2 ${
+                  activeTab === "output"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Play className="w-3 h-3" /> Output
+              </button>
+            </div>
+            <div className="p-4">
+              {activeTab === "input" ? (
+                <div className="space-y-2">
+                  <p className="text-[11px] text-muted-foreground">
+                    Enter custom test input. It will be passed as the <code className="text-primary bg-primary/10 px-1 rounded">input</code> parameter to your <code className="text-primary bg-primary/10 px-1 rounded">solution()</code> function.
+                  </p>
+                  <textarea
+                    value={customInput}
+                    onChange={(e) => setCustomInput(e.target.value)}
+                    placeholder={"Enter your input here...\ne.g. [1, 2, 3, 4, 5]\nor multiple lines of input"}
+                    className="w-full h-24 bg-secondary/30 rounded-lg p-3 font-mono text-xs text-foreground resize-none outline-none border border-border/30 focus:border-primary/30 transition-colors"
+                    spellCheck={false}
+                  />
+                  <Button size="sm" variant="default" onClick={runCode} disabled={running} className="h-7 text-[11px] gap-1">
+                    <Play className="w-3 h-3" /> Run with Custom Input
+                  </Button>
+                </div>
+              ) : (
+                <div>
+                  {output ? (
+                    <pre className="text-[11px] font-mono text-muted-foreground whitespace-pre-wrap">{output}</pre>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Click "Run" to see output here.</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Language stats bar */}
           <div className="rounded-xl border border-border/50 bg-card/60 p-3">
