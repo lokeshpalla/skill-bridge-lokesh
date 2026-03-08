@@ -47,7 +47,7 @@ export default function TeamMatchingPage() {
   const [projects, setProjects] = useState<GroupProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "best-match" | "needs-you">("all");
+  const [filter, setFilter] = useState<"all" | "best-match" | "my-projects" | "needs-you">("all");
   const [createOpen, setCreateOpen] = useState(false);
   const [newProject, setNewProject] = useState({
     title: "", description: "", tech_stack: "", max_members: 4,
