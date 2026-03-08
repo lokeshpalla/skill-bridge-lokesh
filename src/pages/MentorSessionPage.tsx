@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useWebRTC } from "@/hooks/useWebRTC";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,7 +12,7 @@ import {
 import {
   Mic, MicOff, VideoIcon, VideoOff, Monitor, MonitorOff,
   Phone, Send, MessageSquare, Users, Clock, Code2,
-  Hand, Play, Copy, Check, Save, Terminal
+  Hand, Play, Copy, Check, Save, Terminal, Wifi, WifiOff
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -34,10 +35,11 @@ const LANG_TEMPLATES: Record<string, string> = {
 export default function MentorSessionPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
 
   const mentorName = searchParams.get("mentor") || "Mentor";
   const slot = searchParams.get("slot") || "";
+  const bookingId = searchParams.get("booking") || "session";
 
   const [isMicOn, setIsMicOn] = useState(true);
   const [isVideoOn, setIsVideoOn] = useState(true);
@@ -57,30 +59,47 @@ export default function MentorSessionPage() {
   const [saved, setSaved] = useState(false);
   const [customInput, setCustomInput] = useState("");
   const [output, setOutput] = useState("");
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const [connectionState, setConnectionState] = useState("new");
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+
+  const handleRemoteStream = useCallback((stream: MediaStream) => {
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = stream;
+    }
+  }, []);
+
+  const { isConnected, startCall, endCall: endWebRTC, toggleAudio, toggleVideo } = useWebRTC({
+    roomId: bookingId,
+    userId: user?.id || "anonymous",
+    onRemoteStream: handleRemoteStream,
+    onConnectionState: setConnectionState,
+  });
+
+  // Start video call on mount
+  useEffect(() => {
+    const init = async () => {
+      const stream = await startCall(true, true);
+      if (stream && localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+    };
+    if (user) init();
+  }, [user]);
 
   useEffect(() => {
     const interval = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(interval);
   }, []);
 
+  // Sync audio/video toggles
   useEffect(() => {
-    if (isVideoOn) {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: isMicOn }).then((stream) => {
-        streamRef.current = stream;
-        if (videoRef.current) videoRef.current.srcObject = stream;
-      }).catch(() => {});
-    } else {
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      if (videoRef.current) videoRef.current.srcObject = null;
-    }
-    return () => { streamRef.current?.getTracks().forEach((t) => t.stop()); };
-  }, [isVideoOn]);
+    toggleAudio(isMicOn);
+  }, [isMicOn, toggleAudio]);
 
   useEffect(() => {
-    streamRef.current?.getAudioTracks().forEach((t) => (t.enabled = isMicOn));
-  }, [isMicOn]);
+    toggleVideo(isVideoOn);
+  }, [isVideoOn, toggleVideo]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
