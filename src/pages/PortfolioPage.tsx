@@ -102,7 +102,13 @@ const PortfolioPage = () => {
 
   return (
     <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
-      {previewMode && profile ? (
+      {resumeMode && profile ? (
+        <ResumeBuilder
+          profile={profile}
+          projects={projects}
+          onBack={() => setResumeMode(false)}
+        />
+      ) : previewMode && profile ? (
         <PortfolioPreview
           profile={profile}
           projects={projects}
@@ -117,6 +123,7 @@ const PortfolioPage = () => {
           onDelete={handleDelete}
           onPreview={() => setPreviewMode(true)}
           onOpenAI={() => setAiChatOpen(true)}
+          onResume={() => setResumeMode(true)}
           saving={saving}
           userId={user?.id}
         />
