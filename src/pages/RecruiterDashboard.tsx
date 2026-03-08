@@ -249,6 +249,7 @@ const RecruiterDashboard = () => {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </motion.div>
 
       {/* Stats */}
