@@ -246,7 +246,7 @@ const Index = () => {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="py-16 border-t border-border/50 bg-card/50">
+      <footer className="py-16 border-t border-border/50 bg-card/50" role="contentinfo">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
             {/* Brand */}
