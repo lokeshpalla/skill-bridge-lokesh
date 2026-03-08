@@ -62,7 +62,7 @@ const AuthPage = () => {
         setLoading(false);
         return;
       }
-      const { error } = await signUp(email, password, name);
+      const { error } = await signUp(email, password, name, phone);
       if (error) {
         toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
       } else {
