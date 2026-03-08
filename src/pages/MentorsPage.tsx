@@ -34,7 +34,8 @@ const formatRupees = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
 
 const MentorsPage = () => {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, roles } = useAuth();
+  const isStudentOnly = roles.length > 0 && roles.every(r => r === 'student');
   const [mentors, setMentors] = useState<MentorProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
