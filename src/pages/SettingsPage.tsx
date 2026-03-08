@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Github, Linkedin, Save, Loader2, Star, GitFork, Import,
-  ExternalLink, User, Globe, Check
+  ExternalLink, User, Globe, Check, Camera, Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
