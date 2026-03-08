@@ -245,16 +245,24 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
       {/* Progress */}
       <div className="px-4 py-2.5 border-b border-border/40 flex items-center justify-between">
         <span className="text-xs font-semibold">Question {currentQ + 1}/{questions.length}</span>
-        <div className="flex gap-1">
-          {questions.map((_, i) => (
-            <div
-              key={i}
-              className="w-2 h-2 rounded-full"
-              style={{
-                background: i < currentQ ? "hsl(var(--primary))" : i === currentQ ? "hsl(var(--primary) / 0.5)" : "hsl(var(--muted))",
-              }}
-            />
-          ))}
+        <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-1 text-xs font-mono font-semibold px-2 py-0.5 rounded-md ${
+            timeLeft <= 30 ? "bg-destructive/10 text-destructive animate-pulse" : "bg-secondary text-muted-foreground"
+          }`}>
+            <Timer className="w-3 h-3" />
+            {formatTime(timeLeft)}
+          </div>
+          <div className="flex gap-1">
+            {questions.map((_, i) => (
+              <div
+                key={i}
+                className="w-2 h-2 rounded-full"
+                style={{
+                  background: i < currentQ ? "hsl(var(--primary))" : i === currentQ ? "hsl(var(--primary) / 0.5)" : "hsl(var(--muted))",
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
