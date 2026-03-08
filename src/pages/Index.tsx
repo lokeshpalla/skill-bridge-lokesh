@@ -133,7 +133,7 @@ const Index = () => {
       </section>
 
       {/* ─── FEATURES ─── */}
-      <section className="py-24 bg-background">
+      <section className="py-24 bg-background" aria-label="Platform features">
         <div className="container">
           <motion.div {...fadeUp} className="text-center mb-16">
             <span className="text-xs text-primary uppercase tracking-widest font-medium">Platform</span>
