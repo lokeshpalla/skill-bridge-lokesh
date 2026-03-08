@@ -16,6 +16,7 @@ import AdminMentorManagement from "@/components/admin/AdminMentorManagement";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
 import AdminAnnouncements from "@/components/admin/AdminAnnouncements";
 import AdminRecruiterManagement from "@/components/admin/AdminRecruiterManagement";
+import AdminSubscriptions from "@/components/admin/AdminSubscriptions";
 
 interface AdminStats {
   overview: Record<string, number>;
@@ -45,7 +46,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [tab, setTab] = useState<"overview" | "users" | "moderation" | "analytics" | "payouts" | "courses" | "mentors" | "announcements" | "recruiters">("overview");
+  const [tab, setTab] = useState<"overview" | "users" | "moderation" | "analytics" | "payouts" | "courses" | "mentors" | "announcements" | "recruiters" | "subscriptions">("overview");
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -111,6 +112,7 @@ export default function AdminPage() {
     ["courses", "📚 Courses", GraduationCap],
     ["mentors", "👨‍🏫 Mentors", Users],
     ["recruiters", "💼 Recruiters", Briefcase],
+    ["subscriptions", "💳 Subscriptions", IndianRupee],
     ["moderation", "🛡️ Moderation", AlertTriangle],
     ["payouts", "💰 Payouts", IndianRupee],
     ["analytics", "📈 Analytics", TrendingUp],
@@ -247,6 +249,9 @@ export default function AdminPage() {
 
       {/* Analytics Tab */}
       {tab === "analytics" && <AdminAnalytics />}
+
+      {/* Subscriptions Tab */}
+      {tab === "subscriptions" && <AdminSubscriptions />}
     </div>
   );
 }

@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SubscriptionProvider } from "@/hooks/useSubscription";
+import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import Layout from "@/components/layout/Layout";
 import SplashScreen from "./pages/SplashScreen";
 import Index from "./pages/Index";
@@ -52,10 +54,10 @@ function AppRoutes() {
         <Route path="/landing" element={<Index />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/courses" element={<CoursesPage />} />
-        <Route path="/courses/:id" element={<CourseDetail />} />
-        <Route path="/coding" element={<CodingPage />} />
+        <Route path="/dashboard" element={<SubscriptionGate><Dashboard /></SubscriptionGate>} />
+        <Route path="/courses" element={<SubscriptionGate><CoursesPage /></SubscriptionGate>} />
+        <Route path="/courses/:id" element={<SubscriptionGate><CourseDetail /></SubscriptionGate>} />
+        <Route path="/coding" element={<SubscriptionGate><CodingPage /></SubscriptionGate>} />
          <Route path="/mentors" element={<MentorsPage />} />
           <Route path="/mentor-session" element={<MentorSessionPage />} />
         <Route path="/mentor-dashboard" element={<MentorDashboardPage />} />
@@ -88,15 +90,17 @@ function AppRoutes() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <ErrorBoundary>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </ErrorBoundary>
-      </TooltipProvider>
+      <SubscriptionProvider>
+        <TooltipProvider>
+          <ErrorBoundary>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </ErrorBoundary>
+        </TooltipProvider>
+      </SubscriptionProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
