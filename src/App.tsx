@@ -33,6 +33,7 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import PublicPortfolioPage from "./pages/PublicPortfolioPage";
 import CertificatesPage from "./pages/CertificatesPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import RecruiterDashboard from "./pages/RecruiterDashboard";
 import NotFound from "./pages/NotFound";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
