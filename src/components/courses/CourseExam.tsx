@@ -412,14 +412,58 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
   const q = questions[currentQ];
   const isCoding = q.type === "coding";
 
-  // ----- Question screen -----
   return (
-    <motion.div
-      key={currentQ}
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="rounded-xl border border-border/50 bg-card/60 overflow-hidden"
-    >
+    <div className="space-y-3">
+      {/* Proctoring warnings banner */}
+      {proctoring.state.warnings.length > 0 && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2">
+          <div className="flex items-center gap-2 mb-1">
+            <ShieldAlert className="w-3.5 h-3.5 text-destructive" />
+            <span className="text-[10px] font-semibold text-destructive uppercase tracking-wider">Proctoring Alerts</span>
+            <span className="text-[10px] text-muted-foreground ml-auto">
+              Tab switches: {proctoring.state.tabSwitchCount} | Copy attempts: {proctoring.state.copyPasteAttempts}
+            </span>
+          </div>
+          <p className="text-[11px] text-destructive/80">{proctoring.state.warnings[proctoring.state.warnings.length - 1]}</p>
+        </div>
+      )}
+
+      {/* Camera feed (small floating) */}
+      {proctoring.state.isCameraOn && (
+        <div className="fixed bottom-4 right-4 z-50 rounded-lg overflow-hidden border-2 border-primary/30 shadow-lg w-28 h-20">
+          <video
+            ref={proctoring.videoRef}
+            autoPlay
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute top-1 left-1 flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/60 text-[8px] text-white font-semibold">
+            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+            REC
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen reminder */}
+      {!proctoring.state.isFullscreen && (
+        <div className="rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs text-warning">
+            <Maximize className="w-3.5 h-3.5" />
+            <span>You exited fullscreen mode!</span>
+          </div>
+          <Button variant="outline" size="sm" className="h-6 text-[10px] px-2" onClick={proctoring.enterFullscreen}>
+            Return to Fullscreen
+          </Button>
+        </div>
+      )}
+
+      <motion.div
+        key={currentQ}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="rounded-xl border border-border/50 bg-card/60 overflow-hidden"
+      >
       {/* Progress bar */}
       <div className="px-4 py-2.5 border-b border-border/40 flex items-center justify-between">
         <div className="flex items-center gap-2">
