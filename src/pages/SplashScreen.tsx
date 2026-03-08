@@ -14,7 +14,7 @@ const particles = Array.from({ length: 20 }, (_, i) => ({
 }));
 
 const SplashScreen = () => {
-  const { user, loading, getRedirectPath } = useAuth();
+  const { user, loading, rolesLoading, getRedirectPath } = useAuth();
   const navigate = useNavigate();
   const [phase, setPhase] = useState<"enter" | "zoom" | "exit">("enter");
 

@@ -59,14 +59,13 @@ const AuthPage = () => {
     setLoading(true);
 
     if (mode === "login") {
-      const { error } = await signIn(email, password);
+      const { error, roles: userRoles } = await signIn(email, password);
       if (error) {
         toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
       } else {
-        toast({ title: `Welcome back, ${activeRole.label}! 👋` });
-        setTimeout(() => {
-          navigate(getRedirectPath());
-        }, 500);
+        const redirectPath = getRedirectPath(userRoles);
+        toast({ title: `Welcome back! 👋` });
+        navigate(redirectPath, { replace: true });
       }
     } else {
       if (!name) {
