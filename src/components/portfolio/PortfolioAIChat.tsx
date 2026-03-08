@@ -414,7 +414,7 @@ const PortfolioAIChat = ({ portfolioContext, externalOpen, onExternalOpenChange 
               </div>
               {isListening && (
                 <p className="text-[10px] text-primary mt-1.5 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
                   Listening in {LANGUAGES.find(l => l.code === selectedLang)?.label}...
                 </p>
               )}
