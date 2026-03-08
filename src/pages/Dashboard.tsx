@@ -179,6 +179,28 @@ const Dashboard = () => {
     return "Good evening";
   };
 
+  const handleRestoreStreak = async () => {
+    if (!user || restoringStreak) return;
+    if (xp < 1000) {
+      toast.error("Not enough XP", { description: "You need at least 1,000 XP to restore your streak." });
+      return;
+    }
+    setRestoringStreak(true);
+    const { data, error } = await supabase.rpc("restore_streak", { _user_id: user.id });
+    setRestoringStreak(false);
+    if (error) {
+      toast.error("Failed to restore streak");
+      return;
+    }
+    const result = data as { success: boolean; error?: string };
+    if (result.success) {
+      toast.success("Streak Restored! 🔥", { description: "1,000 XP deducted. Your streak is back to 1!" });
+      window.location.reload();
+    } else {
+      toast.error(result.error || "Could not restore streak");
+    }
+  };
+
   const stats = [
     { icon: Zap, label: "Total XP", value: xp.toLocaleString(), change: xp > 0 ? `${xp}` : "—", up: xp > 0, accent: "text-primary" },
     { icon: Flame, label: "Day Streak", value: String(streak), change: streak > 0 ? `${streak}d` : "—", up: streak > 0, accent: "text-warning" },
