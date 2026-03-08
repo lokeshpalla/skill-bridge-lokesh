@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
-  Mic, Send, StopCircle, Play, Brain, Code2, Layout,
-  Server, Users, Sparkles, Clock, Trophy
+  Mic, MicOff, Send, StopCircle, Play, Brain, Code2, Layout,
+  Server, Users, Sparkles, Clock, Trophy, Volume2, VolumeX
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,18 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+
+// Extend Window for SpeechRecognition
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -32,8 +44,12 @@ const InterviewPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [interviewId, setInterviewId] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const [autoSpeak, setAutoSpeak] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
+  const recognitionRef = useRef<any>(null);
+  const lastSpokenRef = useRef<string>("");
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -50,6 +66,73 @@ const InterviewPage = () => {
     const m = Math.floor(s / 60);
     return `${m}:${String(s % 60).padStart(2, "0")}`;
   };
+
+  // Speech Recognition (mic)
+  const toggleMic = useCallback(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Speech recognition not supported in this browser");
+      return;
+    }
+
+    if (isRecording && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let transcript = "";
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setInput(transcript);
+    };
+
+    recognition.onerror = () => {
+      setIsRecording(false);
+      toast.error("Mic error — please try again");
+    };
+
+    recognition.onend = () => setIsRecording(false);
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsRecording(true);
+  }, [isRecording]);
+
+  // Auto-speak: read assistant responses aloud
+  const speakText = useCallback((text: string) => {
+    if (!autoSpeak || !text) return;
+    // Strip markdown formatting for cleaner speech
+    const clean = text.replace(/[#*_`~\[\]()>]/g, "").replace(/\n+/g, ". ");
+    if (clean === lastSpokenRef.current) return;
+    lastSpokenRef.current = clean;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(clean);
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+  }, [autoSpeak]);
+
+  // Speak when a new assistant message is finalized
+  useEffect(() => {
+    if (!autoSpeak || isLoading) return;
+    const last = messages[messages.length - 1];
+    if (last?.role === "assistant") {
+      speakText(last.content);
+    }
+  }, [messages, isLoading, autoSpeak, speakText]);
+
+  // Stop speech when auto-speak is disabled
+  useEffect(() => {
+    if (!autoSpeak) window.speechSynthesis.cancel();
+  }, [autoSpeak]);
 
   const startInterview = async () => {
     if (!user) return toast.error("Sign in to start an interview");
@@ -265,9 +348,24 @@ const InterviewPage = () => {
             </span>
           </div>
         </div>
-        <Button variant="destructive" size="sm" className="gap-1 text-xs" onClick={endInterview} disabled={isLoading}>
-          <StopCircle className="w-3.5 h-3.5" /> End Interview
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Auto-speak toggle */}
+          <button
+            onClick={() => setAutoSpeak(!autoSpeak)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+              autoSpeak
+                ? "border-primary/30 bg-primary/10 text-primary"
+                : "border-border/50 bg-secondary/50 text-muted-foreground"
+            }`}
+            title={autoSpeak ? "Disable auto-speak" : "Enable auto-speak"}
+          >
+            {autoSpeak ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            Auto-Speak
+          </button>
+          <Button variant="destructive" size="sm" className="gap-1 text-xs" onClick={endInterview} disabled={isLoading}>
+            <StopCircle className="w-3.5 h-3.5" /> End Interview
+          </Button>
+        </div>
       </div>
 
       {/* Messages */}
@@ -310,9 +408,21 @@ const InterviewPage = () => {
 
       {/* Input */}
       <div className="p-4 border-t border-border/40">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-end">
+          {/* Mic button */}
+          <button
+            onClick={toggleMic}
+            className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+              isRecording
+                ? "bg-destructive text-destructive-foreground animate-pulse"
+                : "bg-secondary/80 text-muted-foreground hover:text-foreground hover:bg-secondary"
+            }`}
+            title={isRecording ? "Stop recording" : "Start recording"}
+          >
+            {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+          </button>
           <Textarea
-            placeholder="Type your answer..."
+            placeholder={isRecording ? "🎙 Listening..." : "Type your answer..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={2}
@@ -324,10 +434,15 @@ const InterviewPage = () => {
               }
             }}
           />
-          <Button className="self-end" onClick={sendMessage} disabled={isLoading || !input.trim()}>
+          <Button className="self-end flex-shrink-0" onClick={() => { if (isRecording) { recognitionRef.current?.stop(); setIsRecording(false); } sendMessage(); }} disabled={isLoading || !input.trim()}>
             <Send className="w-4 h-4" />
           </Button>
         </div>
+        {isRecording && (
+          <p className="text-[10px] text-destructive mt-1.5 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" /> Recording... speak your answer, then click Send
+          </p>
+        )}
       </div>
     </div>
   );
