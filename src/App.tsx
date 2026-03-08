@@ -13,6 +13,7 @@ import CoursesPage from "./pages/CoursesPage";
 import CourseDetail from "./pages/CourseDetail";
 import CodingPage from "./pages/CodingPage";
 import MentorsPage from "./pages/MentorsPage";
+import MentorSessionPage from "./pages/MentorSessionPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import InternshipsPage from "./pages/InternshipsPage";
 import PortfolioPage from "./pages/PortfolioPage";
