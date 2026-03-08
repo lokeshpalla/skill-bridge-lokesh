@@ -185,12 +185,12 @@ const AIAssistant = () => {
     }
 
     const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    if (!SpeechRecognitionAPI) {
       toast({ title: "Not supported", description: "Speech recognition is not available in this browser", variant: "destructive" });
       return;
     }
 
-    const recognition = new SpeechRecognition();
+    const recognition = new SpeechRecognitionAPI();
     recognition.lang = language;
     recognition.interimResults = true;
     recognition.continuous = false;
