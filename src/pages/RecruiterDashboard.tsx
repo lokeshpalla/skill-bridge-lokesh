@@ -18,6 +18,7 @@ import RecruiterPostings from "@/components/recruiter/RecruiterPostings";
 import RecruiterPipeline from "@/components/recruiter/RecruiterPipeline";
 import RecruiterInterviews from "@/components/recruiter/RecruiterInterviews";
 import RecruiterAnalytics from "@/components/recruiter/RecruiterAnalytics";
+import RecruiterAIMatch from "@/components/recruiter/RecruiterAIMatch";
 
 export interface Internship {
   id: string;
@@ -94,7 +95,7 @@ const RecruiterDashboard = () => {
   const [selectedInternship, setSelectedInternship] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPostDialog, setShowPostDialog] = useState(false);
-  const [tab, setTab] = useState<"postings" | "pipeline" | "interviews" | "analytics">("postings");
+  const [tab, setTab] = useState<"postings" | "pipeline" | "interviews" | "analytics" | "ai-match">("postings");
 
   const [form, setForm] = useState({
     title: "", company: "", location: "Remote", duration: "3 months",
@@ -207,6 +208,7 @@ const RecruiterDashboard = () => {
     ["pipeline", "👥 Pipeline"],
     ["interviews", "📅 Interviews"],
     ["analytics", "📊 Analytics"],
+    ["ai-match", "🤖 AI Match"],
   ] as const;
 
   return (
@@ -318,6 +320,12 @@ const RecruiterDashboard = () => {
           internships={internships}
           applications={applications}
           interviews={interviews}
+        />
+      )}
+      {tab === "ai-match" && (
+        <RecruiterAIMatch
+          internships={internships}
+          applications={applications}
         />
       )}
     </div>
