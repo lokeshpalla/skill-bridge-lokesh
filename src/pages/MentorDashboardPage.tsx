@@ -126,7 +126,7 @@ const MentorDashboardPage = () => {
 
   const saveProfile = async () => {
     if (!editForm || !user) return;
-    const { error } = await supabase.from("mentor_profiles").update({
+    const updateData: any = {
       title: editForm.title,
       bio: editForm.bio,
       company: editForm.company,
@@ -134,7 +134,11 @@ const MentorDashboardPage = () => {
       hourly_rate: parseInt(editForm.hourly_rate) || 0,
       availability_slots: slotsToStrings(editForm.calendarSlots || []),
       available: editForm.available,
-    }).eq("user_id", user.id);
+    };
+    if (editForm.weeklyPattern) {
+      updateData.weekly_pattern = weeklyPatternToString(editForm.weeklyPattern);
+    }
+    const { error } = await supabase.from("mentor_profiles").update(updateData).eq("user_id", user.id);
     if (error) { toast.error("Failed to save"); return; }
     toast.success("Profile updated!");
     setEditForm(null);
