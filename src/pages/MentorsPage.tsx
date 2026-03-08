@@ -111,8 +111,17 @@ const MentorsPage = () => {
 
   const bookSession = async () => {
     if (!user || !selectedMentor || !selectedSlot) return;
-    // Parse slot into a scheduled_at (use next occurrence)
-    const scheduledAt = getNextSlotDate(selectedSlot);
+    // Parse the calendar slot into a proper date
+    const timeStr = selectedSlot.time;
+    const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    let hours = match ? parseInt(match[1]) : 18;
+    const minutes = match ? parseInt(match[2]) : 0;
+    const ampm = match ? match[3].toUpperCase() : "PM";
+    if (ampm === "PM" && hours < 12) hours += 12;
+    if (ampm === "AM" && hours === 12) hours = 0;
+
+    const scheduledAt = new Date(selectedSlot.date + "T00:00:00");
+    scheduledAt.setHours(hours, minutes, 0, 0);
 
     const { error } = await supabase.from("mentor_bookings").insert({
       mentor_id: selectedMentor.user_id,
@@ -127,20 +136,6 @@ const MentorsPage = () => {
     setSelectedMentor(null);
     setBookingNotes("");
     setSelectedSlot(null);
-  };
-
-  const getNextSlotDate = (slot: string): Date => {
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const now = new Date();
-    const parts = slot.match(/(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/i);
-    const timeParts = slot.match(/(\d{1,2})/);
-    const dayIdx = parts ? days.findIndex(d => d.toLowerCase() === parts[1].toLowerCase().slice(0, 3)) : now.getDay();
-    let diff = dayIdx - now.getDay();
-    if (diff <= 0) diff += 7;
-    const date = new Date(now);
-    date.setDate(date.getDate() + diff);
-    date.setHours(timeParts ? parseInt(timeParts[1]) + (slot.toLowerCase().includes("pm") && parseInt(timeParts[1]) < 12 ? 12 : 0) : 18, 0, 0, 0);
-    return date;
   };
 
   const filtered = mentors.filter(m =>
