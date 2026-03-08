@@ -43,6 +43,7 @@ const App = () => (
               <Route path="/portfolio" element={<PortfolioPage />} />
               <Route path="/achievements" element={<AchievementsPage />} />
               <Route path="/community" element={<CommunityPage />} />
+              <Route path="/install" element={<InstallPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
