@@ -1,6 +1,6 @@
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
-  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award, MessageSquare
+  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award, MessageSquare, Download
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate, Link } from "react-router-dom";
@@ -36,6 +36,7 @@ const socialItems = [
 const careerItems = [
   { title: "Internships", url: "/internships", icon: Briefcase },
   { title: "Portfolio", url: "/portfolio", icon: FolderKanban },
+  { title: "Install App", url: "/install", icon: Download },
 ];
 
 export function AppSidebar() {
