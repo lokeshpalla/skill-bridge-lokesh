@@ -46,10 +46,24 @@ const InterviewPage = () => {
   const [elapsed, setElapsed] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [autoSpeak, setAutoSpeak] = useState(false);
+  const [userSkills, setUserSkills] = useState<string[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
   const recognitionRef = useRef<any>(null);
   const lastSpokenRef = useRef<string>("");
+
+  // Fetch user's skills/stack from profile
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("skills")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.skills) setUserSkills(data.skills);
+      });
+  }, [user]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
