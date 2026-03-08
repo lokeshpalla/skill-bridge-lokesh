@@ -28,6 +28,7 @@ import LiveRoomPage from "./pages/LiveRoomPage";
 import TeamMatchingPage from "./pages/TeamMatchingPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import PublicPortfolioPage from "./pages/PublicPortfolioPage";
+import CertificatesPage from "./pages/CertificatesPage";
 import NotFound from "./pages/NotFound";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
@@ -61,6 +62,7 @@ function AppRoutes() {
         <Route path="/rooms/:id" element={<LiveRoomPage />} />
         <Route path="/teams" element={<TeamMatchingPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
+        <Route path="/certificates" element={<CertificatesPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>
