@@ -165,7 +165,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
   const [showHint, setShowHint] = useState(false);
 
   const questions = courseExams[courseId] || [];
-  const SECONDS_PER_QUESTION = 90; // 1.5 min per question (coding needs more time)
+  const EXAM_DURATION = 30 * 60; // 30 minutes fixed
 
   const finishExam = useCallback((finalScores: (boolean | null)[]) => {
     if (timerRef.current) clearInterval(timerRef.current);
