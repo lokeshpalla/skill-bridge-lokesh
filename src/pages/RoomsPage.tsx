@@ -94,6 +94,21 @@ export default function RoomsPage() {
     if (data) navigate(`/rooms/${data.id}`);
   };
 
+  const endRoom = async (roomId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const { error } = await supabase
+      .from("collaboration_rooms")
+      .update({ is_active: false, ended_at: new Date().toISOString() })
+      .eq("id", roomId)
+      .eq("created_by", user!.id);
+    if (error) {
+      toast({ title: "Error", description: "Failed to end room", variant: "destructive" });
+    } else {
+      toast({ title: "Room ended", description: "The room has been closed." });
+      fetchRooms();
+    }
+  };
+
   const filteredRooms = rooms.filter((r) =>
     r.name.toLowerCase().includes(search.toLowerCase()) ||
     r.topic.toLowerCase().includes(search.toLowerCase())
