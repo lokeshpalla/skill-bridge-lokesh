@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Flame, BookOpen, Code2, Trophy, Target,
-  Calendar, Award, Zap, ArrowUpRight, Sparkles
+  Calendar, Award, Zap, ArrowUpRight, Sparkles, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
