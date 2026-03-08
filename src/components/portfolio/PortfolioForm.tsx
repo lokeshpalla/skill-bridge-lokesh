@@ -105,6 +105,12 @@ const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, saving,
           </div>
         </div>
         <div className="flex gap-2">
+          {userId && projects.length > 0 && (
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={handleShareLink}>
+              {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+              {copied ? "Copied!" : "Share"}
+            </Button>
+          )}
           {projects.length > 0 && (
             <Button variant="glow" size="sm" className="gap-1.5" onClick={onPreview}>
               <Eye className="w-4 h-4" /> Preview & Download
