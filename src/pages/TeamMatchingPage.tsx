@@ -47,7 +47,7 @@ export default function TeamMatchingPage() {
   const [projects, setProjects] = useState<GroupProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "best-match" | "needs-you">("all");
+  const [filter, setFilter] = useState<"all" | "best-match" | "my-projects" | "needs-you">("all");
   const [createOpen, setCreateOpen] = useState(false);
   const [newProject, setNewProject] = useState({
     title: "", description: "", tech_stack: "", max_members: 4,
@@ -273,9 +273,8 @@ export default function TeamMatchingPage() {
       return true;
     })
     .filter(p => {
-      // Best Match: Show YOUR projects (as leader) so you can see who might match
-      if (filter === "best-match") return p.owner_id === user?.id;
-      // Needs You: Other teams that need your skills and have open spots
+      if (filter === "best-match") return (p.skill_match || 0) > 0 && (p.member_count ?? 0) < p.max_members;
+      if (filter === "my-projects") return p.owner_id === user?.id;
       if (filter === "needs-you") return p.owner_id !== user?.id && (p.member_count ?? 0) < p.max_members;
       return true;
     })
@@ -414,7 +413,7 @@ export default function TeamMatchingPage() {
           />
         </div>
         <div className="flex gap-2">
-          {(["all", "best-match", "needs-you"] as const).map(f => (
+          {(["all", "best-match", "my-projects", "needs-you"] as const).map(f => (
             <Button
               key={f}
               size="sm"
@@ -422,7 +421,7 @@ export default function TeamMatchingPage() {
               onClick={() => setFilter(f)}
               className="text-xs"
             >
-              {f === "all" ? "All Teams" : f === "best-match" ? "My Projects" : "Needs You"}
+              {f === "all" ? "All Teams" : f === "best-match" ? "Best Match" : f === "my-projects" ? "My Projects" : "Needs You"}
             </Button>
           ))}
         </div>
