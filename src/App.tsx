@@ -9,6 +9,7 @@ import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/Dashboard";
 import CoursesPage from "./pages/CoursesPage";
 import CodingPage from "./pages/CodingPage";
+import CourseDetail from "./pages/CourseDetail";
 import MentorsPage from "./pages/MentorsPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import InternshipsPage from "./pages/InternshipsPage";
