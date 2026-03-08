@@ -10,9 +10,10 @@ const PLATFORM_FEE = 499; // ₹499/month
 
 export default function SubscriptionGate({ children }: { children: React.ReactNode }) {
   const { isActive, subscription, loading, requestSubscription } = useSubscription();
+  const { roles, rolesLoading } = useAuth();
   const [requesting, setRequesting] = useState(false);
 
-  if (loading) {
+  if (loading || rolesLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -20,7 +21,9 @@ export default function SubscriptionGate({ children }: { children: React.ReactNo
     );
   }
 
-  if (isActive) {
+  // Non-student roles (admin, mentor, recruiter) bypass the gate
+  const isNonStudent = roles.some(r => ["admin", "mentor", "recruiter"].includes(r));
+  if (isNonStudent || isActive) {
     return <>{children}</>;
   }
 
