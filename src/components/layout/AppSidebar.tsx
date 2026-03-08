@@ -1,6 +1,6 @@
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
-  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award, MessageSquare, Download, Brain, Compass, Shield, Video, BarChart3
+  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award, MessageSquare, Download, Brain, Compass, Shield, Video, BarChart3, HandshakeIcon
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate, Link } from "react-router-dom";
@@ -34,6 +34,7 @@ const mainItems = [
 const socialItems = [
   { title: "Mentors", url: "/mentors", icon: Users },
   { title: "Rooms", url: "/rooms", icon: Video },
+  { title: "Find a Team", url: "/teams", icon: HandshakeIcon },
   { title: "Community", url: "/community", icon: MessageSquare },
   { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
   { title: "Achievements", url: "/achievements", icon: Award },
