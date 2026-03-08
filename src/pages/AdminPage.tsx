@@ -10,6 +10,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { motion } from "framer-motion";
 import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminModeration from "@/components/admin/AdminModeration";
+import AdminPayouts from "@/components/admin/AdminPayouts";
 
 interface AdminStats {
   overview: Record<string, number>;
