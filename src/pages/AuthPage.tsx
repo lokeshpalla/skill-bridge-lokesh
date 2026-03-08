@@ -17,7 +17,7 @@ const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, getRedirectPath } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,7 +54,10 @@ const AuthPage = () => {
         toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
       } else {
         toast({ title: "Welcome back! 👋" });
-        navigate("/dashboard");
+        // Small delay to let roles load
+        setTimeout(() => {
+          navigate(getRedirectPath());
+        }, 500);
       }
     } else {
       if (!name) {

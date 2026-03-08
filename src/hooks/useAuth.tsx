@@ -6,8 +6,10 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
+  roles: string[];
   loading: boolean;
   refreshProfile: () => Promise<void>;
+  getRedirectPath: () => string;
   signUp: (email: string, password: string, displayName: string, phone?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -34,7 +36,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const fetchRoles = async (userId: string) => {
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    if (data) setRoles(data.map((r) => r.role));
+  };
+
+  const getRedirectPath = () => {
+    if (roles.includes("admin")) return "/admin";
+    if (roles.includes("recruiter")) return "/recruiter";
+    if (roles.includes("mentor")) return "/mentor-dashboard";
+    return "/dashboard";
+  };
 
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
@@ -51,9 +69,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => fetchProfile(session.user.id), 0);
+          setTimeout(() => {
+            fetchProfile(session.user.id);
+            fetchRoles(session.user.id);
+          }, 0);
         } else {
           setProfile(null);
+          setRoles([]);
         }
         setLoading(false);
       }
@@ -62,7 +84,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+        fetchRoles(session.user.id);
+      }
       setLoading(false);
     });
 
@@ -91,6 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setSession(null);
     setProfile(null);
+    setRoles([]);
   };
 
   const refreshProfile = async () => {
@@ -98,7 +124,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, refreshProfile, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, profile, roles, loading, refreshProfile, getRedirectPath, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

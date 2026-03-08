@@ -14,7 +14,7 @@ const particles = Array.from({ length: 20 }, (_, i) => ({
 }));
 
 const SplashScreen = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, getRedirectPath } = useAuth();
   const navigate = useNavigate();
   const [phase, setPhase] = useState<"enter" | "zoom" | "exit">("enter");
 
@@ -27,7 +27,7 @@ const SplashScreen = () => {
   useEffect(() => {
     if (phase === "exit" && !loading) {
       const t = setTimeout(() => {
-        navigate(user ? "/dashboard" : "/auth", { replace: true });
+        navigate(user ? getRedirectPath() : "/auth", { replace: true });
       }, 600);
       return () => clearTimeout(t);
     }
