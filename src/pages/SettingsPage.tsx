@@ -43,6 +43,8 @@ const SettingsPage = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [saving, setSaving] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   // GitHub sync state
   const [ghProfile, setGhProfile] = useState<GitHubProfile | null>(null);
