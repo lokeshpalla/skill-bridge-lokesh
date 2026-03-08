@@ -103,7 +103,7 @@ const PortfolioAIChat = ({ portfolioContext, externalOpen, onExternalOpenChange 
   }, [autoSpeak, selectedLang]);
 
   const toggleListening = useCallback(() => {
-    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognitionAPI) {
       toast.error("Speech recognition is not supported in this browser.");
       return;
