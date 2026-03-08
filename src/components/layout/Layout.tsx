@@ -49,7 +49,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <SidebarTrigger className="text-muted-foreground hover:text-foreground">
               <Menu className="w-5 h-5" />
             </SidebarTrigger>
-            <NotificationBell />
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
+              <NotificationBell />
+            </div>
           </header>
           <AnimatePresence mode="wait">
             <motion.main
