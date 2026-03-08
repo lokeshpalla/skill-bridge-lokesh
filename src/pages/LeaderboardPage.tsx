@@ -47,9 +47,24 @@ const LeaderboardPage = () => {
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
+      // Get student user IDs only
+      const { data: studentRoles } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "student");
+
+      const studentIds = studentRoles?.map(r => r.user_id) || [];
+
+      if (studentIds.length === 0) {
+        setLeaderboard([]);
+        setLoading(false);
+        return;
+      }
+
       const { data } = await supabase
         .from("profiles")
         .select("user_id, display_name, xp, streak, avatar_url")
+        .in("user_id", studentIds)
         .order("xp", { ascending: false })
         .limit(50);
 
