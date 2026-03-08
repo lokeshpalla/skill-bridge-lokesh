@@ -46,7 +46,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [tab, setTab] = useState<"overview" | "users" | "moderation" | "analytics" | "payouts" | "courses" | "mentors" | "announcements" | "recruiters">("overview");
+  const [tab, setTab] = useState<"overview" | "users" | "moderation" | "analytics" | "payouts" | "courses" | "mentors" | "announcements" | "recruiters" | "subscriptions">("overview");
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
