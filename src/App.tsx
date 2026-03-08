@@ -64,6 +64,7 @@ function AppRoutes() {
         <Route path="/rooms" element={<RoomsPage />} />
         <Route path="/rooms/:id" element={<LiveRoomPage />} />
         <Route path="/teams" element={<TeamMatchingPage />} />
+        <Route path="/teams/:projectId/repo" element={<TeamProjectRepoPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/certificates" element={<CertificatesPage />} />
         <Route path="*" element={<NotFound />} />
