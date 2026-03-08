@@ -531,6 +531,18 @@ export default function TeamMatchingPage() {
                           </Button>
                           <Button
                             size="sm"
+                            variant="outline"
+                            className="w-full text-xs gap-1.5"
+                            onClick={() => {
+                              const joinUrl = `${window.location.origin}/teams?join=${project.id}`;
+                              navigator.clipboard.writeText(joinUrl);
+                              toast.success("Join link copied to clipboard!", { icon: "🔗" });
+                            }}
+                          >
+                            <Link className="w-3.5 h-3.5" /> Share Join Link
+                          </Button>
+                          <Button
+                            size="sm"
                             variant="destructive"
                             className="w-full text-xs gap-1.5"
                             onClick={() => setDeleteProject(project)}
