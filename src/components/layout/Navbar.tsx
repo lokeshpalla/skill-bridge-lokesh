@@ -69,9 +69,13 @@ const Navbar = () => {
           {user ? (
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center" aria-hidden="true">
-                  <User className="w-4 h-4 text-primary-foreground" />
-                </div>
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center" aria-hidden="true">
+                    <User className="w-4 h-4 text-primary-foreground" />
+                  </div>
+                )}
                 <span className="text-sm font-medium">{profile?.display_name || "User"}</span>
               </div>
               <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sign out">
