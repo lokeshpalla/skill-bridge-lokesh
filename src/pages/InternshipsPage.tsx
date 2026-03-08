@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { MapPin, Clock, Building2, ExternalLink, Sparkles, CheckCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { MapPin, Clock, Sparkles, CheckCircle, Search } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -15,70 +16,75 @@ const internships = [
 
 const InternshipsPage = () => {
   const [apps, setApps] = useState<Set<number>>(new Set(internships.filter(i => i.applied).map(i => i.id)));
+  const [search, setSearch] = useState("");
 
-  const handleApply = (id: number, company: string) => {
-    setApps(prev => new Set(prev).add(id));
-    toast({ title: "🚀 Application Submitted!", description: `Your application to ${company} has been sent.` });
-  };
+  const filtered = internships.filter(i =>
+    i.title.toLowerCase().includes(search.toLowerCase()) ||
+    i.company.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="container">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold mb-2">Internships</h1>
-          <p className="text-muted-foreground mb-8">AI-matched opportunities based on your skills</p>
-        </motion.div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          {internships.map((intern, i) => (
-            <motion.div
-              key={intern.id}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="glass-hover rounded-xl p-6"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-2xl">
-                    {intern.logo}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">{intern.title}</h3>
-                    <p className="text-sm text-muted-foreground">{intern.company}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                  <Sparkles className="w-3 h-3" />
-                  {intern.match}% match
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
-                <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{intern.location}</span>
-                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{intern.duration}</span>
-              </div>
-
-              <div className="flex flex-wrap gap-1.5 mb-4">
-                {intern.skills.map((s) => (
-                  <span key={s} className="text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">{s}</span>
-                ))}
-              </div>
-
-              <Button
-                variant={apps.has(intern.id) ? "secondary" : "hero"}
-                size="sm"
-                className="w-full"
-                disabled={apps.has(intern.id)}
-                onClick={() => handleApply(intern.id, intern.company)}
-              >
-                {apps.has(intern.id) ? (
-                  <><CheckCircle className="w-3 h-3" /> Applied</>
-                ) : "Apply Now"}
-              </Button>
-            </motion.div>
-          ))}
+    <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight mb-1">Internships</h1>
+          <p className="text-sm text-muted-foreground">AI-matched opportunities based on your skills</p>
         </div>
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input placeholder="Search internships..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-card/60 border-border/50 h-9 text-sm" />
+        </div>
+      </motion.div>
+
+      <div className="grid md:grid-cols-2 gap-4">
+        {filtered.map((intern, i) => (
+          <motion.div
+            key={intern.id}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.04 }}
+            className="rounded-xl border border-border/50 bg-card/60 p-5 hover:border-primary/20 transition-all"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-secondary/80 flex items-center justify-center text-xl">
+                  {intern.logo}
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold">{intern.title}</h3>
+                  <p className="text-[11px] text-muted-foreground">{intern.company}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-semibold border border-primary/20">
+                <Sparkles className="w-2.5 h-2.5" />
+                {intern.match}%
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-3">
+              <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{intern.location}</span>
+              <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{intern.duration}</span>
+            </div>
+
+            <div className="flex flex-wrap gap-1 mb-4">
+              {intern.skills.map((s) => (
+                <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary/80 text-secondary-foreground">{s}</span>
+              ))}
+            </div>
+
+            <Button
+              variant={apps.has(intern.id) ? "secondary" : "hero"}
+              className="w-full h-8 text-xs"
+              disabled={apps.has(intern.id)}
+              onClick={() => {
+                setApps(prev => new Set(prev).add(intern.id));
+                toast({ title: "🚀 Application Submitted!", description: `Your application to ${intern.company} has been sent.` });
+              }}
+            >
+              {apps.has(intern.id) ? <><CheckCircle className="w-3 h-3" /> Applied</> : "Apply Now"}
+            </Button>
+          </motion.div>
+        ))}
       </div>
     </div>
   );
