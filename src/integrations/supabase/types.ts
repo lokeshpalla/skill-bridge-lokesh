@@ -904,6 +904,7 @@ export type Database = {
       }
       mentor_profiles: {
         Row: {
+          availability_slots: string[] | null
           available: boolean | null
           bio: string | null
           company: string | null
@@ -913,10 +914,12 @@ export type Database = {
           rating: number | null
           skills: string[] | null
           title: string
+          total_earnings: number | null
           total_sessions: number | null
           user_id: string
         }
         Insert: {
+          availability_slots?: string[] | null
           available?: boolean | null
           bio?: string | null
           company?: string | null
@@ -926,10 +929,12 @@ export type Database = {
           rating?: number | null
           skills?: string[] | null
           title: string
+          total_earnings?: number | null
           total_sessions?: number | null
           user_id: string
         }
         Update: {
+          availability_slots?: string[] | null
           available?: boolean | null
           bio?: string | null
           company?: string | null
@@ -939,10 +944,56 @@ export type Database = {
           rating?: number | null
           skills?: string[] | null
           title?: string
+          total_earnings?: number | null
           total_sessions?: number | null
           user_id?: string
         }
         Relationships: []
+      }
+      mentor_reviews: {
+        Row: {
+          booking_id: string
+          created_at: string
+          id: string
+          mentor_id: string
+          rating: number
+          review: string | null
+          student_id: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          id?: string
+          mentor_id: string
+          rating: number
+          review?: string | null
+          student_id: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          id?: string
+          mentor_id?: string
+          rating?: number
+          review?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "mentor_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mentor_reviews_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "mentor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mock_interview_messages: {
         Row: {
