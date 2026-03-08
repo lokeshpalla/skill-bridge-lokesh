@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
 } from "@/components/ui/dialog";
+import MentorAvailabilityCalendar, { AvailabilitySlot, stringsToSlots, slotsToStrings } from "@/components/mentors/MentorAvailabilityCalendar";
+import { format } from "date-fns";
 
 interface MentorProfile {
   id: string;
@@ -37,14 +39,14 @@ const MentorsPage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedMentor, setSelectedMentor] = useState<MentorProfile | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
   const [bookingNotes, setBookingNotes] = useState("");
   const [showRegister, setShowRegister] = useState(false);
   const [isMentor, setIsMentor] = useState(false);
   const [regForm, setRegForm] = useState({
     title: "", bio: "", company: "", skills: "", hourly_rate: "3000",
-    slots: "Mon 6-8 PM, Wed 7-9 PM",
   });
+  const [regSlots, setRegSlots] = useState<AvailabilitySlot[]>([]);
 
   useEffect(() => {
     fetchMentors();
@@ -93,7 +95,7 @@ const MentorsPage = () => {
       company: regForm.company || null,
       skills: regForm.skills.split(",").map(s => s.trim()).filter(Boolean),
       hourly_rate: parseInt(regForm.hourly_rate) || 3000,
-      availability_slots: regForm.slots.split(",").map(s => s.trim()).filter(Boolean),
+      availability_slots: slotsToStrings(regSlots),
       available: true,
     });
     if (error) { toast.error("Failed to register"); return; }
@@ -109,8 +111,17 @@ const MentorsPage = () => {
 
   const bookSession = async () => {
     if (!user || !selectedMentor || !selectedSlot) return;
-    // Parse slot into a scheduled_at (use next occurrence)
-    const scheduledAt = getNextSlotDate(selectedSlot);
+    // Parse the calendar slot into a proper date
+    const timeStr = selectedSlot.time;
+    const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    let hours = match ? parseInt(match[1]) : 18;
+    const minutes = match ? parseInt(match[2]) : 0;
+    const ampm = match ? match[3].toUpperCase() : "PM";
+    if (ampm === "PM" && hours < 12) hours += 12;
+    if (ampm === "AM" && hours === 12) hours = 0;
+
+    const scheduledAt = new Date(selectedSlot.date + "T00:00:00");
+    scheduledAt.setHours(hours, minutes, 0, 0);
 
     const { error } = await supabase.from("mentor_bookings").insert({
       mentor_id: selectedMentor.user_id,
@@ -125,20 +136,6 @@ const MentorsPage = () => {
     setSelectedMentor(null);
     setBookingNotes("");
     setSelectedSlot(null);
-  };
-
-  const getNextSlotDate = (slot: string): Date => {
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const now = new Date();
-    const parts = slot.match(/(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/i);
-    const timeParts = slot.match(/(\d{1,2})/);
-    const dayIdx = parts ? days.findIndex(d => d.toLowerCase() === parts[1].toLowerCase().slice(0, 3)) : now.getDay();
-    let diff = dayIdx - now.getDay();
-    if (diff <= 0) diff += 7;
-    const date = new Date(now);
-    date.setDate(date.getDate() + diff);
-    date.setHours(timeParts ? parseInt(timeParts[1]) + (slot.toLowerCase().includes("pm") && parseInt(timeParts[1]) < 12 ? 12 : 0) : 18, 0, 0, 0);
-    return date;
   };
 
   const filtered = mentors.filter(m =>
@@ -166,7 +163,7 @@ const MentorsPage = () => {
                   <Plus className="w-3.5 h-3.5" /> Become a Mentor
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader><DialogTitle>Register as Mentor</DialogTitle></DialogHeader>
                 <div className="space-y-3 mt-2">
                   <Input placeholder="Your title (e.g. Senior Engineer @ Google) *" value={regForm.title} onChange={e => setRegForm(f => ({ ...f, title: e.target.value }))} />
@@ -176,7 +173,8 @@ const MentorsPage = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <Input placeholder="Hourly rate (₹)" type="number" value={regForm.hourly_rate} onChange={e => setRegForm(f => ({ ...f, hourly_rate: e.target.value }))} />
                   </div>
-                  <Input placeholder="Available slots (e.g. Mon 6-8 PM, Wed 7-9 PM)" value={regForm.slots} onChange={e => setRegForm(f => ({ ...f, slots: e.target.value }))} />
+                  <div className="text-xs font-medium text-muted-foreground mb-1">Set your availability:</div>
+                  <MentorAvailabilityCalendar slots={regSlots} onChange={setRegSlots} />
                   <Button variant="hero" className="w-full" onClick={registerAsMentor} disabled={!regForm.title}>
                     Register as Mentor
                   </Button>
@@ -250,15 +248,20 @@ const MentorsPage = () => {
                 )}
               </div>
 
-              {mentor.availability_slots.length > 0 && (
+              {stringsToSlots(mentor.availability_slots).length > 0 && (
                 <div className="mb-4 p-2.5 rounded-lg bg-secondary/40 border border-border/30">
                   <p className="text-[10px] font-medium text-muted-foreground flex items-center gap-1 mb-1.5">
                     <Clock className="w-3 h-3" /> Available Slots
                   </p>
                   <div className="flex flex-wrap gap-1">
-                    {mentor.availability_slots.map(slot => (
-                      <span key={slot} className="text-[10px] px-2 py-0.5 rounded-md bg-background/80 border border-border/40 text-foreground">{slot}</span>
+                    {stringsToSlots(mentor.availability_slots).slice(0, 6).map(slot => (
+                      <span key={`${slot.date}-${slot.time}`} className="text-[10px] px-2 py-0.5 rounded-md bg-background/80 border border-border/40 text-foreground">
+                        {format(new Date(slot.date + "T00:00:00"), "MMM d")} · {slot.time}
+                      </span>
                     ))}
+                    {stringsToSlots(mentor.availability_slots).length > 6 && (
+                      <span className="text-[10px] px-2 py-0.5 text-muted-foreground">+{stringsToSlots(mentor.availability_slots).length - 6} more</span>
+                    )}
                   </div>
                 </div>
               )}
@@ -283,7 +286,7 @@ const MentorsPage = () => {
 
       {/* Booking Dialog */}
       <Dialog open={!!selectedMentor} onOpenChange={open => { if (!open) setSelectedMentor(null); }}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Book Session with {selectedMentor?.display_name}</DialogTitle>
           </DialogHeader>
@@ -291,19 +294,19 @@ const MentorsPage = () => {
             {selectedMentor?.hourly_rate && (
               <p className="text-xs text-muted-foreground">Rate: <span className="font-semibold text-foreground">{formatRupees(selectedMentor.hourly_rate)}/hr</span></p>
             )}
-            <p className="text-xs font-medium text-muted-foreground flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Choose a time slot</p>
-            <div className="grid grid-cols-1 gap-2">
-              {selectedMentor?.availability_slots.map(slot => (
-                <button key={slot} onClick={() => setSelectedSlot(slot)}
-                  className={`text-left px-4 py-3 rounded-xl border text-sm transition-all ${
-                    selectedSlot === slot
-                      ? "border-primary bg-primary/10 text-primary font-medium ring-1 ring-primary/20"
-                      : "border-border/50 bg-card/60 hover:border-primary/30 text-foreground"
-                  }`}>
-                  <div className="flex items-center gap-2"><Calendar className="w-4 h-4" />{slot}</div>
-                </button>
-              ))}
-            </div>
+            <p className="text-xs font-medium text-muted-foreground flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Choose a date & time slot</p>
+            <MentorAvailabilityCalendar
+              slots={stringsToSlots(selectedMentor?.availability_slots || [])}
+              onChange={() => {}}
+              readOnly
+              onSlotSelect={(slot) => setSelectedSlot(slot)}
+              selectedSlot={selectedSlot}
+            />
+            {selectedSlot && (
+              <p className="text-xs text-primary font-medium">
+                Selected: {format(new Date(selectedSlot.date + "T00:00:00"), "MMM d, yyyy")} at {selectedSlot.time}
+              </p>
+            )}
             <Textarea placeholder="Notes for the mentor (optional)..." value={bookingNotes} onChange={e => setBookingNotes(e.target.value)} rows={2} />
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={() => setSelectedMentor(null)}>Cancel</Button>
