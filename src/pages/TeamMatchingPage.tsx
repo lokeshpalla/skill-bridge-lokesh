@@ -530,6 +530,16 @@ export default function TeamMatchingPage() {
 
                     {/* Actions */}
                     <div className="flex flex-col gap-2">
+                      {/* View Repo - always visible */}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full text-xs gap-1.5"
+                        onClick={() => navigate(`/teams/${project.id}/repo`)}
+                      >
+                        <GitBranch className="w-3.5 h-3.5" /> View Project Repo
+                      </Button>
+
                       {isOwner ? (
                         <>
                           <Button
