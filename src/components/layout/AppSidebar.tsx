@@ -25,6 +25,7 @@ const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Courses", url: "/courses", icon: BookOpen },
   { title: "Coding", url: "/coding", icon: Code2 },
+  { title: "Playground", url: "/playground", icon: TerminalSquare },
 ];
 
 const socialItems = [
