@@ -62,14 +62,10 @@ const InternshipsPage = () => {
     setLoading(false);
   };
 
-  const applyToInternship = (intern: Internship) => {
-    if (intern.apply_url) {
-      window.open(intern.apply_url, "_blank", "noopener,noreferrer");
-    } else {
-      // Fallback: search for the internship on Google
-      const query = encodeURIComponent(`${intern.company} ${intern.title} internship apply`);
-      window.open(`https://www.google.com/search?q=${query}`, "_blank", "noopener,noreferrer");
-    }
+  const getApplyUrl = (intern: Internship) => {
+    if (intern.apply_url) return intern.apply_url;
+    const query = encodeURIComponent(`${intern.company} ${intern.title} internship apply`);
+    return `https://www.google.com/search?q=${query}`;
   };
 
   const filtered = internships.filter(i => {
@@ -227,13 +223,18 @@ const InternshipsPage = () => {
                     </div>
                   )}
 
-                  <Button
-                    variant="hero"
-                    className="w-full h-8 text-xs gap-1"
-                    onClick={() => applyToInternship(intern)}
+                  <a
+                    href={getApplyUrl(intern)}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    <ExternalLink className="w-3 h-3" /> Apply Now
-                  </Button>
+                    <Button
+                      variant="hero"
+                      className="w-full h-8 text-xs gap-1"
+                    >
+                      <ExternalLink className="w-3 h-3" /> Apply Now
+                    </Button>
+                  </a>
                 </motion.div>
               ))}
             </div>
