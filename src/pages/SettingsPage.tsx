@@ -148,6 +148,7 @@ const SettingsPage = () => {
       .eq("user_id", user.id);
     setSaving(false);
     if (error) return toast.error("Failed to save");
+    await refreshProfile();
     toast.success("Profile updated!");
   };
 
