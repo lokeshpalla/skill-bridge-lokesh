@@ -39,6 +39,7 @@ const Dashboard = () => {
   const [weeklyXp, setWeeklyXp] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
   const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [restoringStreak, setRestoringStreak] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Live clock
