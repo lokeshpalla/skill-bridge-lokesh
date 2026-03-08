@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Users, Search, UserPlus, Sparkles, Zap,
-  HandshakeIcon, Plus, Trash2, UserMinus, Eye
+  HandshakeIcon, Plus, Trash2, UserMinus, Eye, Link, Check
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -61,10 +61,21 @@ export default function TeamMatchingPage() {
 
   const userSkills = (profile?.skills || []).map(s => s.toLowerCase());
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
     fetchProjects();
   }, [user]);
+
+  // Auto-join via shared link
+  useEffect(() => {
+    const joinId = searchParams.get("join");
+    if (joinId && user && !loading) {
+      handleJoin(joinId);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, user, loading]);
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -528,6 +539,18 @@ export default function TeamMatchingPage() {
                             onClick={() => fetchMembers(project)}
                           >
                             <Eye className="w-3.5 h-3.5" /> View & Manage Members
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full text-xs gap-1.5"
+                            onClick={() => {
+                              const joinUrl = `${window.location.origin}/teams?join=${project.id}`;
+                              navigator.clipboard.writeText(joinUrl);
+                              toast.success("Join link copied to clipboard!", { icon: "🔗" });
+                            }}
+                          >
+                            <Link className="w-3.5 h-3.5" /> Share Join Link
                           </Button>
                           <Button
                             size="sm"
