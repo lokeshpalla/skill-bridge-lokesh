@@ -208,6 +208,7 @@ const RecruiterDashboard = () => {
     ["pipeline", "👥 Pipeline"],
     ["interviews", "📅 Interviews"],
     ["analytics", "📊 Analytics"],
+    ["ai-match", "🤖 AI Match"],
   ] as const;
 
   return (
