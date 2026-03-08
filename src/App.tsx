@@ -55,7 +55,7 @@ function AppRoutes() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/dashboard" element={<SubscriptionGate><Dashboard /></SubscriptionGate>} />
-        <Route path="/courses" element={<CoursesPage />} />
+        <Route path="/courses" element={<SubscriptionGate><CoursesPage /></SubscriptionGate>} />
         <Route path="/courses/:id" element={<CourseDetail />} />
         <Route path="/coding" element={<CodingPage />} />
          <Route path="/mentors" element={<MentorsPage />} />
