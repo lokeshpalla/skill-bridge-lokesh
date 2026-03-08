@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ClipboardCheck, ChevronRight, Trophy, AlertCircle, Timer, Play, Code2, CheckCircle, XCircle } from "lucide-react";
+import { ClipboardCheck, ChevronRight, Trophy, AlertCircle, Timer, Play, Code2, CheckCircle, XCircle, Camera, Maximize, ShieldAlert, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useExamProctoring } from "@/hooks/useExamProctoring";
 
 // ----- Types -----
 interface MCQQuestion {
