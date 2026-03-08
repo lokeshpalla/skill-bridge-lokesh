@@ -19,6 +19,7 @@ import AchievementsPage from "./pages/AchievementsPage";
 import CommunityPage from "./pages/CommunityPage";
 import InstallPage from "./pages/InstallPage";
 import InterviewPage from "./pages/InterviewPage";
+import LearningPathsPage from "./pages/LearningPathsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
