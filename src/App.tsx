@@ -22,6 +22,8 @@ import InterviewPage from "./pages/InterviewPage";
 import LearningPathsPage from "./pages/LearningPathsPage";
 import SettingsPage from "./pages/SettingsPage";
 import AdminPage from "./pages/AdminPage";
+import RoomsPage from "./pages/RoomsPage";
+import LiveRoomPage from "./pages/LiveRoomPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
