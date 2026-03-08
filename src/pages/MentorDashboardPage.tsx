@@ -325,6 +325,44 @@ const MentorDashboardPage = () => {
         </div>
       )}
 
+      {/* Earnings Tab */}
+      {tab === "earnings" && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { label: "Total Earnings", value: formatRupees(totalEarnings), color: "text-warning" },
+              { label: "Paid Out", value: formatRupees(paidEarnings), color: "text-green-500" },
+              { label: "Pending Payout", value: formatRupees(pendingEarnings), color: "text-yellow-500" },
+            ].map(s => (
+              <div key={s.label} className="rounded-xl border border-border/50 bg-card/60 p-4">
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{s.label}</span>
+                <div className={`text-xl font-bold mt-1 ${s.color}`}>{s.value}</div>
+              </div>
+            ))}
+          </div>
+          {payments.length === 0 ? (
+            <div className="text-center py-16 rounded-xl border border-border/50 bg-card/60">
+              <IndianRupee className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+              <h3 className="text-sm font-medium mb-1">No earnings yet</h3>
+              <p className="text-xs text-muted-foreground">Complete sessions to start earning.</p>
+            </div>
+          ) : (
+            payments.map((p: any, i: number) => (
+              <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                className="rounded-xl border border-border/50 bg-card/60 p-4 flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-semibold">{formatRupees(Number(p.amount))}</div>
+                  <div className="text-[11px] text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</div>
+                </div>
+                <Badge variant={p.status === "paid" ? "default" : "secondary"} className="text-[10px]">
+                  {p.status === "paid" ? "✅ Paid" : "⏳ Pending"}
+                </Badge>
+              </motion.div>
+            ))
+          )}
+        </div>
+      )}
+
       {/* Analytics Tab */}
       {tab === "analytics" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
