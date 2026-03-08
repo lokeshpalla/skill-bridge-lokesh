@@ -176,6 +176,14 @@ const Dashboard = () => {
     { icon: Award, label: "Rank", value: `#${rank}`, change: rank > 0 ? `#${rank}` : "—", up: rank > 0, accent: "text-accent" },
   ];
 
+  if (showOnboarding) {
+    return <OnboardingFlow onComplete={() => setShowOnboarding(false)} />;
+  }
+
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
+
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
       {/* Header */}
