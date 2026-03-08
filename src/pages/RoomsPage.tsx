@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Video, Users, Plus, Search, Wifi, WifiOff } from "lucide-react";
+import { Video, Users, Plus, Search, Wifi, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Room {
@@ -92,6 +92,21 @@ export default function RoomsPage() {
     setCreateOpen(false);
     setNewRoom({ name: "", description: "", topic: "general", max_participants: 6 });
     if (data) navigate(`/rooms/${data.id}`);
+  };
+
+  const endRoom = async (roomId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const { error } = await supabase
+      .from("collaboration_rooms")
+      .update({ is_active: false, ended_at: new Date().toISOString() })
+      .eq("id", roomId)
+      .eq("created_by", user!.id);
+    if (error) {
+      toast({ title: "Error", description: "Failed to end room", variant: "destructive" });
+    } else {
+      toast({ title: "Room ended", description: "The room has been closed." });
+      fetchRooms();
+    }
   };
 
   const filteredRooms = rooms.filter((r) =>
@@ -249,9 +264,21 @@ export default function RoomsPage() {
                     <Users className="w-3.5 h-3.5" />
                     {room.participant_count}/{room.max_participants}
                   </div>
-                  <Button size="sm" variant="secondary" className="text-xs">
-                    Join Room
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {room.created_by === user?.id && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="text-xs gap-1 h-7 px-2"
+                        onClick={(e) => endRoom(room.id, e)}
+                      >
+                        <XCircle className="w-3 h-3" /> End
+                      </Button>
+                    )}
+                    <Button size="sm" variant="secondary" className="text-xs">
+                      Join Room
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
