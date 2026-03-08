@@ -105,6 +105,14 @@ const MentorDashboardPage = () => {
       })));
     }
 
+    // Fetch payments
+    const { data: pays } = await supabase
+      .from("mentor_payments")
+      .select("*")
+      .eq("mentor_id", user.id)
+      .order("created_at", { ascending: false });
+    if (pays) setPayments(pays);
+
     setLoading(false);
   };
 
