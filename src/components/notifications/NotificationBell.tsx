@@ -3,6 +3,7 @@ import { Bell, BellRing } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -22,6 +23,7 @@ interface Notification {
 
 export function NotificationBell() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const { isSupported, permission, requestPermission, showNotification } = usePushNotifications();
@@ -117,7 +119,7 @@ export function NotificationBell() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
+      <PopoverContent className="w-80 p-0 bg-card border-border shadow-xl" align="end">
         <div className="flex items-center justify-between p-3 border-b border-border/50">
           <h4 className="text-sm font-semibold text-foreground">Notifications</h4>
           <div className="flex gap-1">
@@ -154,7 +156,7 @@ export function NotificationBell() {
               {notifications.map((n) => (
                 <button
                   key={n.id}
-                  onClick={() => { markAsRead(n.id); if (n.link) window.location.href = n.link; }}
+                  onClick={() => { markAsRead(n.id); if (n.link) { setOpen(false); navigate(n.link); } }}
                   className={cn(
                     "w-full text-left p-3 hover:bg-muted/50 transition-colors flex gap-2.5",
                     !n.read && "bg-primary/5"
