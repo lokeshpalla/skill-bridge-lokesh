@@ -27,7 +27,7 @@ const SplashScreen = () => {
   useEffect(() => {
     if (phase === "exit" && !loading) {
       const t = setTimeout(() => {
-        navigate(user ? "/dashboard" : "/auth", { replace: true });
+        navigate(user ? getRedirectPath() : "/auth", { replace: true });
       }, 600);
       return () => clearTimeout(t);
     }

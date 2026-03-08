@@ -54,7 +54,10 @@ const AuthPage = () => {
         toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
       } else {
         toast({ title: "Welcome back! 👋" });
-        navigate("/dashboard");
+        // Small delay to let roles load
+        setTimeout(() => {
+          navigate(getRedirectPath());
+        }, 500);
       }
     } else {
       if (!name) {
