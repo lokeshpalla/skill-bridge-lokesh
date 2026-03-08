@@ -11,6 +11,7 @@ interface LeaderboardUser {
   streak: number;
   level: string;
   avatar: string;
+  avatar_url: string | null;
   user_id: string;
 }
 
