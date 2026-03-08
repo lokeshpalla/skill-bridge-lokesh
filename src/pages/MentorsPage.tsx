@@ -280,7 +280,7 @@ const MentorsPage = () => {
 
       {/* Booking Dialog */}
       <Dialog open={!!selectedMentor} onOpenChange={open => { if (!open) setSelectedMentor(null); }}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Book Session with {selectedMentor?.display_name}</DialogTitle>
           </DialogHeader>
@@ -288,19 +288,19 @@ const MentorsPage = () => {
             {selectedMentor?.hourly_rate && (
               <p className="text-xs text-muted-foreground">Rate: <span className="font-semibold text-foreground">{formatRupees(selectedMentor.hourly_rate)}/hr</span></p>
             )}
-            <p className="text-xs font-medium text-muted-foreground flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Choose a time slot</p>
-            <div className="grid grid-cols-1 gap-2">
-              {selectedMentor?.availability_slots.map(slot => (
-                <button key={slot} onClick={() => setSelectedSlot(slot)}
-                  className={`text-left px-4 py-3 rounded-xl border text-sm transition-all ${
-                    selectedSlot === slot
-                      ? "border-primary bg-primary/10 text-primary font-medium ring-1 ring-primary/20"
-                      : "border-border/50 bg-card/60 hover:border-primary/30 text-foreground"
-                  }`}>
-                  <div className="flex items-center gap-2"><Calendar className="w-4 h-4" />{slot}</div>
-                </button>
-              ))}
-            </div>
+            <p className="text-xs font-medium text-muted-foreground flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Choose a date & time slot</p>
+            <MentorAvailabilityCalendar
+              slots={stringsToSlots(selectedMentor?.availability_slots || [])}
+              onChange={() => {}}
+              readOnly
+              onSlotSelect={(slot) => setSelectedSlot(slot)}
+              selectedSlot={selectedSlot}
+            />
+            {selectedSlot && (
+              <p className="text-xs text-primary font-medium">
+                Selected: {format(new Date(selectedSlot.date + "T00:00:00"), "MMM d, yyyy")} at {selectedSlot.time}
+              </p>
+            )}
             <Textarea placeholder="Notes for the mentor (optional)..." value={bookingNotes} onChange={e => setBookingNotes(e.target.value)} rows={2} />
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={() => setSelectedMentor(null)}>Cancel</Button>
