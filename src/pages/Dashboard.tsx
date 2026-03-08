@@ -310,6 +310,7 @@ const Dashboard = () => {
         </motion.div>
       )}
 
+      <div className="grid lg:grid-cols-5 gap-4">
         {/* XP Chart */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
