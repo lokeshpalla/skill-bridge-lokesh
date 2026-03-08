@@ -179,7 +179,7 @@ const InterviewPage = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: msgs, topic }),
+        body: JSON.stringify({ messages: msgs, topic, skills: userSkills }),
       });
 
       if (!resp.ok) {
