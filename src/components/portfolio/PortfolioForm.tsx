@@ -117,6 +117,9 @@ const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, onOpenA
               <Eye className="w-4 h-4" /> Preview & Download
             </Button>
           )}
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={onOpenAI}>
+            <Sparkles className="w-4 h-4" /> AI Assistant
+          </Button>
           <Button variant="default" size="sm" className="gap-1.5" onClick={openCreate}>
             <Plus className="w-4 h-4" /> Add Project
           </Button>
