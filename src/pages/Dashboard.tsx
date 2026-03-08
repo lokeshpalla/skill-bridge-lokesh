@@ -5,6 +5,7 @@ import {
   Calendar, Award, Zap, ArrowUpRight, Sparkles, Clock, RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
