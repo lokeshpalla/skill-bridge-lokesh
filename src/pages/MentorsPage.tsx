@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
 } from "@/components/ui/dialog";
-import MentorAvailabilityCalendar, { AvailabilitySlot, stringsToSlots, slotsToStrings } from "@/components/mentors/MentorAvailabilityCalendar";
+import MentorAvailabilityCalendar, { AvailabilitySlot, stringsToSlots, slotsToStrings, WeeklyPattern, weeklyPatternToString, generateSlotsFromPattern } from "@/components/mentors/MentorAvailabilityCalendar";
 import { format } from "date-fns";
 
 interface MentorProfile {
@@ -47,6 +47,7 @@ const MentorsPage = () => {
     title: "", bio: "", company: "", skills: "", hourly_rate: "3000",
   });
   const [regSlots, setRegSlots] = useState<AvailabilitySlot[]>([]);
+  const [regWeeklyPattern, setRegWeeklyPattern] = useState<WeeklyPattern>({});
 
   useEffect(() => {
     fetchMentors();
@@ -174,7 +175,12 @@ const MentorsPage = () => {
                     <Input placeholder="Hourly rate (₹)" type="number" value={regForm.hourly_rate} onChange={e => setRegForm(f => ({ ...f, hourly_rate: e.target.value }))} />
                   </div>
                   <div className="text-xs font-medium text-muted-foreground mb-1">Set your availability:</div>
-                  <MentorAvailabilityCalendar slots={regSlots} onChange={setRegSlots} />
+                  <MentorAvailabilityCalendar
+                    slots={regSlots}
+                    onChange={setRegSlots}
+                    weeklyPattern={regWeeklyPattern}
+                    onWeeklyPatternChange={setRegWeeklyPattern}
+                  />
                   <Button variant="hero" className="w-full" onClick={registerAsMentor} disabled={!regForm.title}>
                     Register as Mentor
                   </Button>

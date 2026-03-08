@@ -4,7 +4,7 @@ import {
   Calendar, Clock, Star, IndianRupee, Users, CheckCircle,
   XCircle, MessageSquare, BarChart3, Settings, TrendingUp, Video as VideoIcon
 } from "lucide-react";
-import MentorAvailabilityCalendar, { AvailabilitySlot, slotsToStrings, stringsToSlots } from "@/components/mentors/MentorAvailabilityCalendar";
+import MentorAvailabilityCalendar, { AvailabilitySlot, slotsToStrings, stringsToSlots, WeeklyPattern, stringToWeeklyPattern, weeklyPatternToString, generateSlotsFromPattern } from "@/components/mentors/MentorAvailabilityCalendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -126,7 +126,7 @@ const MentorDashboardPage = () => {
 
   const saveProfile = async () => {
     if (!editForm || !user) return;
-    const { error } = await supabase.from("mentor_profiles").update({
+    const updateData: any = {
       title: editForm.title,
       bio: editForm.bio,
       company: editForm.company,
@@ -134,7 +134,11 @@ const MentorDashboardPage = () => {
       hourly_rate: parseInt(editForm.hourly_rate) || 0,
       availability_slots: slotsToStrings(editForm.calendarSlots || []),
       available: editForm.available,
-    }).eq("user_id", user.id);
+    };
+    if (editForm.weeklyPattern) {
+      updateData.weekly_pattern = weeklyPatternToString(editForm.weeklyPattern);
+    }
+    const { error } = await supabase.from("mentor_profiles").update(updateData).eq("user_id", user.id);
     if (error) { toast.error("Failed to save"); return; }
     toast.success("Profile updated!");
     setEditForm(null);
@@ -419,6 +423,7 @@ const MentorDashboardPage = () => {
                   skills: (mentorProfile.skills || []).join(", "),
                   hourly_rate: String(mentorProfile.hourly_rate || 0),
                   calendarSlots: stringsToSlots(mentorProfile.availability_slots || []),
+                  weeklyPattern: stringToWeeklyPattern(mentorProfile.weekly_pattern || null),
                   available: mentorProfile.available,
                 })}>Edit Profile</Button>
               </div>
@@ -448,6 +453,8 @@ const MentorDashboardPage = () => {
               <MentorAvailabilityCalendar
                 slots={editForm.calendarSlots || []}
                 onChange={(slots) => setEditForm((f: any) => ({ ...f, calendarSlots: slots }))}
+                weeklyPattern={editForm.weeklyPattern || {}}
+                onWeeklyPatternChange={(pattern) => setEditForm((f: any) => ({ ...f, weeklyPattern: pattern }))}
               />
             ) : (
               <MentorAvailabilityCalendar
