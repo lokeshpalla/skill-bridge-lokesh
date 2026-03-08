@@ -26,6 +26,7 @@ export function NotificationBell() {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const { isSupported, permission, requestPermission, showNotification } = usePushNotifications();
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -37,20 +38,39 @@ export function NotificationBell() {
     }
   };
 
+  // Defer initial notification fetch — only fetch on first open or after 3s
   useEffect(() => {
+    if (!user || hasFetched) return;
+
+    const timer = setTimeout(() => {
+      fetchNotifications();
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [user, hasFetched]);
+
+  const fetchNotifications = async () => {
     if (!user) return;
+    const { data } = await supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(30);
+    if (data) setNotifications(data as Notification[]);
+    setHasFetched(true);
+  };
 
-    const fetchNotifications = async () => {
-      const { data } = await supabase
-        .from("notifications")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(30);
-      if (data) setNotifications(data as Notification[]);
-    };
+  // Fetch immediately when popover opens if not yet fetched
+  useEffect(() => {
+    if (open && !hasFetched && user) {
+      fetchNotifications();
+    }
+  }, [open]);
 
-    fetchNotifications();
+  // Realtime subscription — only set up once after first fetch
+  useEffect(() => {
+    if (!user || !hasFetched) return;
 
     const channel = supabase
       .channel("notifications-realtime")
@@ -61,7 +81,6 @@ export function NotificationBell() {
           const newNotif = payload.new as Notification;
           setNotifications((prev) => [newNotif, ...prev]);
 
-          // Show browser push notification if page is not focused
           if (document.hidden || !open) {
             showNotification(newNotif.title, {
               body: newNotif.message || "",
@@ -74,7 +93,7 @@ export function NotificationBell() {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user, open, showNotification]);
+  }, [user, hasFetched]);
 
   const markAsRead = async (id: string) => {
     await supabase.from("notifications").update({ read: true }).eq("id", id);
