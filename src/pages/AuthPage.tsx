@@ -17,7 +17,7 @@ const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, getRedirectPath } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
