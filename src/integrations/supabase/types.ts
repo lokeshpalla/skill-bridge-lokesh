@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          active: boolean
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          priority: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          priority?: string
+          title: string
+        }
+        Update: {
+          active?: boolean
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          priority?: string
+          title?: string
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           category: string
