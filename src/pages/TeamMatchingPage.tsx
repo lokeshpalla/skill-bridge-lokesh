@@ -184,7 +184,7 @@ export default function TeamMatchingPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 space-y-8 max-w-6xl">
+    <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
