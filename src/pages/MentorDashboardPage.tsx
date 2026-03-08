@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Calendar, Clock, Star, IndianRupee, Users, CheckCircle,
-  XCircle, MessageSquare, BarChart3, Settings, TrendingUp
+  XCircle, MessageSquare, BarChart3, Settings, TrendingUp, Video as VideoIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
