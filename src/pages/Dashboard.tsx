@@ -11,6 +11,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import { DashboardSkeleton } from "@/components/ui/loading-skeletons";
+import UpcomingSessions from "@/components/dashboard/UpcomingSessions";
+import StudentRecommendations from "@/components/dashboard/StudentRecommendations";
+import BadgesEarned from "@/components/dashboard/BadgesEarned";
 
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -432,6 +435,17 @@ const Dashboard = () => {
           </div>
         )}
       </motion.div>
+
+      {/* Upcoming Sessions & Recommendations */}
+      {user && (
+        <div className="grid lg:grid-cols-2 gap-4">
+          <UpcomingSessions userId={user.id} />
+          <StudentRecommendations userId={user.id} skills={profile?.skills || []} />
+        </div>
+      )}
+
+      {/* Badges */}
+      {user && <BadgesEarned userId={user.id} />}
 
       {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
