@@ -45,8 +45,8 @@ const MentorsPage = () => {
   const [isMentor, setIsMentor] = useState(false);
   const [regForm, setRegForm] = useState({
     title: "", bio: "", company: "", skills: "", hourly_rate: "3000",
-    slots: "Mon 6-8 PM, Wed 7-9 PM",
   });
+  const [regSlots, setRegSlots] = useState<AvailabilitySlot[]>([]);
 
   useEffect(() => {
     fetchMentors();
