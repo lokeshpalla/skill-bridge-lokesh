@@ -38,6 +38,7 @@ const socialItems = [
 const careerItems = [
   { title: "Internships", url: "/internships", icon: Briefcase },
   { title: "Portfolio", url: "/portfolio", icon: FolderKanban },
+  { title: "Settings", url: "/settings", icon: Settings },
   { title: "Install App", url: "/install", icon: Download },
 ];
 
