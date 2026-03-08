@@ -105,6 +105,7 @@ const CourseDetail = () => {
 
   const handleEnroll = () => {
     setEnrolled(true);
+    localStorage.setItem(`course_enrolled_${id}`, "true");
     toast({ title: "🎉 Enrolled!", description: `You've enrolled in ${course.title}` });
   };
 
