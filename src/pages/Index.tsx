@@ -225,7 +225,7 @@ const Index = () => {
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="py-24 bg-gradient-hero relative overflow-hidden border-t border-border/30">
+      <section className="py-24 bg-gradient-hero relative overflow-hidden border-t border-border/30" aria-label="Call to action">
         <div className="absolute inset-0 bg-gradient-primary opacity-[0.03]" />
         <div className="container relative z-10 text-center">
           <motion.div {...fadeUp}>
