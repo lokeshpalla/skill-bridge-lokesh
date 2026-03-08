@@ -44,8 +44,12 @@ const InterviewPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [interviewId, setInterviewId] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const [autoSpeak, setAutoSpeak] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
+  const recognitionRef = useRef<any>(null);
+  const lastSpokenRef = useRef<string>("");
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
