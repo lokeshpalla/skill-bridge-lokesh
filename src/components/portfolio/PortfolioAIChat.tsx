@@ -144,7 +144,7 @@ const PortfolioAIChat = ({ portfolioContext, externalOpen, onExternalOpenChange 
             className="fixed bottom-6 right-6 z-50"
           >
             <Button
-              onClick={() => setOpen(true)}
+              onClick={() => handleOpenChange(true)}
               className="rounded-full w-14 h-14 shadow-lg shadow-primary/20 gap-0"
               variant="default"
             >
