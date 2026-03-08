@@ -46,6 +46,14 @@ const SettingsPage = () => {
   const [saving, setSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [cropImage, setCropImage] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+
+  const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
+    setCroppedAreaPixels(croppedPixels);
+  }, []);
 
   // GitHub sync state
   const [ghProfile, setGhProfile] = useState<GitHubProfile | null>(null);
