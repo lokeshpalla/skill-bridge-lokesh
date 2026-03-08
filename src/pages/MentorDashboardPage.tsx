@@ -4,6 +4,7 @@ import {
   Calendar, Clock, Star, IndianRupee, Users, CheckCircle,
   XCircle, MessageSquare, BarChart3, Settings, TrendingUp, Video as VideoIcon
 } from "lucide-react";
+import MentorAvailabilityCalendar, { AvailabilitySlot, slotsToStrings, stringsToSlots } from "@/components/mentors/MentorAvailabilityCalendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
