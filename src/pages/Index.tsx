@@ -107,7 +107,7 @@ const Index = () => {
       </section>
 
       {/* ─── TRUSTED BY ─── */}
-      <section className="py-10 border-b border-border/30 bg-muted/20">
+      <section className="py-10 border-b border-border/30 bg-muted/20" aria-label="Trusted companies">
         <div className="container">
           <p className="text-center text-xs text-muted-foreground uppercase tracking-widest mb-6">Our learners work at</p>
           <div className="flex items-center justify-center gap-10 flex-wrap opacity-40">
