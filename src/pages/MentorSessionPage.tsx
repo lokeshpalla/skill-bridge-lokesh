@@ -118,7 +118,7 @@ export default function MentorSessionPage() {
   };
 
   const endCall = () => {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
+    endWebRTC();
     navigate("/mentors");
   };
 
