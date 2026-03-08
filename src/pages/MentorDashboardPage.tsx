@@ -43,8 +43,9 @@ const MentorDashboardPage = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"bookings" | "reviews" | "analytics" | "settings">("bookings");
+  const [tab, setTab] = useState<"bookings" | "reviews" | "earnings" | "analytics" | "settings">("bookings");
   const [editForm, setEditForm] = useState<any>(null);
+  const [payments, setPayments] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) fetchData();
