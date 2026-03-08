@@ -73,18 +73,14 @@ const InternshipsPage = () => {
     if (data) setAppliedIds(new Set(data.map((a: any) => a.internship_id)));
   };
 
-  const applyToInternship = async (internshipId: string, company: string) => {
-    if (!user) return toast.error("Sign in to apply");
-    const { error } = await supabase.from("internship_applications").insert({
-      user_id: user.id,
-      internship_id: internshipId,
-    });
-    if (error) {
-      if (error.code === "23505") return toast.info("Already applied!");
-      return toast.error("Failed to apply");
+  const applyToInternship = (intern: Internship) => {
+    if (intern.apply_url) {
+      window.open(intern.apply_url, "_blank", "noopener,noreferrer");
+    } else {
+      // Fallback: search for the internship on Google
+      const query = encodeURIComponent(`${intern.company} ${intern.title} internship apply`);
+      window.open(`https://www.google.com/search?q=${query}`, "_blank", "noopener,noreferrer");
     }
-    setAppliedIds(prev => new Set(prev).add(internshipId));
-    toast.success(`Application sent to ${company}!`);
   };
 
   const filtered = internships.filter(i => {
