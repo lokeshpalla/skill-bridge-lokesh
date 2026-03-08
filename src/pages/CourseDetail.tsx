@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, BookOpen, Star, Users, Play, CheckCircle, Lock } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import ModuleViewer from "@/components/courses/ModuleViewer";
 
 const coursesData: Record<number, {
   id: number; title: string; category: string; difficulty: string; duration: string;
@@ -45,6 +46,7 @@ const CourseDetail = () => {
   const course = coursesData[Number(id)];
   const [modules, setModules] = useState(course?.modules || []);
   const [enrolled, setEnrolled] = useState(course ? modules.some(m => m.completed) : false);
+  const [activeModule, setActiveModule] = useState<number | null>(null);
 
   if (!course) {
     return (
@@ -67,16 +69,37 @@ const CourseDetail = () => {
   };
 
   const handleStartModule = (index: number) => {
-    if (!enrolled) { handleEnroll(); return; }
-    if (index > nextModule && nextModule !== -1) {
+    if (!enrolled) { handleEnroll(); }
+    if (index > nextModule && nextModule !== -1 && !modules[index].completed) {
       toast({ title: "🔒 Locked", description: "Complete previous modules first" });
       return;
     }
-    const updated = [...modules];
-    updated[index] = { ...updated[index], completed: true };
-    setModules(updated);
-    toast({ title: "✅ Module Completed!", description: `"${modules[index].title}" marked as complete. +50 XP` });
+    setActiveModule(index);
   };
+
+  const handleCompleteModule = () => {
+    if (activeModule === null) return;
+    const updated = [...modules];
+    updated[activeModule] = { ...updated[activeModule], completed: true };
+    setModules(updated);
+    toast({ title: "✅ Module Completed!", description: `"${modules[activeModule].title}" marked as complete. +50 XP` });
+    setActiveModule(null);
+  };
+
+  // Show module viewer when a module is active
+  if (activeModule !== null) {
+    return (
+      <div className="p-6 lg:p-8 max-w-5xl mx-auto">
+        <ModuleViewer
+          moduleTitle={modules[activeModule].title}
+          moduleIndex={activeModule}
+          courseId={course.id}
+          onBack={() => setActiveModule(null)}
+          onComplete={handleCompleteModule}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto space-y-4">
