@@ -34,9 +34,18 @@ interface PortfolioPreviewProps {
   shareUserId?: string;
 }
 
-const PortfolioPreview = ({ profile, projects, onBack }: PortfolioPreviewProps) => {
+const PortfolioPreview = ({ profile, projects, onBack, shareUserId }: PortfolioPreviewProps) => {
   const portfolioRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    if (!shareUserId) return;
+    const url = `${window.location.origin}/portfolio/${shareUserId}`;
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleDownload = async () => {
     if (!portfolioRef.current) return;
