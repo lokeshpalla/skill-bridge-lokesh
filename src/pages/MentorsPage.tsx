@@ -204,7 +204,7 @@ const MentorsPage = () => {
           <Search className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <h3 className="text-sm font-medium mb-1">No mentors found</h3>
           <p className="text-xs text-muted-foreground mb-4">Be the first to register as a mentor!</p>
-          {user && !isMentor && (
+          {user && !isMentor && !isStudentOnly && (
             <Button variant="hero" size="sm" onClick={() => setShowRegister(true)}>
               <Plus className="w-3.5 h-3.5 mr-1" /> Become a Mentor
             </Button>
