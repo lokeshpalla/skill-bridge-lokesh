@@ -24,6 +24,7 @@ import SettingsPage from "./pages/SettingsPage";
 import AdminPage from "./pages/AdminPage";
 import RoomsPage from "./pages/RoomsPage";
 import LiveRoomPage from "./pages/LiveRoomPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
