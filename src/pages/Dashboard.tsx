@@ -1,29 +1,171 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Flame, TrendingUp, BookOpen, Code2, Trophy, Target,
-  Calendar, Clock, Award, Zap, ArrowUpRight, Sparkles
+  Flame, BookOpen, Code2, Trophy, Target,
+  Calendar, Award, Zap, ArrowUpRight, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
-const xpData = [40, 65, 30, 80, 55, 90, 70];
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const maxXp = Math.max(...xpData);
 
-const recentActivity = [
-  { icon: Code2, text: "Solved 'Two Sum' — Easy", xp: "+50 XP", time: "2h ago", color: "text-success" },
-  { icon: BookOpen, text: "Completed React Hooks Module", xp: "+120 XP", time: "5h ago", color: "text-primary" },
-  { icon: Trophy, text: "Earned 'Problem Solver' Badge", xp: "+200 XP", time: "1d ago", color: "text-warning" },
-  { icon: Target, text: "Applied to Google Internship", xp: "", time: "2d ago", color: "text-accent" },
-];
+interface CourseWithEnrollment {
+  title: string;
+  progress: number;
+  emoji: string;
+  totalModules: number;
+  completedModules: number;
+}
 
-const activeCourses = [
-  { title: "React & TypeScript", progress: 0, emoji: "🚀", modules: "0/24" },
-  { title: "System Design", progress: 0, emoji: "🏗️", modules: "0/20" },
-  { title: "Full-Stack Node.js", progress: 0, emoji: "🌐", modules: "0/28" },
-];
+interface RecentItem {
+  icon: typeof Code2;
+  text: string;
+  xp: string;
+  time: string;
+  color: string;
+}
 
 const Dashboard = () => {
+  const { user, profile } = useAuth();
+  const [solvedCount, setSolvedCount] = useState(0);
+  const [rank, setRank] = useState(0);
+  const [enrolledCourses, setEnrolledCourses] = useState<CourseWithEnrollment[]>([]);
+  const [recentActivity, setRecentActivity] = useState<RecentItem[]>([]);
+  const [weeklyXp, setWeeklyXp] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
+  const [loading, setLoading] = useState(true);
+
+  const xp = profile?.xp ?? 0;
+  const streak = profile?.streak ?? 0;
+  const displayName = profile?.display_name || "there";
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchData = async () => {
+      setLoading(true);
+
+      // Fetch solved count
+      const { count: solved } = await supabase
+        .from("coding_submissions")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("status", "accepted");
+      setSolvedCount(solved ?? 0);
+
+      // Fetch rank (count profiles with more XP + 1)
+      const { count: above } = await supabase
+        .from("profiles")
+        .select("*", { count: "exact", head: true })
+        .gt("xp", xp);
+      setRank((above ?? 0) + 1);
+
+      // Fetch enrolled courses with course details
+      const { data: enrollments } = await supabase
+        .from("course_enrollments")
+        .select("progress, completed_modules, course_id")
+        .eq("user_id", user.id)
+        .limit(3);
+
+      if (enrollments && enrollments.length > 0) {
+        const courseIds = enrollments.map((e) => e.course_id);
+        const { data: courses } = await supabase
+          .from("courses")
+          .select("id, title, image_emoji, modules")
+          .in("id", courseIds);
+
+        const mapped: CourseWithEnrollment[] = enrollments.map((e) => {
+          const course = courses?.find((c) => c.id === e.course_id);
+          const totalModules = Array.isArray(course?.modules) ? course.modules.length : 0;
+          const completedModules = Array.isArray(e.completed_modules) ? (e.completed_modules as string[]).length : 0;
+          return {
+            title: course?.title ?? "Unknown Course",
+            progress: e.progress,
+            emoji: course?.image_emoji ?? "📚",
+            totalModules,
+            completedModules,
+          };
+        });
+        setEnrolledCourses(mapped);
+      } else {
+        setEnrolledCourses([]);
+      }
+
+      // Fetch recent submissions for activity
+      const { data: recentSubs } = await supabase
+        .from("coding_submissions")
+        .select("status, xp_earned, submitted_at, problem_id")
+        .eq("user_id", user.id)
+        .order("submitted_at", { ascending: false })
+        .limit(4);
+
+      if (recentSubs && recentSubs.length > 0) {
+        const problemIds = recentSubs.map((s) => s.problem_id);
+        const { data: problems } = await supabase
+          .from("coding_problems")
+          .select("id, title, difficulty")
+          .in("id", problemIds);
+
+        const items: RecentItem[] = recentSubs.map((s) => {
+          const problem = problems?.find((p) => p.id === s.problem_id);
+          const ago = getTimeAgo(s.submitted_at);
+          return {
+            icon: Code2,
+            text: `${s.status === "accepted" ? "Solved" : "Attempted"} '${problem?.title ?? "Problem"}' — ${problem?.difficulty ?? ""}`,
+            xp: s.xp_earned ? `+${s.xp_earned} XP` : "",
+            time: ago,
+            color: s.status === "accepted" ? "text-success" : "text-muted-foreground",
+          };
+        });
+        setRecentActivity(items);
+      } else {
+        setRecentActivity([]);
+      }
+
+      // Weekly XP from submissions (last 7 days)
+      const now = new Date();
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay() + 1); // Monday
+      weekStart.setHours(0, 0, 0, 0);
+
+      const { data: weekSubs } = await supabase
+        .from("coding_submissions")
+        .select("xp_earned, submitted_at")
+        .eq("user_id", user.id)
+        .eq("status", "accepted")
+        .gte("submitted_at", weekStart.toISOString());
+
+      const xpByDay = [0, 0, 0, 0, 0, 0, 0];
+      weekSubs?.forEach((s) => {
+        const day = new Date(s.submitted_at).getDay();
+        const idx = day === 0 ? 6 : day - 1; // Mon=0 ... Sun=6
+        xpByDay[idx] += s.xp_earned ?? 0;
+      });
+      setWeeklyXp(xpByDay);
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [user, xp]);
+
+  const maxXp = Math.max(...weeklyXp, 1);
+  const todayIdx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+
+  const greeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return "Good morning";
+    if (h < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
+  const stats = [
+    { icon: Zap, label: "Total XP", value: xp.toLocaleString(), change: xp > 0 ? `${xp}` : "—", up: xp > 0, accent: "text-primary" },
+    { icon: Flame, label: "Day Streak", value: String(streak), change: streak > 0 ? `${streak}d` : "—", up: streak > 0, accent: "text-warning" },
+    { icon: Code2, label: "Solved", value: String(solvedCount), change: solvedCount > 0 ? `${solvedCount}` : "—", up: solvedCount > 0, accent: "text-success" },
+    { icon: Award, label: "Rank", value: `#${rank}`, change: rank > 0 ? `#${rank}` : "—", up: rank > 0, accent: "text-accent" },
+  ];
+
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
       {/* Header */}
@@ -33,8 +175,10 @@ const Dashboard = () => {
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Good evening, Alex 👋</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Keep up the streak! You're on fire.</p>
+          <h1 className="text-2xl font-bold tracking-tight">{greeting()}, {displayName} 👋</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {streak > 0 ? "Keep up the streak! You're on fire." : "Start solving problems to build your streak!"}
+          </p>
         </div>
         <Link to="/coding">
           <Button variant="hero" size="sm" className="gap-1.5">
@@ -45,12 +189,7 @@ const Dashboard = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {[
-          { icon: Zap, label: "Total XP", value: "0", change: "—", up: false, accent: "text-primary" },
-          { icon: Flame, label: "Day Streak", value: "0", change: "—", up: false, accent: "text-warning" },
-          { icon: Code2, label: "Solved", value: "0", change: "—", up: false, accent: "text-success" },
-          { icon: Award, label: "Rank", value: "#0", change: "—", up: false, accent: "text-accent" },
-        ].map((stat, i) => {
+        {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (
             <motion.div
@@ -62,22 +201,24 @@ const Dashboard = () => {
             >
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{stat.label}</span>
-                <div className={`w-7 h-7 rounded-lg bg-secondary/80 flex items-center justify-center`}>
+                <div className="w-7 h-7 rounded-lg bg-secondary/80 flex items-center justify-center">
                   <Icon className={`w-3.5 h-3.5 ${stat.accent}`} />
                 </div>
               </div>
               <div className="text-2xl font-bold tracking-tight">{stat.value}</div>
-              <div className="flex items-center gap-1 mt-1">
-                <ArrowUpRight className="w-3 h-3 text-success" />
-                <span className="text-[11px] text-success font-medium">{stat.change}</span>
-              </div>
+              {stat.up && (
+                <div className="flex items-center gap-1 mt-1">
+                  <ArrowUpRight className="w-3 h-3 text-success" />
+                  <span className="text-[11px] text-success font-medium">{stat.change}</span>
+                </div>
+              )}
             </motion.div>
           );
         })}
       </div>
 
       <div className="grid lg:grid-cols-5 gap-4">
-        {/* XP Chart - wider */}
+        {/* XP Chart */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -89,9 +230,9 @@ const Dashboard = () => {
             <span className="text-xs text-muted-foreground">This week</span>
           </div>
           <div className="flex items-end gap-2 h-36">
-            {xpData.map((val, i) => {
-              const height = (val / maxXp) * 100;
-              const isToday = i === 6;
+            {weeklyXp.map((val, i) => {
+              const height = maxXp > 0 ? (val / maxXp) * 100 : 0;
+              const isToday = i === todayIdx;
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-2">
                   <span className="text-[10px] text-muted-foreground font-mono">{val}</span>
@@ -124,20 +265,30 @@ const Dashboard = () => {
             <Link to="/courses" className="text-[11px] text-primary hover:underline">View all</Link>
           </div>
           <div className="space-y-3">
-            {activeCourses.map((course) => (
-              <div key={course.title} className="flex items-center gap-3 p-2.5 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors cursor-pointer">
-                <span className="text-xl">{course.emoji}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">{course.title}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-primary rounded-full" style={{ width: `${course.progress}%` }} />
+            {enrolledCourses.length === 0 ? (
+              <div className="text-center py-6">
+                <BookOpen className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-xs text-muted-foreground">No courses enrolled yet</p>
+                <Link to="/courses">
+                  <Button variant="outline" size="sm" className="mt-2 text-xs">Browse Courses</Button>
+                </Link>
+              </div>
+            ) : (
+              enrolledCourses.map((course) => (
+                <div key={course.title} className="flex items-center gap-3 p-2.5 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors cursor-pointer">
+                  <span className="text-xl">{course.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">{course.title}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-primary rounded-full" style={{ width: `${course.progress}%` }} />
+                      </div>
+                      <span className="text-[10px] text-muted-foreground font-mono">{course.completedModules}/{course.totalModules}</span>
                     </div>
-                    <span className="text-[10px] text-muted-foreground font-mono">{course.modules}</span>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </motion.div>
       </div>
@@ -150,25 +301,32 @@ const Dashboard = () => {
         className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-5"
       >
         <h2 className="text-sm font-semibold mb-4">Recent Activity</h2>
-        <div className="grid sm:grid-cols-2 gap-2">
-          {recentActivity.map((item, i) => {
-            const Icon = item.icon;
-            return (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/20 hover:bg-secondary/40 transition-colors">
-                <div className="w-8 h-8 rounded-lg bg-secondary/80 flex items-center justify-center flex-shrink-0">
-                  <Icon className={`w-3.5 h-3.5 ${item.color}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">{item.text}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[10px] text-muted-foreground">{item.time}</span>
-                    {item.xp && <span className="text-[10px] text-success font-semibold">{item.xp}</span>}
+        {recentActivity.length === 0 ? (
+          <div className="text-center py-6">
+            <Sparkles className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground">No activity yet. Start solving problems!</p>
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 gap-2">
+            {recentActivity.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/20 hover:bg-secondary/40 transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-secondary/80 flex items-center justify-center flex-shrink-0">
+                    <Icon className={`w-3.5 h-3.5 ${item.color}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">{item.text}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[10px] text-muted-foreground">{item.time}</span>
+                      {item.xp && <span className="text-[10px] text-success font-semibold">{item.xp}</span>}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </motion.div>
 
       {/* Quick Actions */}
@@ -195,5 +353,15 @@ const Dashboard = () => {
     </div>
   );
 };
+
+function getTimeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const d = Math.floor(hrs / 24);
+  return `${d}d ago`;
+}
 
 export default Dashboard;
