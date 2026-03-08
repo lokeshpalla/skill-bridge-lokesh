@@ -65,7 +65,7 @@ const PortfolioAIChat = ({ portfolioContext, externalOpen, onExternalOpenChange 
   const [autoSpeak, setAutoSpeak] = useState(false);
   const [selectedLang, setSelectedLang] = useState("en-US");
   const scrollRef = useRef<HTMLDivElement>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   useEffect(() => {
