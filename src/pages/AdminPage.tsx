@@ -15,6 +15,7 @@ import AdminCourseManagement from "@/components/admin/AdminCourseManagement";
 import AdminMentorManagement from "@/components/admin/AdminMentorManagement";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
 import AdminAnnouncements from "@/components/admin/AdminAnnouncements";
+import AdminRecruiterManagement from "@/components/admin/AdminRecruiterManagement";
 
 interface AdminStats {
   overview: Record<string, number>;
