@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Mail, Lock, User, Eye, EyeOff, Sparkles, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 const AuthPage = () => {
@@ -13,13 +14,35 @@ const AuthPage = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast({ title: "Missing fields", description: "Please fill in all fields", variant: "destructive" });
+    if (!email) {
+      toast({ title: "Missing email", description: "Please enter your email", variant: "destructive" });
+      return;
+    }
+
+    if (forgotMode) {
+      setLoading(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) {
+        toast({ title: "Reset failed", description: error.message, variant: "destructive" });
+      } else {
+        setResetSent(true);
+        toast({ title: "Reset email sent! 📧", description: "Check your inbox for a password reset link." });
+      }
+      setLoading(false);
+      return;
+    }
+
+    if (!password) {
+      toast({ title: "Missing password", description: "Please enter your password", variant: "destructive" });
       return;
     }
     setLoading(true);
@@ -68,83 +91,121 @@ const AuthPage = () => {
               </div>
             </Link>
             <h1 className="text-2xl font-bold">
-              {mode === "login" ? "Welcome back" : "Create account"}
+              {forgotMode ? "Reset Password" : mode === "login" ? "Welcome back" : "Create account"}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {mode === "login" ? "Sign in to continue learning" : "Start your journey today"}
+              {forgotMode ? "We'll send you a reset link" : mode === "login" ? "Sign in to continue learning" : "Start your journey today"}
             </p>
           </div>
 
-          <div className="flex bg-secondary rounded-lg p-1 mb-6">
-            {(["login", "register"] as const).map((m) => (
-              <button
-                key={m}
-                onClick={() => setMode(m)}
-                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
-                  mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {m === "login" ? "Sign In" : "Sign Up"}
-              </button>
-            ))}
-          </div>
+          {!forgotMode && (
+            <div className="flex bg-secondary rounded-lg p-1 mb-6">
+              {(["login", "register"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
+                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+                    mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {m === "login" ? "Sign In" : "Sign Up"}
+                </button>
+              ))}
+            </div>
+          )}
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            {mode === "register" && (
+          {forgotMode && resetSent ? (
+            <div className="text-center py-4">
+              <Mail className="w-12 h-12 text-primary mx-auto mb-3" />
+              <p className="font-semibold">Check your email</p>
+              <p className="text-sm text-muted-foreground mt-1">We sent a reset link to <strong>{email}</strong></p>
+              <button
+                onClick={() => { setForgotMode(false); setResetSent(false); }}
+                className="text-primary hover:underline text-sm mt-4 inline-block"
+              >
+                Back to Sign In
+              </button>
+            </div>
+          ) : (
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              {mode === "register" && !forgotMode && (
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Full name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-secondary rounded-lg pl-10 pr-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
+                  />
+                </div>
+              )}
+
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
-                  type="text"
-                  placeholder="Full name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  type="email"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-secondary rounded-lg pl-10 pr-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
                 />
               </div>
-            )}
 
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-secondary rounded-lg pl-10 pr-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
+              {!forgotMode && (
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type={showPw ? "text" : "password"}
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-secondary rounded-lg pl-10 pr-10 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              )}
 
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type={showPw ? "text" : "password"}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-secondary rounded-lg pl-10 pr-10 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
+              {mode === "login" && !forgotMode && (
+                <div className="text-right">
+                  <button
+                    type="button"
+                    onClick={() => setForgotMode(true)}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              )}
 
-            <Button variant="hero" className="w-full py-3" type="submit" disabled={loading}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : mode === "login" ? "Sign In" : "Create Account"}
-            </Button>
-          </form>
+              <Button variant="hero" className="w-full py-3" type="submit" disabled={loading}>
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : forgotMode ? "Send Reset Link" : mode === "login" ? "Sign In" : "Create Account"}
+              </Button>
+            </form>
+          )}
 
           <p className="text-center text-xs text-muted-foreground mt-6">
-            {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
-            <button
-              onClick={() => setMode(mode === "login" ? "register" : "login")}
-              className="text-primary hover:underline"
-            >
-              {mode === "login" ? "Sign up" : "Sign in"}
-            </button>
+            {forgotMode ? (
+              <button onClick={() => { setForgotMode(false); setResetSent(false); }} className="text-primary hover:underline">
+                Back to Sign In
+              </button>
+            ) : (
+              <>
+                {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
+                <button
+                  onClick={() => setMode(mode === "login" ? "register" : "login")}
+                  className="text-primary hover:underline"
+                >
+                  {mode === "login" ? "Sign up" : "Sign in"}
+                </button>
+              </>
+            )}
           </p>
         </div>
       </motion.div>
