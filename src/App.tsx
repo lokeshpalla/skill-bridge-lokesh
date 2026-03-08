@@ -54,6 +54,8 @@ const App = () => (
               <Route path="/paths" element={<LearningPathsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/rooms" element={<RoomsPage />} />
+              <Route path="/rooms/:id" element={<LiveRoomPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
