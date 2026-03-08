@@ -29,6 +29,7 @@ interface Profile {
   github_url: string | null;
   linkedin_url: string | null;
   portfolio_url: string | null;
+  created_at: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
