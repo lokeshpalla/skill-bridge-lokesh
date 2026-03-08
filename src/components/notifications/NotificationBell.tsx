@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, BellRing } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
@@ -24,8 +24,16 @@ export function NotificationBell() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const { isSupported, permission, requestPermission, showNotification } = usePushNotifications();
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  // Request push permission on first interaction
+  const handleBellClick = () => {
+    if (isSupported && permission === "default") {
+      requestPermission();
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -48,13 +56,23 @@ export function NotificationBell() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
         (payload) => {
-          setNotifications((prev) => [payload.new as Notification, ...prev]);
+          const newNotif = payload.new as Notification;
+          setNotifications((prev) => [newNotif, ...prev]);
+
+          // Show browser push notification if page is not focused
+          if (document.hidden || !open) {
+            showNotification(newNotif.title, {
+              body: newNotif.message || "",
+              tag: `skillbridge-${newNotif.type}-${newNotif.id}`,
+              data: { url: newNotif.link || "/dashboard" },
+            });
+          }
         }
       )
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+  }, [user, open, showNotification]);
 
   const markAsRead = async (id: string) => {
     await supabase.from("notifications").update({ read: true }).eq("id", id);
@@ -78,8 +96,17 @@ export function NotificationBell() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
-          <Bell className="w-4.5 h-4.5" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative text-muted-foreground hover:text-foreground"
+          onClick={handleBellClick}
+        >
+          {unreadCount > 0 ? (
+            <BellRing className="w-4.5 h-4.5 animate-pulse" />
+          ) : (
+            <Bell className="w-4.5 h-4.5" />
+          )}
           {unreadCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center animate-pulse">
               {unreadCount > 9 ? "9+" : unreadCount}
@@ -91,6 +118,16 @@ export function NotificationBell() {
         <div className="flex items-center justify-between p-3 border-b border-border/50">
           <h4 className="text-sm font-semibold text-foreground">Notifications</h4>
           <div className="flex gap-1">
+            {isSupported && permission !== "granted" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs h-7 text-primary"
+                onClick={requestPermission}
+              >
+                Enable Push
+              </Button>
+            )}
             {unreadCount > 0 && (
               <Button variant="ghost" size="sm" className="text-xs h-7 text-muted-foreground" onClick={markAllRead}>
                 Mark all read

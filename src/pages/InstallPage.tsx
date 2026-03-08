@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Download, Smartphone, Wifi, WifiOff, Zap, Shield, Bell } from "lucide-react";
+import { Download, Smartphone, Wifi, WifiOff, Zap, Shield, Bell, BellRing, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -13,6 +14,7 @@ const InstallPage = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const { isSupported, permission, requestPermission } = usePushNotifications();
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -48,7 +50,7 @@ const InstallPage = () => {
   const features = [
     { icon: Zap, title: "Lightning Fast", desc: "Loads instantly, even on slow networks" },
     { icon: WifiOff, title: "Works Offline", desc: "Access courses and problems without internet" },
-    { icon: Bell, title: "Push Notifications", desc: "Get notified about streaks and challenges" },
+    { icon: Bell, title: "Push Notifications", desc: "Challenge deadlines, mentor sessions & achievements" },
     { icon: Shield, title: "Secure", desc: "Same security as the web app" },
   ];
 
@@ -74,10 +76,14 @@ const InstallPage = () => {
           <Smartphone className="w-3.5 h-3.5" />
           {isInstalled ? "Installed" : "Not installed"}
         </span>
+        <span className={`flex items-center gap-1.5 text-xs font-medium ${permission === "granted" ? "text-success" : "text-muted-foreground"}`}>
+          {permission === "granted" ? <BellRing className="w-3.5 h-3.5" /> : <Bell className="w-3.5 h-3.5" />}
+          {permission === "granted" ? "Notifications on" : permission === "denied" ? "Notifications blocked" : "Notifications off"}
+        </span>
       </div>
 
       {/* Install Button */}
-      <div className="text-center">
+      <div className="text-center space-y-3">
         {isInstalled ? (
           <div className="space-y-3">
             <p className="text-sm text-success font-medium">✅ App is installed!</p>
@@ -103,6 +109,42 @@ const InstallPage = () => {
           </div>
         )}
       </div>
+
+      {/* Push Notifications CTA */}
+      {isSupported && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="rounded-xl border border-border/50 bg-card/60 p-5 max-w-md mx-auto text-center"
+        >
+          {permission === "granted" ? (
+            <div className="flex items-center justify-center gap-2 text-success">
+              <Check className="w-5 h-5" />
+              <p className="text-sm font-medium">Push notifications enabled</p>
+            </div>
+          ) : permission === "denied" ? (
+            <>
+              <Bell className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
+              <p className="text-sm font-medium">Notifications blocked</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Re-enable in your browser settings to get alerts for challenges, mentor sessions, and achievements.
+              </p>
+            </>
+          ) : (
+            <>
+              <BellRing className="w-8 h-8 text-primary mx-auto mb-2" />
+              <p className="text-sm font-medium">Enable Push Notifications</p>
+              <p className="text-xs text-muted-foreground mt-1 mb-3">
+                Get reminded about challenge deadlines, mentor sessions, and new achievements.
+              </p>
+              <Button variant="hero" size="sm" className="gap-2" onClick={requestPermission}>
+                <Bell className="w-3.5 h-3.5" /> Allow Notifications
+              </Button>
+            </>
+          )}
+        </motion.div>
+      )}
 
       {/* Features */}
       <div className="grid grid-cols-2 gap-3">
