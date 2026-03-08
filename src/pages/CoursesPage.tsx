@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { BookOpen, Clock, Users, Star, Play, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const courses = [
   { id: 1, title: "React & TypeScript Masterclass", category: "Web Dev", difficulty: "Intermediate", duration: "12h", enrolled: 2340, rating: 4.8, modules: 24, image: "🚀", progress: 65 },
