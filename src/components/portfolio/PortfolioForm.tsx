@@ -9,7 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Plus, Github, Globe, User, Trash2, Edit2, ExternalLink, FolderKanban, Eye, Share2, Copy, Check,
+  Plus, Github, Globe, User, Trash2, Edit2, ExternalLink, FolderKanban, Eye, Share2, Copy, Check, Sparkles,
 } from "lucide-react";
 
 interface Profile {
