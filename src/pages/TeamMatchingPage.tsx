@@ -413,7 +413,7 @@ export default function TeamMatchingPage() {
           />
         </div>
         <div className="flex gap-2">
-          {(["all", "best-match", "needs-you"] as const).map(f => (
+          {(["all", "best-match", "my-projects", "needs-you"] as const).map(f => (
             <Button
               key={f}
               size="sm"
@@ -421,7 +421,7 @@ export default function TeamMatchingPage() {
               onClick={() => setFilter(f)}
               className="text-xs"
             >
-              {f === "all" ? "All Teams" : f === "best-match" ? "My Projects" : "Needs You"}
+              {f === "all" ? "All Teams" : f === "best-match" ? "Best Match" : f === "my-projects" ? "My Projects" : "Needs You"}
             </Button>
           ))}
         </div>
