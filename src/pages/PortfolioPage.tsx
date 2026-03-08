@@ -25,6 +25,7 @@ const PortfolioPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [aiChatOpen, setAiChatOpen] = useState(false);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
