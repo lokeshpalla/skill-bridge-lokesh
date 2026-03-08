@@ -37,6 +37,14 @@ const Dashboard = () => {
   const [recentActivity, setRecentActivity] = useState<RecentItem[]>([]);
   const [weeklyXp, setWeeklyXp] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
   const [loading, setLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check if user needs onboarding (no skills set yet)
+  useEffect(() => {
+    if (profile && (!profile.skills || profile.skills.length === 0) && !profile.bio) {
+      setShowOnboarding(true);
+    }
+  }, [profile]);
 
   const xp = profile?.xp ?? 0;
   const streak = profile?.streak ?? 0;
