@@ -362,6 +362,9 @@ const InterviewPage = () => {
             {autoSpeak ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
             Auto-Speak
           </button>
+          <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { clearInterval(timerRef.current); window.speechSynthesis.cancel(); setStarted(false); setMessages([]); setInterviewId(null); setElapsed(0); }} disabled={isLoading}>
+            Cancel
+          </Button>
           <Button variant="destructive" size="sm" className="gap-1 text-xs" onClick={endInterview} disabled={isLoading}>
             <StopCircle className="w-3.5 h-3.5" /> End Interview
           </Button>
