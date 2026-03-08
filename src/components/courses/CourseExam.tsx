@@ -311,11 +311,47 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
         <p className="text-xs text-muted-foreground mb-1">
           {questions.length} questions • {mcqCount} MCQs + {codingCount} coding challenges
         </p>
-        <p className="text-xs text-muted-foreground mb-4">
+        <p className="text-xs text-muted-foreground mb-3">
           30 min timer • Pass mark: 50% • Earn a certificate!
         </p>
+
+        {/* Proctoring requirements */}
+        <div className="rounded-lg border border-warning/30 bg-warning/5 p-3 mb-4 text-left">
+          <div className="flex items-center gap-2 mb-2">
+            <ShieldAlert className="w-4 h-4 text-warning" />
+            <span className="text-xs font-semibold text-warning">Exam Proctoring Active</span>
+          </div>
+          <ul className="text-[11px] text-muted-foreground space-y-1">
+            <li className="flex items-center gap-2">
+              <Camera className="w-3 h-3" /> Camera will be turned on for monitoring
+            </li>
+            <li className="flex items-center gap-2">
+              <Maximize className="w-3 h-3" /> Fullscreen mode is required
+            </li>
+            <li className="flex items-center gap-2">
+              <Eye className="w-3 h-3" /> Tab switches & copy/paste are monitored
+            </li>
+          </ul>
+        </div>
+
+        {/* Camera preview if ready */}
+        {proctoringReady && proctoring.state.isCameraOn && (
+          <div className="mb-4 flex justify-center">
+            <div className="relative rounded-lg overflow-hidden border border-success/30 w-32 h-24">
+              <video
+                ref={proctoring.videoRef}
+                autoPlay
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-success animate-pulse" />
+            </div>
+          </div>
+        )}
+
         <Button variant="hero" size="sm" className="gap-1.5" onClick={handleStart}>
-          Start Exam <ChevronRight className="w-4 h-4" />
+          {proctoringReady ? "Start Exam" : "Enable Proctoring & Start"} <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
     );
