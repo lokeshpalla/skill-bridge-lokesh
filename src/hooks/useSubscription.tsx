@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from "react";
+import { useState, useEffect, createContext, useContext, useRef, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -16,10 +16,17 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [subscription, setSubscription] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const lastFetchedUserId = useRef<string | null>(null);
 
-  const fetchSubscription = async () => {
+  const fetchSubscription = async (force = false) => {
     if (!user) {
       setSubscription(null);
+      setLoading(false);
+      return;
+    }
+
+    // Skip if already fetched for this user (unless forced)
+    if (!force && lastFetchedUserId.current === user.id) {
       setLoading(false);
       return;
     }
@@ -33,6 +40,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
     const sub = data?.[0] || null;
     setSubscription(sub);
+    lastFetchedUserId.current = user.id;
     setLoading(false);
   };
 
@@ -51,11 +59,11 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       amount,
       status: "pending",
     });
-    await fetchSubscription();
+    await fetchSubscription(true);
   };
 
   return (
-    <SubscriptionContext.Provider value={{ isActive, subscription, loading, requestSubscription, refresh: fetchSubscription }}>
+    <SubscriptionContext.Provider value={{ isActive, subscription, loading, requestSubscription, refresh: () => fetchSubscription(true) }}>
       {children}
     </SubscriptionContext.Provider>
   );

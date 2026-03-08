@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -41,6 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [rolesLoading, setRolesLoading] = useState(false);
+  const lastFetchedUserId = useRef<string | null>(null);
 
   const fetchRoles = useCallback(async (userId: string): Promise<string[]> => {
     setRolesLoading(true);
@@ -71,23 +72,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (data) setProfile(data as Profile);
   };
 
+  const loadUserData = useCallback(async (userId: string) => {
+    // Skip if we already loaded data for this user
+    if (lastFetchedUserId.current === userId) return;
+    lastFetchedUserId.current = userId;
+    // Fetch profile and roles in parallel
+    await Promise.all([fetchProfile(userId), fetchRoles(userId)]);
+  }, [fetchRoles]);
+
   useEffect(() => {
     let initialSessionHandled = false;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        // Skip the initial INITIAL_SESSION event since we handle it via getSession
         if (!initialSessionHandled) return;
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => {
-            fetchProfile(session.user.id);
-            fetchRoles(session.user.id);
-          }, 0);
+          // On sign-in/token refresh, reload data
+          if (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
+            lastFetchedUserId.current = null;
+          }
+          setTimeout(() => loadUserData(session.user.id), 0);
         } else {
           setProfile(null);
           setRoles([]);
+          lastFetchedUserId.current = null;
         }
         setLoading(false);
       }
@@ -98,14 +108,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
-        fetchRoles(session.user.id);
+        loadUserData(session.user.id);
       }
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [loadUserData]);
 
   const signUp = async (email: string, password: string, displayName: string, phone?: string) => {
     const { error } = await supabase.auth.signUp({
@@ -122,7 +131,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { error: error as Error | null };
-    // Immediately fetch roles and return them so caller can redirect correctly
+    lastFetchedUserId.current = null; // Force refresh on sign in
     const userRoles = data.user ? await fetchRoles(data.user.id) : [];
     return { error: null, roles: userRoles };
   };
@@ -133,6 +142,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setSession(null);
     setProfile(null);
     setRoles([]);
+    lastFetchedUserId.current = null;
   };
 
   const refreshProfile = async () => {
