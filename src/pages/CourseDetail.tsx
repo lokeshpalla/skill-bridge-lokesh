@@ -65,7 +65,7 @@ const CourseDetail = () => {
   const [modules, setModules] = useState(getPersistedModules);
   const [enrolled, setEnrolled] = useState(() => {
     if (!course) return false;
-    return localStorage.getItem(`course_enrolled_${id}`) === "true" || getPersistedModules().some(m => m.completed);
+    return localStorage.getItem(`course_enrolled_${id}`) === "true";
   });
   const [activeModule, setActiveModule] = useState<number | null>(null);
   const [certificate, setCertificate] = useState<any>(null);
