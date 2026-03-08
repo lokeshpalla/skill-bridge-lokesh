@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Download, Github, Globe, ExternalLink, Mail, Linkedin, ArrowLeft, MapPin, Sparkles, Briefcase } from "lucide-react";
+import { Download, Github, Globe, ExternalLink, Mail, Linkedin, ArrowLeft, Sparkles, Briefcase, Share2, Copy, Check } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
