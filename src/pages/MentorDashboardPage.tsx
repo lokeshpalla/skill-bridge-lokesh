@@ -157,12 +157,15 @@ const MentorDashboardPage = () => {
   const pending = bookings.filter(b => b.status === "pending");
   const confirmed = bookings.filter(b => b.status === "confirmed");
   const completed = bookings.filter(b => b.status === "completed");
-  const totalEarnings = completed.length * (mentorProfile.hourly_rate || 0);
+  const totalEarnings = mentorProfile.total_earnings || 0;
+  const paidEarnings = payments.filter(p => p.status === "paid").reduce((s: number, p: any) => s + Number(p.amount), 0);
+  const pendingEarnings = payments.filter(p => p.status === "pending").reduce((s: number, p: any) => s + Number(p.amount), 0);
   const avgRating = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : "—";
 
   const tabs = [
     ["bookings", `📅 Bookings (${pending.length} pending)`],
     ["reviews", `⭐ Reviews (${reviews.length})`],
+    ["earnings", `💰 Earnings (${payments.length})`],
     ["analytics", "📊 Analytics"],
     ["settings", "⚙️ Settings"],
   ] as const;
