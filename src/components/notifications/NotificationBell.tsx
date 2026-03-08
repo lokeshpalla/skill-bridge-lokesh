@@ -114,7 +114,7 @@ export function NotificationBell() {
             <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center animate-pulse" aria-hidden="true">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
-          )
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
