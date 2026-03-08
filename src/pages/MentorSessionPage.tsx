@@ -116,13 +116,31 @@ export default function MentorSessionPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleSave = () => {
+    const blob = new Blob([code], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const ext = language === "python" ? "py" : language === "cpp" ? "cpp" : language === "java" ? "java" : language === "typescript" ? "ts" : "js";
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `session-code.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setSaved(true);
+    toast.success("Code saved!");
+    setTimeout(() => setSaved(false), 2000);
+  };
+
   const handleRun = () => {
     if (language === "javascript") {
       try {
         const logs: string[] = [];
         const fakeConsole = { log: (...args: any[]) => logs.push(args.map(String).join(" ")), error: (...args: any[]) => logs.push("Error: " + args.map(String).join(" ")) };
-        const fn = new Function("console", code);
-        fn(fakeConsole);
+        // Inject customInput as a readline-like variable
+        const inputLines = customInput.split("\n");
+        let inputIdx = 0;
+        const readline = () => inputIdx < inputLines.length ? inputLines[inputIdx++] : "";
+        const fn = new Function("console", "readline", code);
+        fn(fakeConsole, readline);
         setOutput(logs.length ? logs.join("\n") : "(no output)");
       } catch (e: any) {
         setOutput("Error: " + e.message);
