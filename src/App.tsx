@@ -36,6 +36,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
 import TalentBrowsePage from "./pages/TalentBrowsePage";
 import MessagesPage from "./pages/MessagesPage";
+import MentorDashboardPage from "./pages/MentorDashboardPage";
 import NotFound from "./pages/NotFound";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
@@ -57,6 +58,7 @@ function AppRoutes() {
         <Route path="/coding" element={<CodingPage />} />
          <Route path="/mentors" element={<MentorsPage />} />
           <Route path="/mentor-session" element={<MentorSessionPage />} />
+        <Route path="/mentor-dashboard" element={<MentorDashboardPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/internships" element={<InternshipsPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />

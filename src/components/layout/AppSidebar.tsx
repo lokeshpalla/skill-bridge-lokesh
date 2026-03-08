@@ -55,13 +55,15 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isRecruiter, setIsRecruiter] = useState(false);
+  const [isMentor, setIsMentor] = useState(false);
 
   useEffect(() => {
-    if (!user) { setIsAdmin(false); setIsRecruiter(false); return; }
+    if (!user) { setIsAdmin(false); setIsRecruiter(false); setIsMentor(false); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id)
       .then(({ data }) => {
         setIsAdmin(!!(data && data.some((r: any) => r.role === "admin")));
         setIsRecruiter(!!(data && data.some((r: any) => r.role === "recruiter" || r.role === "admin")));
+        setIsMentor(!!(data && data.some((r: any) => r.role === "mentor")));
       });
   }, [user]);
 
@@ -115,6 +117,7 @@ export function AppSidebar() {
         {renderGroup("Community", socialItems)}
         {renderGroup("Career", careerItems)}
         {renderGroup("Connect", [{ title: "Messages", url: "/messages", icon: MessageSquare }])}
+        {isMentor && renderGroup("Mentor", [{ title: "Mentor Dashboard", url: "/mentor-dashboard", icon: Users }])}
         {isRecruiter && renderGroup("Recruiter", [
           { title: "Dashboard", url: "/recruiter", icon: Building2 },
           { title: "Browse Talent", url: "/talent", icon: Search },
