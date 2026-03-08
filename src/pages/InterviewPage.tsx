@@ -348,9 +348,24 @@ const InterviewPage = () => {
             </span>
           </div>
         </div>
-        <Button variant="destructive" size="sm" className="gap-1 text-xs" onClick={endInterview} disabled={isLoading}>
-          <StopCircle className="w-3.5 h-3.5" /> End Interview
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Auto-speak toggle */}
+          <button
+            onClick={() => setAutoSpeak(!autoSpeak)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+              autoSpeak
+                ? "border-primary/30 bg-primary/10 text-primary"
+                : "border-border/50 bg-secondary/50 text-muted-foreground"
+            }`}
+            title={autoSpeak ? "Disable auto-speak" : "Enable auto-speak"}
+          >
+            {autoSpeak ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            Auto-Speak
+          </button>
+          <Button variant="destructive" size="sm" className="gap-1 text-xs" onClick={endInterview} disabled={isLoading}>
+            <StopCircle className="w-3.5 h-3.5" /> End Interview
+          </Button>
+        </div>
       </div>
 
       {/* Messages */}
