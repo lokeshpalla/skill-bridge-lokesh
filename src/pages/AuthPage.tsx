@@ -312,6 +312,14 @@ const AuthPage = () => {
               </>
             )}
           </p>
+
+          {!showRoleSelector && !forgotMode && mode === "login" && (
+            <p className="text-center text-[11px] text-muted-foreground/50 mt-3">
+              <Link to="/auth?role=mentor" className="hover:text-muted-foreground transition-colors">
+                Staff / Mentor / Recruiter? Sign in here →
+              </Link>
+            </p>
+          )}
         </div>
       </motion.div>
     </div>
