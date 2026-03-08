@@ -1331,6 +1331,7 @@ export type Database = {
         Args: { _minutes_spent?: number; _user_id: string; _xp_amount: number }
         Returns: Json
       }
+      restore_streak: { Args: { _user_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "student" | "mentor" | "recruiter" | "admin"

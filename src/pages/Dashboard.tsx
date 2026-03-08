@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Flame, BookOpen, Code2, Trophy, Target,
-  Calendar, Award, Zap, ArrowUpRight, Sparkles, Clock
+  Calendar, Award, Zap, ArrowUpRight, Sparkles, Clock, RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +39,7 @@ const Dashboard = () => {
   const [weeklyXp, setWeeklyXp] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
   const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [restoringStreak, setRestoringStreak] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Live clock
@@ -177,6 +179,28 @@ const Dashboard = () => {
     return "Good evening";
   };
 
+  const handleRestoreStreak = async () => {
+    if (!user || restoringStreak) return;
+    if (xp < 1000) {
+      toast.error("Not enough XP", { description: "You need at least 1,000 XP to restore your streak." });
+      return;
+    }
+    setRestoringStreak(true);
+    const { data, error } = await supabase.rpc("restore_streak", { _user_id: user.id });
+    setRestoringStreak(false);
+    if (error) {
+      toast.error("Failed to restore streak");
+      return;
+    }
+    const result = data as { success: boolean; error?: string };
+    if (result.success) {
+      toast.success("Streak Restored! 🔥", { description: "1,000 XP deducted. Your streak is back to 1!" });
+      window.location.reload();
+    } else {
+      toast.error(result.error || "Could not restore streak");
+    }
+  };
+
   const stats = [
     { icon: Zap, label: "Total XP", value: xp.toLocaleString(), change: xp > 0 ? `${xp}` : "—", up: xp > 0, accent: "text-primary" },
     { icon: Flame, label: "Day Streak", value: String(streak), change: streak > 0 ? `${streak}d` : "—", up: streak > 0, accent: "text-warning" },
@@ -255,6 +279,36 @@ const Dashboard = () => {
           );
         })}
       </div>
+
+      {/* Restore Streak Banner */}
+      {streak === 0 && xp >= 1000 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="rounded-xl border border-warning/30 bg-warning/5 backdrop-blur-sm p-4 flex flex-col sm:flex-row items-center justify-between gap-3"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center flex-shrink-0">
+              <Flame className="w-5 h-5 text-warning" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Your streak was broken! 😢</p>
+              <p className="text-xs text-muted-foreground">Spend <strong>1,000 XP</strong> to restore your streak back to 1 day.</p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 border-warning/40 text-warning hover:bg-warning/10 hover:text-warning flex-shrink-0"
+            onClick={handleRestoreStreak}
+            disabled={restoringStreak}
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${restoringStreak ? "animate-spin" : ""}`} />
+            {restoringStreak ? "Restoring..." : "Restore Streak (1000 XP)"}
+          </Button>
+        </motion.div>
+      )}
 
       <div className="grid lg:grid-cols-5 gap-4">
         {/* XP Chart */}
