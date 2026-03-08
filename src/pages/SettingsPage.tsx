@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Github, Linkedin, Save, Loader2, Star, GitFork, Import,
-  ExternalLink, User, Globe, Check, Camera, Trash2
+  ExternalLink, User, Globe, Check, Camera, Trash2, Crop, X, ZoomIn
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import Cropper, { Area } from "react-easy-crop";
 
 interface GitHubRepo {
   name: string;
@@ -45,6 +46,14 @@ const SettingsPage = () => {
   const [saving, setSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [cropImage, setCropImage] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+
+  const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
+    setCroppedAreaPixels(croppedPixels);
+  }, []);
 
   // GitHub sync state
   const [ghProfile, setGhProfile] = useState<GitHubProfile | null>(null);
@@ -66,31 +75,50 @@ const SettingsPage = () => {
     }
   }, [profile]);
 
-  const uploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
-    if (file.size > 2 * 1024 * 1024) return toast.error("Image must be under 2MB");
-    
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) return toast.error("Image must be under 5MB");
+    const reader = new FileReader();
+    reader.onload = () => setCropImage(reader.result as string);
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const getCroppedBlob = async (): Promise<Blob> => {
+    const image = new Image();
+    image.src = cropImage!;
+    await new Promise((r) => (image.onload = r));
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d")!;
+    const { x, y, width, height } = croppedAreaPixels!;
+    canvas.width = 256;
+    canvas.height = 256;
+    ctx.drawImage(image, x, y, width, height, 0, 0, 256, 256);
+    return new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/jpeg", 0.9));
+  };
+
+  const saveCroppedAvatar = async () => {
+    if (!user || !croppedAreaPixels) return;
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/avatar.${ext}`;
+    try {
+      const blob = await getCroppedBlob();
+      const path = `${user.id}/avatar.jpg`;
+      const { error: uploadErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, blob, { upsert: true, contentType: "image/jpeg" });
+      if (uploadErr) throw uploadErr;
 
-    const { error: uploadErr } = await supabase.storage
-      .from("avatars")
-      .upload(path, file, { upsert: true });
-
-    if (uploadErr) {
-      setUploading(false);
-      return toast.error("Upload failed");
+      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+      const urlWithCache = `${publicUrl}?t=${Date.now()}`;
+      await supabase.from("profiles").update({ avatar_url: urlWithCache }).eq("user_id", user.id);
+      setAvatarUrl(urlWithCache);
+      setCropImage(null);
+      toast.success("Avatar updated!");
+    } catch {
+      toast.error("Upload failed");
     }
-
-    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
-    const urlWithCache = `${publicUrl}?t=${Date.now()}`;
-
-    await supabase.from("profiles").update({ avatar_url: urlWithCache }).eq("user_id", user.id);
-    setAvatarUrl(urlWithCache);
     setUploading(false);
-    toast.success("Avatar updated!");
   };
 
   const removeAvatar = async () => {
@@ -197,6 +225,56 @@ const SettingsPage = () => {
       {/* Profile Tab */}
       {tab === "profile" && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-6 space-y-4">
+          {/* Crop Modal */}
+          {cropImage && (
+            <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+              <div className="bg-card rounded-xl w-full max-w-md overflow-hidden">
+                <div className="flex items-center justify-between p-4 border-b border-border">
+                  <h3 className="text-sm font-semibold flex items-center gap-2"><Crop className="w-4 h-4" /> Crop Photo</h3>
+                  <button onClick={() => { setCropImage(null); setZoom(1); setCrop({ x: 0, y: 0 }); }}>
+                    <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                  </button>
+                </div>
+                <div className="relative h-72 bg-black">
+                  <Cropper
+                    image={cropImage}
+                    crop={crop}
+                    zoom={zoom}
+                    aspect={1}
+                    cropShape="round"
+                    showGrid={false}
+                    onCropChange={setCrop}
+                    onZoomChange={setZoom}
+                    onCropComplete={onCropComplete}
+                  />
+                </div>
+                <div className="p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <ZoomIn className="w-3.5 h-3.5 text-muted-foreground" />
+                    <input
+                      type="range"
+                      min={1}
+                      max={3}
+                      step={0.1}
+                      value={zoom}
+                      onChange={(e) => setZoom(Number(e.target.value))}
+                      className="flex-1 accent-primary"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="flex-1" onClick={() => { setCropImage(null); setZoom(1); setCrop({ x: 0, y: 0 }); }}>
+                      Cancel
+                    </Button>
+                    <Button className="flex-1 gap-1.5" onClick={saveCroppedAvatar} disabled={uploading}>
+                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Avatar Upload */}
           <div className="flex items-center gap-4">
             <div className="relative group">
@@ -209,12 +287,12 @@ const SettingsPage = () => {
               )}
               <label className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                 {uploading ? <Loader2 className="w-5 h-5 text-white animate-spin" /> : <Camera className="w-5 h-5 text-white" />}
-                <input type="file" accept="image/*" className="hidden" onChange={uploadAvatar} disabled={uploading} />
+                <input type="file" accept="image/*" className="hidden" onChange={handleFileSelect} disabled={uploading} />
               </label>
             </div>
             <div>
               <p className="text-sm font-medium">Profile Photo</p>
-              <p className="text-[11px] text-muted-foreground">Click to upload (max 2MB)</p>
+              <p className="text-[11px] text-muted-foreground">Click to upload & crop (max 5MB)</p>
               {avatarUrl && (
                 <button onClick={removeAvatar} disabled={uploading} className="text-[11px] text-destructive hover:underline mt-0.5 flex items-center gap-1">
                   <Trash2 className="w-3 h-3" /> Remove
