@@ -59,12 +59,16 @@ const MentorsPage = () => {
               </div>
 
               <Button
-                variant={mentor.available ? "hero" : "secondary"}
+                variant={booked.has(mentor.id) ? "secondary" : mentor.available ? "hero" : "secondary"}
                 className="w-full"
                 size="sm"
-                disabled={!mentor.available}
+                disabled={!mentor.available || booked.has(mentor.id)}
+                onClick={() => {
+                  setBooked(prev => new Set(prev).add(mentor.id));
+                  toast({ title: "📅 Session Booked!", description: `Your session with ${mentor.name} has been scheduled.` });
+                }}
               >
-                {mentor.available ? (
+                {booked.has(mentor.id) ? "✓ Booked" : mentor.available ? (
                   <><Calendar className="w-3 h-3" /> Book Session</>
                 ) : "Unavailable"}
               </Button>
