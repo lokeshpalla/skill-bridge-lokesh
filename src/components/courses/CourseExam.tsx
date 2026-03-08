@@ -208,7 +208,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
     setSelectedOption(null);
     setShowResult(false);
     setResult(null);
-    setTimeLeft(questions.length * SECONDS_PER_QUESTION);
+    setTimeLeft(EXAM_DURATION);
     resetCodingState();
     // Set starter code if first question is coding
     const firstQ = questions[0];
