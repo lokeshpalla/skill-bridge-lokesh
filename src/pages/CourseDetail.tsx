@@ -123,6 +123,9 @@ const CourseDetail = () => {
     const updated = [...modules];
     updated[activeModule] = { ...updated[activeModule], completed: true };
     setModules(updated);
+    // Persist to localStorage
+    const completedIndices = updated.map((m, i) => m.completed ? i : -1).filter(i => i >= 0);
+    localStorage.setItem(`course_progress_${id}`, JSON.stringify(completedIndices));
     toast({ title: "✅ Module Completed!", description: `"${modules[activeModule].title}" marked as complete. +50 XP` });
     setActiveModule(null);
   };
