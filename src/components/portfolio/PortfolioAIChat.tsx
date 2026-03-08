@@ -403,7 +403,7 @@ const PortfolioAIChat = ({ portfolioContext, externalOpen, onExternalOpenChange 
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
                   placeholder={isListening ? "Listening..." : "Ask AI to improve your portfolio..."}
                   className="text-xs h-9"
                   disabled={loading}
