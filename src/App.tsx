@@ -47,6 +47,7 @@ const App = () => (
               <Route path="/community" element={<CommunityPage />} />
               <Route path="/install" element={<InstallPage />} />
               <Route path="/interview" element={<InterviewPage />} />
+              <Route path="/paths" element={<LearningPathsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
