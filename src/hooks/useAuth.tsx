@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -8,10 +8,11 @@ interface AuthContextType {
   profile: Profile | null;
   roles: string[];
   loading: boolean;
+  rolesLoading: boolean;
   refreshProfile: () => Promise<void>;
-  getRedirectPath: () => string;
+  getRedirectPath: (loadedRoles?: string[]) => string;
   signUp: (email: string, password: string, displayName: string, phone?: string) => Promise<{ error: Error | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null; roles?: string[] }>;
   signOut: () => Promise<void>;
 }
 
@@ -38,21 +39,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rolesLoading, setRolesLoading] = useState(false);
 
-  const fetchRoles = async (userId: string) => {
+  const fetchRoles = useCallback(async (userId: string): Promise<string[]> => {
+    setRolesLoading(true);
     const { data } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
-    if (data) setRoles(data.map((r) => r.role));
-  };
+    const fetchedRoles = data ? data.map((r) => r.role) : [];
+    setRoles(fetchedRoles);
+    setRolesLoading(false);
+    return fetchedRoles;
+  }, []);
 
-  const getRedirectPath = () => {
-    if (roles.includes("admin")) return "/admin";
-    if (roles.includes("recruiter")) return "/recruiter";
-    if (roles.includes("mentor")) return "/mentor-dashboard";
+  const getRedirectPath = useCallback((loadedRoles?: string[]) => {
+    const r = loadedRoles || roles;
+    if (r.includes("admin")) return "/admin";
+    if (r.includes("recruiter")) return "/recruiter";
+    if (r.includes("mentor")) return "/mentor-dashboard";
     return "/dashboard";
-  };
+  }, [roles]);
 
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
@@ -107,8 +114,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error as Error | null };
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { error: error as Error | null };
+    // Immediately fetch roles and return them so caller can redirect correctly
+    const userRoles = data.user ? await fetchRoles(data.user.id) : [];
+    return { error: null, roles: userRoles };
   };
 
   const signOut = async () => {
@@ -124,7 +134,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, roles, loading, refreshProfile, getRedirectPath, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, profile, roles, loading, rolesLoading, refreshProfile, getRedirectPath, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

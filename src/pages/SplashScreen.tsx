@@ -14,7 +14,7 @@ const particles = Array.from({ length: 20 }, (_, i) => ({
 }));
 
 const SplashScreen = () => {
-  const { user, loading, getRedirectPath } = useAuth();
+  const { user, loading, rolesLoading, getRedirectPath } = useAuth();
   const navigate = useNavigate();
   const [phase, setPhase] = useState<"enter" | "zoom" | "exit">("enter");
 
@@ -25,13 +25,13 @@ const SplashScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (phase === "exit" && !loading) {
+    if (phase === "exit" && !loading && !rolesLoading) {
       const t = setTimeout(() => {
         navigate(user ? getRedirectPath() : "/auth", { replace: true });
       }, 600);
       return () => clearTimeout(t);
     }
-  }, [phase, loading, user, navigate]);
+  }, [phase, loading, rolesLoading, user, navigate]);
 
   return (
     <AnimatePresence>
