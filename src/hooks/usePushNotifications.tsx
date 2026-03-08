@@ -32,7 +32,7 @@ export function usePushNotifications() {
             icon: options?.icon || "/pwa-192x192.png",
             badge: "/pwa-192x192.png",
             tag: options?.tag || "skillbridge-notification",
-            vibrate: [100, 50, 100],
+            vibrate: [100, 50, 100] as any,
             data: options?.data,
             requireInteraction: false,
           });
