@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Calendar, Clock, Star, IndianRupee, Users, CheckCircle,
-  XCircle, MessageSquare, BarChart3, Settings, TrendingUp
+  XCircle, MessageSquare, BarChart3, Settings, TrendingUp, Video as VideoIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -259,16 +259,22 @@ const MentorDashboardPage = () => {
                     <Button variant="ghost" size="sm" className="h-7 text-xs text-destructive gap-1" onClick={() => updateBookingStatus(b.id, "cancelled")}>
                       <XCircle className="w-3 h-3" /> Decline
                     </Button>
+                    <Button variant="outline" size="sm" className="h-7 text-xs gap-1 ml-auto" onClick={() => navigate(`/messages?to=${b.student_id}`)}>
+                      <MessageSquare className="w-3 h-3" /> Message
+                    </Button>
                   </div>
                 )}
                 {b.status === "confirmed" && (
                   <div className="flex gap-2 mt-3 pt-2 border-t border-border/30">
                     <Button variant="outline" size="sm" className="h-7 text-xs gap-1"
                       onClick={() => navigate(`/mentor-session?mentor=You&slot=${new Date(b.scheduled_at).toLocaleString()}`)}>
-                      <MessageSquare className="w-3 h-3" /> Start Session
+                      <VideoIcon className="w-3 h-3" /> Start Session
                     </Button>
                     <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={() => updateBookingStatus(b.id, "completed")}>
                       <CheckCircle className="w-3 h-3" /> Mark Completed
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-7 text-xs gap-1 ml-auto" onClick={() => navigate(`/messages?to=${b.student_id}`)}>
+                      <MessageSquare className="w-3 h-3" /> Message
                     </Button>
                   </div>
                 )}

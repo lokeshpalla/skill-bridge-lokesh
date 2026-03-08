@@ -263,11 +263,19 @@ const MentorsPage = () => {
                 </div>
               )}
 
-              <Button variant={mentor.available ? "hero" : "secondary"} className="w-full h-8 text-xs"
-                disabled={!mentor.available || mentor.user_id === user?.id}
-                onClick={() => { setSelectedMentor(mentor); setSelectedSlot(null); setBookingNotes(""); }}>
-                {mentor.user_id === user?.id ? "Your Profile" : mentor.available ? <><Calendar className="w-3 h-3" /> Book Session</> : "Unavailable"}
-              </Button>
+              <div className="flex gap-2">
+                <Button variant={mentor.available ? "hero" : "secondary"} className="flex-1 h-8 text-xs"
+                  disabled={!mentor.available || mentor.user_id === user?.id}
+                  onClick={() => { setSelectedMentor(mentor); setSelectedSlot(null); setBookingNotes(""); }}>
+                  {mentor.user_id === user?.id ? "Your Profile" : mentor.available ? <><Calendar className="w-3 h-3" /> Book Session</> : "Unavailable"}
+                </Button>
+                {user && mentor.user_id !== user.id && (
+                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1 px-3"
+                    onClick={() => navigate(`/messages?to=${mentor.user_id}`)}>
+                    <MessageCircle className="w-3 h-3" />
+                  </Button>
+                )}
+              </div>
             </motion.div>
           ))}
         </div>
