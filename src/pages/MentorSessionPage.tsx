@@ -193,6 +193,12 @@ export default function MentorSessionPage() {
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+            isConnected ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
+          }`}>
+            {isConnected ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
+            {isConnected ? "Connected" : "Waiting..."}
+          </div>
           <span className="text-xs text-muted-foreground font-mono">{formatTime(elapsed)}</span>
           <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
         </div>
