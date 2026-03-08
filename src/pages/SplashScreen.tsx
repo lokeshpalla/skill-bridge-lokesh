@@ -4,83 +4,179 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
+const particles = Array.from({ length: 20 }, (_, i) => ({
+  id: i,
+  x: Math.random() * 100,
+  y: Math.random() * 100,
+  size: Math.random() * 4 + 2,
+  duration: Math.random() * 3 + 2,
+  delay: Math.random() * 1.5,
+}));
+
 const SplashScreen = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [showSplash, setShowSplash] = useState(true);
+  const [phase, setPhase] = useState<"enter" | "zoom" | "exit">("enter");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2200);
-    return () => clearTimeout(timer);
+    const t1 = setTimeout(() => setPhase("zoom"), 1800);
+    const t2 = setTimeout(() => setPhase("exit"), 3200);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
   useEffect(() => {
-    if (!showSplash && !loading) {
-      if (user) {
-        navigate("/dashboard", { replace: true });
-      } else {
-        navigate("/auth", { replace: true });
-      }
+    if (phase === "exit" && !loading) {
+      const t = setTimeout(() => {
+        navigate(user ? "/dashboard" : "/auth", { replace: true });
+      }, 600);
+      return () => clearTimeout(t);
     }
-  }, [showSplash, loading, user, navigate]);
+  }, [phase, loading, user, navigate]);
 
   return (
     <AnimatePresence>
-      {showSplash && (
+      {phase !== "exit" ? (
         <motion.div
+          key="splash"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.4 }}
-          className="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center gap-6"
+          exit={{ opacity: 0, scale: 1.1 }}
+          transition={{ duration: 0.5 }}
+          className="fixed inset-0 z-[100] bg-background overflow-hidden flex flex-col items-center justify-center"
         >
+          {/* Animated grid background */}
           <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-            className="w-20 h-20 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-lg shadow-primary/30"
+            className="absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage:
+                "linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)",
+              backgroundSize: "50px 50px",
+            }}
+            animate={{ backgroundPosition: ["0px 0px", "50px 50px"] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+          />
+
+          {/* Floating particles */}
+          {particles.map((p) => (
+            <motion.div
+              key={p.id}
+              className="absolute rounded-full bg-primary/30"
+              style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
+              animate={{
+                y: [0, -30, 0],
+                x: [0, Math.sin(p.id) * 15, 0],
+                opacity: [0, 0.6, 0],
+                scale: [0.5, 1.2, 0.5],
+              }}
+              transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
+            />
+          ))}
+
+          {/* Radial glow */}
+          <motion.div
+            className="absolute w-[500px] h-[500px] rounded-full"
+            style={{
+              background: "radial-gradient(circle, hsl(var(--primary) / 0.15), transparent 70%)",
+            }}
+            animate={{ scale: [0.8, 1.2, 0.8], opacity: [0.3, 0.6, 0.3] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          {/* Logo icon — spins in, then pulses on zoom */}
+          <motion.div
+            initial={{ scale: 0, rotate: -270, opacity: 0 }}
+            animate={
+              phase === "zoom"
+                ? { scale: [1, 1.3, 1.15], rotate: [0, 10, 0], opacity: 1 }
+                : { scale: 1, rotate: 0, opacity: 1 }
+            }
+            transition={
+              phase === "zoom"
+                ? { duration: 0.8, ease: "easeInOut" }
+                : { type: "spring", stiffness: 180, damping: 14, delay: 0.3 }
+            }
+            className="relative w-24 h-24 rounded-3xl bg-gradient-primary flex items-center justify-center shadow-2xl shadow-primary/40 z-10"
           >
-            <Sparkles className="w-10 h-10 text-primary-foreground" />
+            <Sparkles className="w-12 h-12 text-primary-foreground" />
+
+            {/* Ring pulse */}
+            <motion.div
+              className="absolute inset-0 rounded-3xl border-2 border-primary/40"
+              animate={{ scale: [1, 1.6, 1.6], opacity: [0.6, 0, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
+            />
+            <motion.div
+              className="absolute inset-0 rounded-3xl border border-primary/20"
+              animate={{ scale: [1, 2, 2], opacity: [0.4, 0, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, delay: 0.8 }}
+            />
           </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-            className="text-4xl font-bold tracking-tight text-gradient"
-          >
-            SkillBridge
-          </motion.h1>
+          {/* Title — letter by letter */}
+          <motion.div className="mt-8 flex overflow-hidden z-10">
+            {"SkillBridge".split("").map((char, i) => (
+              <motion.span
+                key={i}
+                initial={{ y: 40, opacity: 0, rotateX: -90 }}
+                animate={
+                  phase === "zoom"
+                    ? { y: 0, opacity: 1, rotateX: 0, scale: [1, 1.15, 1] }
+                    : { y: 0, opacity: 1, rotateX: 0 }
+                }
+                transition={{
+                  delay: phase === "zoom" ? 0.05 * i : 0.6 + i * 0.05,
+                  duration: 0.4,
+                  ease: "easeOut",
+                }}
+                className="text-5xl font-bold tracking-tight text-gradient"
+              >
+                {char}
+              </motion.span>
+            ))}
+          </motion.div>
 
+          {/* Tagline */}
           <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
-            className="text-sm text-muted-foreground"
+            initial={{ opacity: 0, y: 10 }}
+            animate={
+              phase === "zoom"
+                ? { opacity: 1, y: 0, letterSpacing: "0.3em" }
+                : { opacity: 1, y: 0 }
+            }
+            transition={{ delay: phase === "zoom" ? 0.3 : 1.2, duration: 0.6 }}
+            className="mt-3 text-sm text-muted-foreground tracking-widest uppercase z-10"
           >
             Learn • Build • Grow
           </motion.p>
 
+          {/* Loading dots */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="mt-6"
+            transition={{ delay: 1.5 }}
+            className="mt-10 flex gap-2 z-10"
           >
-            <div className="flex gap-1.5">
-              {[0, 1, 2].map((i) => (
-                <motion.div
-                  key={i}
-                  className="w-2 h-2 rounded-full bg-primary"
-                  animate={{ scale: [1, 1.4, 1], opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.2 }}
-                />
-              ))}
-            </div>
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                className="w-2.5 h-2.5 rounded-full bg-primary"
+                animate={{
+                  scale: [1, 1.5, 1],
+                  opacity: [0.4, 1, 0.4],
+                }}
+                transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.15 }}
+              />
+            ))}
           </motion.div>
         </motion.div>
+      ) : (
+        <motion.div
+          key="exit"
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="fixed inset-0 z-[100] bg-background"
+        />
       )}
     </AnimatePresence>
   );
