@@ -1,6 +1,6 @@
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
-  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award
+  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award, MessageSquare
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate, Link } from "react-router-dom";
@@ -28,6 +28,7 @@ const mainItems = [
 
 const socialItems = [
   { title: "Mentors", url: "/mentors", icon: Users },
+  { title: "Community", url: "/community", icon: MessageSquare },
   { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
   { title: "Achievements", url: "/achievements", icon: Award },
 ];
