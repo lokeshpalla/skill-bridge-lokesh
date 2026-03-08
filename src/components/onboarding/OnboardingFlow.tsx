@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +32,7 @@ interface OnboardingProps {
   onComplete: () => void;
 }
 
-export default function OnboardingFlow({ onComplete }: OnboardingProps) {
+const OnboardingFlow = forwardRef<HTMLDivElement, OnboardingProps>(function OnboardingFlow({ onComplete }, ref) {
   const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
@@ -243,4 +243,6 @@ export default function OnboardingFlow({ onComplete }: OnboardingProps) {
       </div>
     </div>
   );
-}
+});
+
+export default OnboardingFlow;
