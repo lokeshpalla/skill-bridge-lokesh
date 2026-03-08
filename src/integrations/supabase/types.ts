@@ -1003,6 +1003,7 @@ export type Database = {
           email: string | null
           github_url: string | null
           id: string
+          last_active_date: string | null
           linkedin_url: string | null
           portfolio_url: string | null
           skills: string[] | null
@@ -1019,6 +1020,7 @@ export type Database = {
           email?: string | null
           github_url?: string | null
           id?: string
+          last_active_date?: string | null
           linkedin_url?: string | null
           portfolio_url?: string | null
           skills?: string[] | null
@@ -1035,6 +1037,7 @@ export type Database = {
           email?: string | null
           github_url?: string | null
           id?: string
+          last_active_date?: string | null
           linkedin_url?: string | null
           portfolio_url?: string | null
           skills?: string[] | null
@@ -1270,6 +1273,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      record_activity: {
+        Args: { _minutes_spent?: number; _user_id: string; _xp_amount: number }
+        Returns: Json
       }
     }
     Enums: {
