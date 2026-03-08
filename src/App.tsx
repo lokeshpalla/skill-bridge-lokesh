@@ -49,6 +49,7 @@ const App = () => (
               <Route path="/install" element={<InstallPage />} />
               <Route path="/interview" element={<InterviewPage />} />
               <Route path="/paths" element={<LearningPathsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
