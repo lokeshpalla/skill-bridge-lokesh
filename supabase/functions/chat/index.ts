@@ -9,21 +9,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, language } = await req.json();
+    const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
-
-    const LANG_NAMES: Record<string, string> = {
-      "hi-IN": "Hindi (हिन्दी)", "bn-IN": "Bengali (বাংলা)", "ta-IN": "Tamil (தமிழ்)",
-      "te-IN": "Telugu (తెలుగు)", "mr-IN": "Marathi (मराठी)", "gu-IN": "Gujarati (ગુજરાતી)",
-      "kn-IN": "Kannada (ಕನ್ನಡ)", "ml-IN": "Malayalam (മലയാളം)", "pa-IN": "Punjabi (ਪੰਜਾਬੀ)",
-      "or-IN": "Odia (ଓଡ଼ିଆ)", "as-IN": "Assamese (অসমীয়া)", "ur-IN": "Urdu (اردو)",
-      "ne-IN": "Nepali (नेपाली)", "sa-IN": "Sanskrit (संस्कृतम्)",
-    };
-    const langName = language ? LANG_NAMES[language] : null;
-    const languageInstruction = langName
-      ? `\n\nCRITICAL INSTRUCTION: You MUST respond ENTIRELY in ${langName}. Do NOT respond in English. Every single word of your response must be in ${langName}. Use the ${langName} script/alphabet. This is mandatory and non-negotiable. Even code explanations should have surrounding text in ${langName}.`
-      : "";
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -44,7 +32,10 @@ serve(async (req) => {
 - Debugging help and code review
 
 Keep responses concise, friendly, and actionable. Use code examples when helpful. Use emojis sparingly for encouragement.
-${languageInstruction}`,
+
+CRITICAL LANGUAGE INSTRUCTION: Automatically detect what language the user is writing in. Reply ENTIRELY in the SAME language and script the user used. If they write in Hindi (Devanagari), reply in Hindi. If in Tamil script, reply in Tamil. If in Bengali, reply in Bengali. If in English, reply in English. Match the user's language exactly — do not default to English unless the user writes in English. Even code explanations should have surrounding text in the user's language.
+
+At the very end of your response, on a new line, add a language tag in the format: [LANG:xx-XX] where xx-XX is the BCP-47 code of the language you responded in. Examples: [LANG:en-IN], [LANG:hi-IN], [LANG:ta-IN], [LANG:bn-IN], [LANG:te-IN], [LANG:mr-IN], [LANG:gu-IN], [LANG:kn-IN], [LANG:ml-IN], [LANG:pa-IN], [LANG:or-IN], [LANG:ur-IN], [LANG:ne-IN], [LANG:sa-IN]. This tag is used for text-to-speech and must always be present.`,
           },
           ...messages,
         ],

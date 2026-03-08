@@ -15,35 +15,45 @@ interface Message {
   content: string;
 }
 
-const INDIAN_LANGUAGES = [
-  { code: "en-IN", label: "English", flag: "🇬🇧" },
-  { code: "hi-IN", label: "हिन्दी", flag: "🇮🇳" },
-  { code: "bn-IN", label: "বাংলা", flag: "🇮🇳" },
-  { code: "ta-IN", label: "தமிழ்", flag: "🇮🇳" },
-  { code: "te-IN", label: "తెలుగు", flag: "🇮🇳" },
-  { code: "mr-IN", label: "मराठी", flag: "🇮🇳" },
-  { code: "gu-IN", label: "ગુજરાતી", flag: "🇮🇳" },
-  { code: "kn-IN", label: "ಕನ್ನಡ", flag: "🇮🇳" },
-  { code: "ml-IN", label: "മലയാളം", flag: "🇮🇳" },
-  { code: "pa-IN", label: "ਪੰਜਾਬੀ", flag: "🇮🇳" },
-  { code: "or-IN", label: "ଓଡ଼ିଆ", flag: "🇮🇳" },
-  { code: "as-IN", label: "অসমীয়া", flag: "🇮🇳" },
-  { code: "ur-IN", label: "اردو", flag: "🇮🇳" },
-  { code: "ne-IN", label: "नेपाली", flag: "🇳🇵" },
-  { code: "sa-IN", label: "संस्कृतम्", flag: "🇮🇳" },
-];
+const LANG_LABELS: Record<string, { label: string; flag: string }> = {
+  "en-IN": { label: "English", flag: "🇬🇧" },
+  "hi-IN": { label: "हिन्दी", flag: "🇮🇳" },
+  "bn-IN": { label: "বাংলা", flag: "🇮🇳" },
+  "ta-IN": { label: "தமிழ்", flag: "🇮🇳" },
+  "te-IN": { label: "తెలుగు", flag: "🇮🇳" },
+  "mr-IN": { label: "मराठी", flag: "🇮🇳" },
+  "gu-IN": { label: "ગુજરાતી", flag: "🇮🇳" },
+  "kn-IN": { label: "ಕನ್ನಡ", flag: "🇮🇳" },
+  "ml-IN": { label: "മലയാളം", flag: "🇮🇳" },
+  "pa-IN": { label: "ਪੰਜਾਬੀ", flag: "🇮🇳" },
+  "or-IN": { label: "ଓଡ଼ିଆ", flag: "🇮🇳" },
+  "as-IN": { label: "অসমীয়া", flag: "🇮🇳" },
+  "ur-IN": { label: "اردو", flag: "🇮🇳" },
+  "ne-IN": { label: "नेपाली", flag: "🇳🇵" },
+  "sa-IN": { label: "संस्कृतम्", flag: "🇮🇳" },
+};
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
+// Extract [LANG:xx-XX] tag from response and return { cleanContent, langCode }
+function extractLangTag(content: string): { cleanContent: string; langCode: string | null } {
+  const match = content.match(/\[LANG:([a-z]{2}-[A-Z]{2})\]\s*$/);
+  if (match) {
+    return {
+      cleanContent: content.replace(/\s*\[LANG:[a-z]{2}-[A-Z]{2}\]\s*$/, "").trim(),
+      langCode: match[1],
+    };
+  }
+  return { cleanContent: content, langCode: null };
+}
+
 async function streamChat({
   messages,
-  language,
   onDelta,
   onDone,
   onError,
 }: {
   messages: Message[];
-  language: string;
   onDelta: (text: string) => void;
   onDone: () => void;
   onError: (msg: string) => void;
@@ -54,7 +64,7 @@ async function streamChat({
       "Content-Type": "application/json",
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
-    body: JSON.stringify({ messages, language }),
+    body: JSON.stringify({ messages }),
   });
 
   if (!resp.ok) {
@@ -95,15 +105,12 @@ async function streamChat({
   onDone();
 }
 
-// Get best voice for language - called at speak time for freshest voice list
+// Get best voice for language
 function getBestVoice(langCode: string): SpeechSynthesisVoice | null {
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
-
-  const langPrefix = langCode.split("-")[0]; // e.g. "hi"
-  const langUnderscore = langCode.replace("-", "_"); // e.g. "hi_IN"
-
-  // Priority order: exact match → underscore variant → prefix match → Google voice with prefix
+  const langPrefix = langCode.split("-")[0];
+  const langUnderscore = langCode.replace("-", "_");
   return (
     voices.find((v) => v.lang === langCode) ||
     voices.find((v) => v.lang === langUnderscore) ||
@@ -115,7 +122,7 @@ function getBestVoice(langCode: string): SpeechSynthesisVoice | null {
   );
 }
 
-const WELCOME = "Hey there! 👋 I'm your AI learning buddy. Ask me anything about coding, careers, or courses!";
+const WELCOME = "Hey there! 👋 I'm your AI learning buddy. Ask me anything in any language — I'll auto-detect and reply in yours!";
 
 const AIAssistant = () => {
   const { user } = useAuth();
@@ -125,25 +132,26 @@ const AIAssistant = () => {
   ]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const [language, setLanguage] = useState("en-IN");
-  const [showLangPicker, setShowLangPicker] = useState(false);
+  const [detectedLang, setDetectedLang] = useState<string>("en-IN");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [autoSpeak, setAutoSpeak] = useState(false);
+  const [sttLang, setSttLang] = useState("en-IN");
+  const [showSttPicker, setShowSttPicker] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
-  const langPickerRef = useRef<HTMLDivElement>(null);
+  const sttPickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isStreaming]);
 
-  // Close lang picker on outside click
+  // Close STT picker on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (langPickerRef.current && !langPickerRef.current.contains(e.target as Node)) {
-        setShowLangPicker(false);
+      if (sttPickerRef.current && !sttPickerRef.current.contains(e.target as Node)) {
+        setShowSttPicker(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -175,7 +183,7 @@ const AIAssistant = () => {
     if (convos && convos.length > 0) {
       const conv = convos[0];
       setConversationId(conv.id);
-      setLanguage(conv.language || "en-IN");
+      if (conv.language) setDetectedLang(conv.language);
 
       const { data: msgs } = await supabase
         .from("chat_messages")
@@ -197,10 +205,11 @@ const AIAssistant = () => {
   const startNewChat = async () => {
     setMessages([{ role: "assistant", content: WELCOME }]);
     setConversationId(null);
+    setDetectedLang("en-IN");
     if (user) {
       const { data } = await supabase
         .from("chat_conversations")
-        .insert({ user_id: user.id, language })
+        .insert({ user_id: user.id, language: "en-IN" })
         .select()
         .single();
       if (data) {
@@ -217,10 +226,11 @@ const AIAssistant = () => {
     }
     setMessages([{ role: "assistant", content: WELCOME }]);
     setConversationId(null);
+    setDetectedLang("en-IN");
     toast({ title: "Chat cleared" });
   };
 
-  // Voice recognition
+  // Voice recognition — uses STT language picker
   const toggleListening = useCallback(() => {
     if (isListening) {
       recognitionRef.current?.stop();
@@ -235,7 +245,7 @@ const AIAssistant = () => {
     }
 
     const recognition = new SpeechRecognitionAPI();
-    recognition.lang = language;
+    recognition.lang = sttLang;
     recognition.interimResults = true;
     recognition.continuous = false;
 
@@ -254,23 +264,24 @@ const AIAssistant = () => {
     recognitionRef.current = recognition;
     recognition.start();
     setIsListening(true);
-  }, [isListening, language]);
+  }, [isListening, sttLang]);
 
-  // Text-to-speech — fetches voices fresh each time
-  const speak = useCallback((text: string) => {
+  // Text-to-speech — uses detected language
+  const speak = useCallback((text: string, langOverride?: string) => {
     if (!window.speechSynthesis) {
       toast({ title: "TTS not supported", variant: "destructive" });
       return;
     }
     window.speechSynthesis.cancel();
 
-    const cleanText = text.replace(/[*#`_~\[\]>]/g, "").replace(/\n{2,}/g, ". ");
+    const lang = langOverride || detectedLang;
+    const cleanText = text.replace(/[*#`_~\[\]>]/g, "").replace(/\n{2,}/g, ". ").replace(/\[LANG:[a-z]{2}-[A-Z]{2}\]/g, "");
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = language;
+    utterance.lang = lang;
     utterance.rate = 0.95;
     utterance.pitch = 1;
 
-    const voice = getBestVoice(language);
+    const voice = getBestVoice(lang);
     if (voice) {
       utterance.voice = voice;
       utterance.lang = voice.lang;
@@ -280,7 +291,7 @@ const AIAssistant = () => {
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
     window.speechSynthesis.speak(utterance);
-  }, [language]);
+  }, [detectedLang]);
 
   const stopSpeaking = useCallback(() => {
     window.speechSynthesis?.cancel();
@@ -299,7 +310,7 @@ const AIAssistant = () => {
     if (!convId && user) {
       const { data } = await supabase
         .from("chat_conversations")
-        .insert({ user_id: user.id, language })
+        .insert({ user_id: user.id, language: detectedLang })
         .select()
         .single();
       if (data) {
@@ -313,24 +324,40 @@ const AIAssistant = () => {
     let assistantSoFar = "";
     const upsertAssistant = (chunk: string) => {
       assistantSoFar += chunk;
+      // Display without the LANG tag
+      const { cleanContent } = extractLangTag(assistantSoFar);
       setMessages((prev) => {
         const last = prev[prev.length - 1];
         if (last?.role === "assistant" && prev.length === newMessages.length + 1) {
-          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
+          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: cleanContent } : m));
         }
-        return [...prev, { role: "assistant", content: assistantSoFar }];
+        return [...prev, { role: "assistant", content: cleanContent }];
       });
     };
 
     try {
       await streamChat({
         messages: newMessages,
-        language,
         onDelta: upsertAssistant,
         onDone: async () => {
           setIsStreaming(false);
-          if (convId && assistantSoFar) await saveMessage(convId, "assistant", assistantSoFar);
-          if (autoSpeak && assistantSoFar) speak(assistantSoFar);
+
+          // Extract detected language from response
+          const { cleanContent, langCode } = extractLangTag(assistantSoFar);
+          if (langCode) {
+            setDetectedLang(langCode);
+            // Also update STT lang to match for convenience
+            setSttLang(langCode);
+            if (convId) {
+              supabase.from("chat_conversations").update({ language: langCode }).eq("id", convId);
+            }
+          }
+
+          // Save clean content
+          if (convId && cleanContent) await saveMessage(convId, "assistant", cleanContent);
+
+          // Auto-speak with detected language
+          if (autoSpeak && cleanContent) speak(cleanContent, langCode || detectedLang);
         },
         onError: (msg) => {
           toast({ title: "AI Error", description: msg, variant: "destructive" });
@@ -343,7 +370,8 @@ const AIAssistant = () => {
     }
   };
 
-  const currentLang = INDIAN_LANGUAGES.find((l) => l.code === language);
+  const currentDetected = LANG_LABELS[detectedLang] || LANG_LABELS["en-IN"];
+  const currentStt = LANG_LABELS[sttLang] || LANG_LABELS["en-IN"];
 
   return (
     <>
@@ -395,7 +423,7 @@ const AIAssistant = () => {
                 <div>
                   <h3 className="font-bold text-sm text-foreground">AI Assistant</h3>
                   <p className="text-[11px] text-muted-foreground">
-                    {isStreaming ? "Thinking..." : isSpeaking ? "Speaking..." : "Online"}
+                    {isStreaming ? "Thinking..." : isSpeaking ? "Speaking..." : `Auto-detect • ${currentDetected.flag} ${currentDetected.label}`}
                   </p>
                 </div>
               </div>
@@ -430,15 +458,16 @@ const AIAssistant = () => {
             </div>
 
             {/* Controls bar */}
-            <div className="px-4 py-2 flex items-center gap-2 border-b border-border/30" ref={langPickerRef}>
-              {/* Language selector */}
+            <div className="px-4 py-2 flex items-center gap-2 border-b border-border/30" ref={sttPickerRef}>
+              {/* STT language selector (for mic input) */}
               <button
-                onClick={() => setShowLangPicker(!showLangPicker)}
+                onClick={() => setShowSttPicker(!showSttPicker)}
                 className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-border/50 hover:border-primary/40 bg-secondary/50 hover:bg-secondary text-foreground transition-all"
+                title="Voice input language"
               >
-                <Globe className="w-3.5 h-3.5 text-primary" />
-                <span>{currentLang?.flag} {currentLang?.label}</span>
-                <ChevronDown className={`w-3 h-3 transition-transform ${showLangPicker ? "rotate-180" : ""}`} />
+                <Mic className="w-3.5 h-3.5 text-primary" />
+                <span>{currentStt.flag} {currentStt.label}</span>
+                <ChevronDown className={`w-3 h-3 transition-transform ${showSttPicker ? "rotate-180" : ""}`} />
               </button>
 
               {/* Auto-speak toggle */}
@@ -466,9 +495,9 @@ const AIAssistant = () => {
                 </button>
               )}
 
-              {/* Language dropdown */}
+              {/* STT Language dropdown */}
               <AnimatePresence>
-                {showLangPicker && (
+                {showSttPicker && (
                   <motion.div
                     initial={{ opacity: 0, y: -8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -477,22 +506,19 @@ const AIAssistant = () => {
                     className="absolute left-4 top-[120px] z-20 w-52 max-h-56 overflow-y-auto rounded-2xl border border-border/60 shadow-lg"
                     style={{ background: "hsl(var(--card))" }}
                   >
-                    {INDIAN_LANGUAGES.map((lang) => (
+                    {Object.entries(LANG_LABELS).map(([code, { label, flag }]) => (
                       <button
-                        key={lang.code}
+                        key={code}
                         onClick={() => {
-                          setLanguage(lang.code);
-                          setShowLangPicker(false);
-                          if (conversationId) {
-                            supabase.from("chat_conversations").update({ language: lang.code }).eq("id", conversationId);
-                          }
+                          setSttLang(code);
+                          setShowSttPicker(false);
                         }}
                         className={`w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/80 transition-colors flex items-center gap-2 ${
-                          language === lang.code ? "bg-primary/10 text-primary font-medium" : "text-foreground"
+                          sttLang === code ? "bg-primary/10 text-primary font-medium" : "text-foreground"
                         } first:rounded-t-2xl last:rounded-b-2xl`}
                       >
-                        <span>{lang.flag}</span>
-                        <span>{lang.label}</span>
+                        <span>{flag}</span>
+                        <span>{label}</span>
                       </button>
                     ))}
                   </motion.div>
@@ -598,7 +624,7 @@ const AIAssistant = () => {
                   <input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={isListening ? "🎙️ Listening..." : "Type your message..."}
+                    placeholder={isListening ? "🎙️ Listening..." : "Type in any language..."}
                     disabled={isStreaming}
                     className="w-full bg-secondary/60 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 focus:bg-secondary/80 disabled:opacity-50 transition-all border border-border/30 focus:border-primary/30"
                   />
