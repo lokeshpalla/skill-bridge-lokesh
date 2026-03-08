@@ -102,6 +102,7 @@ const PortfolioPage = () => {
           onDelete={handleDelete}
           onPreview={() => setPreviewMode(true)}
           saving={saving}
+          userId={user?.id}
         />
       )}
     </div>
