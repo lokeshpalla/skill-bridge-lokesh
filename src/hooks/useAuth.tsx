@@ -22,6 +22,9 @@ interface Profile {
   skills: string[];
   xp: number;
   streak: number;
+  github_url: string | null;
+  linkedin_url: string | null;
+  portfolio_url: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
