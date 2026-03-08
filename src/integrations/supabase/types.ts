@@ -776,6 +776,63 @@ export type Database = {
         }
         Relationships: []
       }
+      interview_schedules: {
+        Row: {
+          application_id: string
+          candidate_id: string
+          created_at: string
+          duration_min: number
+          id: string
+          internship_id: string
+          meeting_link: string | null
+          notes: string | null
+          recruiter_id: string
+          scheduled_at: string
+          status: string
+        }
+        Insert: {
+          application_id: string
+          candidate_id: string
+          created_at?: string
+          duration_min?: number
+          id?: string
+          internship_id: string
+          meeting_link?: string | null
+          notes?: string | null
+          recruiter_id: string
+          scheduled_at: string
+          status?: string
+        }
+        Update: {
+          application_id?: string
+          candidate_id?: string
+          created_at?: string
+          duration_min?: number
+          id?: string
+          internship_id?: string
+          meeting_link?: string | null
+          notes?: string | null
+          recruiter_id?: string
+          scheduled_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_schedules_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "internship_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_schedules_internship_id_fkey"
+            columns: ["internship_id"]
+            isOneToOne: false
+            referencedRelation: "internships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       learning_paths: {
         Row: {
           course_ids: string[] | null
