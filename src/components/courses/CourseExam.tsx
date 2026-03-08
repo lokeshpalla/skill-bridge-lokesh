@@ -185,7 +185,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
         <ClipboardCheck className="w-10 h-10 text-primary mx-auto mb-3" />
         <h3 className="text-lg font-bold mb-1">Course Exam</h3>
         <p className="text-xs text-muted-foreground mb-4">
-          {questions.length} questions • Pass mark: 50% • Earn a certificate!
+          {questions.length} questions • {questions.length} min timer • Pass mark: 50% • Earn a certificate!
         </p>
         <Button variant="hero" size="sm" className="gap-1.5" onClick={handleStart}>
           Start Exam <ChevronRight className="w-4 h-4" />
