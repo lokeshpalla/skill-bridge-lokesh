@@ -230,6 +230,42 @@ export type Database = {
           },
         ]
       }
+      collaboration_rooms: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          ended_at: string | null
+          id: string
+          is_active: boolean
+          max_participants: number
+          name: string
+          topic: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          ended_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_participants?: number
+          name: string
+          topic?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          ended_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_participants?: number
+          name?: string
+          topic?: string | null
+        }
+        Relationships: []
+      }
       course_enrollments: {
         Row: {
           completed_at: string | null
@@ -879,6 +915,85 @@ export type Database = {
           xp?: number
         }
         Relationships: []
+      }
+      room_messages: {
+        Row: {
+          content: string
+          created_at: string
+          display_name: string
+          id: string
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          display_name?: string
+          id?: string
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          display_name?: string
+          id?: string
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_participants: {
+        Row: {
+          display_name: string
+          id: string
+          is_audio_on: boolean
+          is_screen_sharing: boolean
+          is_video_on: boolean
+          joined_at: string
+          left_at: string | null
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          display_name?: string
+          id?: string
+          is_audio_on?: boolean
+          is_screen_sharing?: boolean
+          is_video_on?: boolean
+          joined_at?: string
+          left_at?: string | null
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          display_name?: string
+          id?: string
+          is_audio_on?: boolean
+          is_screen_sharing?: boolean
+          is_video_on?: boolean
+          joined_at?: string
+          left_at?: string | null
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_participants_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       seasonal_challenges: {
         Row: {
