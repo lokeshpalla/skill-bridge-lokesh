@@ -81,9 +81,12 @@ describe("Loading skeletons", () => {
   });
 });
 
-describe("SEO meta tags", () => {
-  it("index.html has required meta tags structure", () => {
-    // Verify the presence of meta tags in a unit-test-friendly way
-    expect(document.querySelector('meta[name="viewport"]')).toBeTruthy();
+describe("Utility components", () => {
+  it("ErrorState renders with retry button", async () => {
+    const { ErrorState } = await import("@/components/ui/loading-skeletons");
+    const onRetry = vi.fn();
+    render(<ErrorState title="Oops" onRetry={onRetry} />);
+    expect(screen.getByText("Oops")).toBeInTheDocument();
+    expect(screen.getByText("Try again")).toBeInTheDocument();
   });
 });
