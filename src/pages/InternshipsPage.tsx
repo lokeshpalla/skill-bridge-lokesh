@@ -70,7 +70,7 @@ const InternshipsPage = () => {
                 size="sm"
                 className="w-full"
                 disabled={apps.has(intern.id)}
-                onClick={() => handleApply(intern.id)}
+                onClick={() => handleApply(intern.id, intern.company)}
               >
                 {apps.has(intern.id) ? (
                   <><CheckCircle className="w-3 h-3" /> Applied</>
