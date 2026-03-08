@@ -55,13 +55,14 @@ const Dashboard = () => {
     const fetchData = async () => {
       setLoading(true);
 
-      // Fetch solved count
-      const { count: solved } = await supabase
+      // Fetch solved count from DB + localStorage
+      const { count: dbSolved } = await supabase
         .from("coding_submissions")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id)
         .eq("status", "accepted");
-      setSolvedCount(solved ?? 0);
+      const localSolved: number[] = JSON.parse(localStorage.getItem(`solved_problems_${user.id}`) || "[]");
+      setSolvedCount((dbSolved ?? 0) + localSolved.length);
 
       // Fetch rank (count profiles with more XP + 1)
       const { count: above } = await supabase
