@@ -283,7 +283,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
           {questions.length} questions • {mcqCount} MCQs + {codingCount} coding challenges
         </p>
         <p className="text-xs text-muted-foreground mb-4">
-          {Math.ceil(questions.length * SECONDS_PER_QUESTION / 60)} min timer • Pass mark: 50% • Earn a certificate!
+          30 min timer • Pass mark: 50% • Earn a certificate!
         </p>
         <Button variant="hero" size="sm" className="gap-1.5" onClick={handleStart}>
           Start Exam <ChevronRight className="w-4 h-4" />
