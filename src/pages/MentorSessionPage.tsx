@@ -11,7 +11,7 @@ import {
 import {
   Mic, MicOff, VideoIcon, VideoOff, Monitor, MonitorOff,
   Phone, Send, MessageSquare, Users, Clock, Code2,
-  Hand, Play, Copy, Check
+  Hand, Play, Copy, Check, Save, Terminal
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
