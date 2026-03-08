@@ -43,7 +43,7 @@ const Index = () => {
   return (
     <div className="min-h-screen" role="document">
       {/* ─── HERO ─── */}
-      <section className="relative min-h-[92vh] flex items-center bg-gradient-hero overflow-hidden">
+      <section className="relative min-h-[92vh] flex items-center bg-gradient-hero overflow-hidden" aria-label="Hero">
         <div className="absolute inset-0 opacity-[0.025]" style={{
           backgroundImage: "linear-gradient(hsl(187 100% 50%) 1px, transparent 1px), linear-gradient(90deg, hsl(187 100% 50%) 1px, transparent 1px)",
           backgroundSize: "60px 60px"
