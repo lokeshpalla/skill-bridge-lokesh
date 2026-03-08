@@ -15,6 +15,7 @@ import MentorsPage from "./pages/MentorsPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import InternshipsPage from "./pages/InternshipsPage";
 import PortfolioPage from "./pages/PortfolioPage";
+import PlaygroundPage from "./pages/PlaygroundPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
