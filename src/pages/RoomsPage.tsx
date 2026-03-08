@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Video, Users, Plus, Search, Wifi, WifiOff } from "lucide-react";
+import { Video, Users, Plus, Search, Wifi, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Room {
