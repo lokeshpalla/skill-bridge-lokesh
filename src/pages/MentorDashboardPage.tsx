@@ -160,28 +160,44 @@ const MentorDashboardPage = () => {
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Users className="w-6 h-6 text-primary" /> Mentor Dashboard
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">Manage your sessions, reviews & profile</p>
+      {/* Mentor Header Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl p-6 relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, hsl(38 92% 50% / 0.12), hsl(25 80% 45% / 0.08))" }}
+      >
+        <div className="absolute top-0 right-0 w-48 h-48 bg-warning/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-warning/3 rounded-full translate-y-1/2 -translate-x-1/2" />
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-8 h-8 rounded-lg bg-warning/20 flex items-center justify-center">
+              <Star className="w-4 h-4 text-warning" />
+            </div>
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-warning/80">Mentor Dashboard</span>
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight">Your Mentoring Hub</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Manage sessions, track reviews & grow your impact</p>
+        </div>
       </motion.div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: "Total Sessions", value: mentorProfile.total_sessions || 0, icon: Calendar, accent: "text-primary" },
+          { label: "Total Sessions", value: mentorProfile.total_sessions || 0, icon: Calendar, accent: "text-warning" },
           { label: "Avg Rating", value: avgRating, icon: Star, accent: "text-warning" },
-          { label: "Pending Bookings", value: pending.length, icon: Clock, accent: "text-primary" },
-          { label: "Estimated Earnings", value: formatRupees(totalEarnings), icon: IndianRupee, accent: "text-primary" },
+          { label: "Pending Bookings", value: pending.length, icon: Clock, accent: "text-warning" },
+          { label: "Estimated Earnings", value: formatRupees(totalEarnings), icon: IndianRupee, accent: "text-warning" },
         ].map(s => {
           const Icon = s.icon;
           return (
             <motion.div key={s.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border border-border/50 bg-card/60 p-4">
+              className="rounded-xl border border-warning/20 bg-card/60 p-4 hover:border-warning/40 transition-colors">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{s.label}</span>
-                <Icon className={`w-4 h-4 ${s.accent}`} />
+                <div className="w-7 h-7 rounded-lg bg-warning/10 flex items-center justify-center">
+                  <Icon className={`w-3.5 h-3.5 ${s.accent}`} />
+                </div>
               </div>
               <div className="text-2xl font-bold">{s.value}</div>
             </motion.div>
@@ -194,7 +210,7 @@ const MentorDashboardPage = () => {
         {tabs.map(([t, label]) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              tab === t ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground hover:text-foreground"
+              tab === t ? "bg-warning text-warning-foreground" : "bg-secondary/50 text-muted-foreground hover:text-foreground"
             }`}>{label}</button>
         ))}
       </div>

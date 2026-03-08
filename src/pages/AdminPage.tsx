@@ -108,12 +108,25 @@ export default function AdminPage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Shield className="w-6 h-6 text-primary" /> Admin Dashboard
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">Platform management & oversight</p>
+      {/* Admin Header Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl p-6 relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, hsl(0 72% 51% / 0.12), hsl(350 65% 45% / 0.08))" }}
+      >
+        <div className="absolute top-0 right-0 w-48 h-48 bg-destructive/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-destructive/3 rounded-full translate-y-1/2 -translate-x-1/2" />
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-8 h-8 rounded-lg bg-destructive/20 flex items-center justify-center">
+              <Shield className="w-4 h-4 text-destructive" />
+            </div>
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-destructive/80">Admin Dashboard</span>
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight">Platform Control Center</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Platform management, user oversight & content moderation</p>
+        </div>
       </motion.div>
 
       {/* Stat Cards */}
@@ -122,10 +135,12 @@ export default function AdminPage() {
           const Icon = card.icon;
           return (
             <motion.div key={card.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border border-border/50 bg-card/60 p-4">
+              className="rounded-xl border border-destructive/20 bg-card/60 p-4 hover:border-destructive/40 transition-colors">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{card.label}</span>
-                <Icon className={`w-4 h-4 ${card.accent}`} />
+                <div className="w-7 h-7 rounded-lg bg-destructive/10 flex items-center justify-center">
+                  <Icon className="w-3.5 h-3.5 text-destructive" />
+                </div>
               </div>
               <div className="text-2xl font-bold">{card.value}</div>
             </motion.div>
@@ -138,7 +153,7 @@ export default function AdminPage() {
         {tabs.map(([t, label]) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              tab === t ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground hover:text-foreground"
+              tab === t ? "bg-destructive text-destructive-foreground" : "bg-secondary/50 text-muted-foreground hover:text-foreground"
             }`}>{label}</button>
         ))}
       </div>
