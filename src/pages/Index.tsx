@@ -41,7 +41,7 @@ const fadeUp = {
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" role="document">
       {/* ─── HERO ─── */}
       <section className="relative min-h-[92vh] flex items-center bg-gradient-hero overflow-hidden">
         <div className="absolute inset-0 opacity-[0.025]" style={{
