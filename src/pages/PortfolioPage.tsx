@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import PortfolioForm, { type ProjectForm } from "@/components/portfolio/PortfolioForm";
 import PortfolioPreview from "@/components/portfolio/PortfolioPreview";
 import PortfolioAIChat from "@/components/portfolio/PortfolioAIChat";
+import ResumeBuilder from "@/components/portfolio/ResumeBuilder";
 
 interface PortfolioProject {
   id: string;
@@ -25,6 +26,7 @@ const PortfolioPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [resumeMode, setResumeMode] = useState(false);
   const [aiChatOpen, setAiChatOpen] = useState(false);
 
   useEffect(() => {
@@ -100,7 +102,13 @@ const PortfolioPage = () => {
 
   return (
     <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
-      {previewMode && profile ? (
+      {resumeMode && profile ? (
+        <ResumeBuilder
+          profile={profile}
+          projects={projects}
+          onBack={() => setResumeMode(false)}
+        />
+      ) : previewMode && profile ? (
         <PortfolioPreview
           profile={profile}
           projects={projects}
@@ -115,6 +123,7 @@ const PortfolioPage = () => {
           onDelete={handleDelete}
           onPreview={() => setPreviewMode(true)}
           onOpenAI={() => setAiChatOpen(true)}
+          onResume={() => setResumeMode(true)}
           saving={saving}
           userId={user?.id}
         />

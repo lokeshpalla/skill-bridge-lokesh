@@ -9,7 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Plus, Github, Globe, User, Trash2, Edit2, ExternalLink, FolderKanban, Eye, Share2, Copy, Check, Sparkles,
+  Plus, Github, Globe, User, Trash2, Edit2, ExternalLink, FolderKanban, Eye, Share2, Copy, Check, Sparkles, FileText,
 } from "lucide-react";
 
 interface Profile {
@@ -41,6 +41,7 @@ interface PortfolioFormProps {
   onDelete: (id: string) => Promise<void>;
   onPreview: () => void;
   onOpenAI?: () => void;
+  onResume?: () => void;
   saving: boolean;
   userId?: string;
 }
@@ -53,7 +54,7 @@ export interface ProjectForm {
   live_url: string;
 }
 
-const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, onOpenAI, saving, userId }: PortfolioFormProps) => {
+const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, onOpenAI, onResume, saving, userId }: PortfolioFormProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -117,6 +118,9 @@ const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, onOpenA
               <Eye className="w-4 h-4" /> Preview & Download
             </Button>
           )}
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={onResume}>
+            <FileText className="w-4 h-4" /> Resume Maker
+          </Button>
           <Button variant="outline" size="sm" className="gap-1.5" onClick={onOpenAI}>
             <Sparkles className="w-4 h-4" /> AI Assistant
           </Button>
