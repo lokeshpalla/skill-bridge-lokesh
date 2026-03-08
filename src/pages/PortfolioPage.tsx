@@ -26,6 +26,7 @@ const PortfolioPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [resumeMode, setResumeMode] = useState(false);
   const [aiChatOpen, setAiChatOpen] = useState(false);
 
   useEffect(() => {
