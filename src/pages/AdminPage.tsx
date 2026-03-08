@@ -5,12 +5,16 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, BookOpen, Code2, Briefcase, MessageSquare, Brain, Trophy, TrendingUp, Shield, UserCog, AlertTriangle, Settings, Mail, IndianRupee } from "lucide-react";
+import { Users, BookOpen, Code2, Briefcase, MessageSquare, Brain, Trophy, TrendingUp, Shield, UserCog, AlertTriangle, Settings, Mail, IndianRupee, Megaphone, GraduationCap } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { motion } from "framer-motion";
 import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminModeration from "@/components/admin/AdminModeration";
 import AdminPayouts from "@/components/admin/AdminPayouts";
+import AdminCourseManagement from "@/components/admin/AdminCourseManagement";
+import AdminMentorManagement from "@/components/admin/AdminMentorManagement";
+import AdminAnalytics from "@/components/admin/AdminAnalytics";
+import AdminAnnouncements from "@/components/admin/AdminAnnouncements";
 
 interface AdminStats {
   overview: Record<string, number>;
@@ -40,7 +44,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [tab, setTab] = useState<"overview" | "users" | "moderation" | "analytics" | "payouts">("overview");
+  const [tab, setTab] = useState<"overview" | "users" | "moderation" | "analytics" | "payouts" | "courses" | "mentors" | "announcements">("overview");
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -103,9 +107,12 @@ export default function AdminPage() {
   const tabs = [
     ["overview", "📊 Overview", Shield],
     ["users", "👥 Users", UserCog],
+    ["courses", "📚 Courses", GraduationCap],
+    ["mentors", "👨‍🏫 Mentors", Users],
     ["moderation", "🛡️ Moderation", AlertTriangle],
     ["payouts", "💰 Payouts", IndianRupee],
     ["analytics", "📈 Analytics", TrendingUp],
+    ["announcements", "📢 Announcements", Megaphone],
   ] as const;
 
   return (
@@ -221,56 +228,20 @@ export default function AdminPage() {
         <AdminModeration posts={stats.recentPosts} comments={stats.recentComments} onRefresh={fetchStats} />
       )}
 
+      {/* Courses Tab */}
+      {tab === "courses" && <AdminCourseManagement />}
+
+      {/* Mentors Tab */}
+      {tab === "mentors" && <AdminMentorManagement />}
+
       {/* Payouts Tab */}
       {tab === "payouts" && <AdminPayouts />}
 
-      {/* Analytics Tab */}
-      {tab === "analytics" && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {overviewCards.map(card => {
-              const Icon = card.icon;
-              return (
-                <motion.div key={card.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                  className="rounded-xl border border-border/50 bg-card/60 p-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{card.label}</span>
-                    <Icon className={`w-4 h-4 ${card.accent}`} />
-                  </div>
-                  <div className="text-xl font-bold">{card.value}</div>
-                </motion.div>
-              );
-            })}
-          </div>
+      {/* Announcements Tab */}
+      {tab === "announcements" && <AdminAnnouncements />}
 
-          {/* Recent Users Table */}
-          <div className="rounded-xl border border-border/50 bg-card/60 p-5">
-            <h3 className="text-sm font-semibold mb-3">Recent Signups</h3>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>XP</TableHead>
-                  <TableHead>Streak</TableHead>
-                  <TableHead>Joined</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {stats.recentUsers.map(u => (
-                  <TableRow key={u.id}>
-                    <TableCell className="font-medium text-sm">{u.display_name}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{u.email || "—"}</TableCell>
-                    <TableCell><Badge variant="secondary" className="text-[10px]">{u.xp} XP</Badge></TableCell>
-                    <TableCell className="text-xs">{u.streak}🔥</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      )}
+      {/* Analytics Tab */}
+      {tab === "analytics" && <AdminAnalytics />}
     </div>
   );
 }
