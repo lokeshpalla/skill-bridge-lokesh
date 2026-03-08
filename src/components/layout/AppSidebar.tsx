@@ -55,6 +55,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isRecruiter, setIsRecruiter] = useState(false);
+  const [isMentor, setIsMentor] = useState(false);
 
   useEffect(() => {
     if (!user) { setIsAdmin(false); setIsRecruiter(false); return; }
