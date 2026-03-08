@@ -34,7 +34,8 @@ const formatRupees = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
 
 const MentorsPage = () => {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, roles } = useAuth();
+  const isStudentOnly = roles.length > 0 && roles.every(r => r === 'student');
   const [mentors, setMentors] = useState<MentorProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -157,7 +158,7 @@ const MentorsPage = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Search mentors or skills..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 bg-card/60 border-border/50 h-9 text-sm" />
           </div>
-          {user && !isMentor && (
+          {user && !isMentor && !isStudentOnly && (
             <Dialog open={showRegister} onOpenChange={setShowRegister}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-1.5 h-9 whitespace-nowrap">
@@ -203,7 +204,7 @@ const MentorsPage = () => {
           <Search className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <h3 className="text-sm font-medium mb-1">No mentors found</h3>
           <p className="text-xs text-muted-foreground mb-4">Be the first to register as a mentor!</p>
-          {user && !isMentor && (
+          {user && !isMentor && !isStudentOnly && (
             <Button variant="hero" size="sm" onClick={() => setShowRegister(true)}>
               <Plus className="w-3.5 h-3.5 mr-1" /> Become a Mentor
             </Button>
