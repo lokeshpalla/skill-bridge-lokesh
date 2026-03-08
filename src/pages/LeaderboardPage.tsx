@@ -107,7 +107,11 @@ const LeaderboardPage = () => {
               >
                 <div className="relative">
                   {isFirst && <Crown className="w-4 h-4 text-warning absolute -top-5 left-1/2 -translate-x-1/2" />}
-                  <span className="text-2xl">{u.avatar}</span>
+                  {u.avatar_url ? (
+                    <img src={u.avatar_url} alt={u.name} className="w-8 h-8 rounded-full object-cover border-2 border-border" />
+                  ) : (
+                    <span className="text-2xl">{u.avatar}</span>
+                  )}
                 </div>
                 <p className={`text-xs font-semibold text-center truncate w-full mt-1 ${isMe ? "text-primary" : ""}`}>
                   {u.name}{isMe ? " (You)" : ""}
