@@ -1,6 +1,7 @@
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
-  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings
+  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings,
+  TerminalSquare
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate, Link } from "react-router-dom";
@@ -24,6 +25,7 @@ const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Courses", url: "/courses", icon: BookOpen },
   { title: "Coding", url: "/coding", icon: Code2 },
+  { title: "Playground", url: "/playground", icon: TerminalSquare },
 ];
 
 const socialItems = [
