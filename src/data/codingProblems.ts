@@ -896,6 +896,7 @@ function generateProblems(): CodingProblem[] {
     for (let i = 0; i < cat.problems.length; i++) {
       const p = cat.problems[i];
       const difficulty = difficultyDistribution(i, cat.problems.length);
+      const extras = generateExamples(p.t, cat.name, difficulty);
       allProblems.push({
         id: id++,
         title: p.t,
@@ -905,6 +906,7 @@ function generateProblems(): CodingProblem[] {
         solved: false,
         description: p.d,
         hint: p.h,
+        ...extras,
       });
     }
   }
