@@ -21,8 +21,28 @@ const AuthPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast({ title: "Missing fields", description: "Please fill in all fields", variant: "destructive" });
+    if (!email) {
+      toast({ title: "Missing email", description: "Please enter your email", variant: "destructive" });
+      return;
+    }
+
+    if (forgotMode) {
+      setLoading(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) {
+        toast({ title: "Reset failed", description: error.message, variant: "destructive" });
+      } else {
+        setResetSent(true);
+        toast({ title: "Reset email sent! 📧", description: "Check your inbox for a password reset link." });
+      }
+      setLoading(false);
+      return;
+    }
+
+    if (!password) {
+      toast({ title: "Missing password", description: "Please enter your password", variant: "destructive" });
       return;
     }
     setLoading(true);
