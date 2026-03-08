@@ -95,8 +95,38 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState<{ score: number; total: number; pct: number; grade: ReturnType<typeof getGrade> } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const questions = courseExams[courseId] || [];
+  const SECONDS_PER_QUESTION = 60; // 1 min per question
+
+  const finishExam = useCallback((finalAnswers: (number | null)[]) => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    const score = finalAnswers.reduce((acc, a, i) => acc + (a === questions[i].correctIndex ? 1 : 0), 0);
+    const pct = Math.round((score / questions.length) * 100);
+    const grade = getGrade(pct);
+    setResult({ score, total: questions.length, pct, grade });
+    setShowResult(true);
+    saveResult(score, questions.length, pct, grade.grade, pct >= 50, finalAnswers);
+  }, [questions]);
+
+  useEffect(() => {
+    if (!started || showResult) return;
+    if (timeLeft <= 0 && started) {
+      toast.error("Time's up! Submitting your exam.");
+      finishExam(answers);
+      return;
+    }
+    timerRef.current = setInterval(() => setTimeLeft(t => t - 1), 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [timeLeft, started, showResult]);
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, "0")}`;
+  };
 
   const handleStart = () => {
     setStarted(true);
@@ -105,6 +135,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
     setSelectedOption(null);
     setShowResult(false);
     setResult(null);
+    setTimeLeft(questions.length * SECONDS_PER_QUESTION);
   };
 
   const handleNext = () => {
