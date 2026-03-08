@@ -422,7 +422,7 @@ export default function TeamMatchingPage() {
               onClick={() => setFilter(f)}
               className="text-xs"
             >
-              {f === "all" ? "All Teams" : f === "best-match" ? "Best Match" : "Needs You"}
+              {f === "all" ? "All Teams" : f === "best-match" ? "My Projects" : "Needs You"}
             </Button>
           ))}
         </div>
