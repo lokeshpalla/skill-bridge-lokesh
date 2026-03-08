@@ -223,13 +223,18 @@ const InternshipsPage = () => {
                     </div>
                   )}
 
-                  <Button
-                    variant="hero"
-                    className="w-full h-8 text-xs gap-1"
-                    onClick={() => applyToInternship(intern)}
+                  <a
+                    href={getApplyUrl(intern)}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    <ExternalLink className="w-3 h-3" /> Apply Now
-                  </Button>
+                    <Button
+                      variant="hero"
+                      className="w-full h-8 text-xs gap-1"
+                    >
+                      <ExternalLink className="w-3 h-3" /> Apply Now
+                    </Button>
+                  </a>
                 </motion.div>
               ))}
             </div>
