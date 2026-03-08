@@ -381,16 +381,28 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
         </p>
 
         {result.pct >= 50 ? (
-          <div className="flex items-center justify-center gap-2 text-xs mt-3 mb-4 px-3 py-2 rounded-lg bg-success/10 text-success border border-success/20">
+          <div className="flex items-center justify-center gap-2 text-xs mt-3 mb-2 px-3 py-2 rounded-lg bg-success/10 text-success border border-success/20">
             <Trophy className="w-4 h-4" /> Certificate earned! Check your certificates.
           </div>
         ) : (
-          <div className="flex items-center justify-center gap-2 text-xs mt-3 mb-4 px-3 py-2 rounded-lg bg-destructive/10 text-destructive border border-destructive/20">
+          <div className="flex items-center justify-center gap-2 text-xs mt-3 mb-2 px-3 py-2 rounded-lg bg-destructive/10 text-destructive border border-destructive/20">
             <AlertCircle className="w-4 h-4" /> You need 50% to pass. Try again!
           </div>
         )}
 
-        <Button variant="outline" size="sm" onClick={handleStart}>
+        {/* Proctoring summary */}
+        <div className="mb-4 px-3 py-2 rounded-lg bg-secondary/50 border border-border/30 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 mb-1">
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span className="font-semibold text-foreground">Proctoring Report</span>
+          </div>
+          <div className="flex gap-4">
+            <span>Tab switches: <strong className={proctoring.state.tabSwitchCount > 0 ? "text-destructive" : "text-success"}>{proctoring.state.tabSwitchCount}</strong></span>
+            <span>Copy/paste attempts: <strong className={proctoring.state.copyPasteAttempts > 0 ? "text-destructive" : "text-success"}>{proctoring.state.copyPasteAttempts}</strong></span>
+          </div>
+        </div>
+
+        <Button variant="outline" size="sm" onClick={() => { setProctoringReady(false); handleStart(); }}>
           Retake Exam
         </Button>
       </motion.div>
