@@ -95,7 +95,7 @@ const RecruiterDashboard = () => {
   const [selectedInternship, setSelectedInternship] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPostDialog, setShowPostDialog] = useState(false);
-  const [tab, setTab] = useState<"postings" | "pipeline" | "interviews" | "analytics">("postings");
+  const [tab, setTab] = useState<"postings" | "pipeline" | "interviews" | "analytics" | "ai-match">("postings");
 
   const [form, setForm] = useState({
     title: "", company: "", location: "Remote", duration: "3 months",
