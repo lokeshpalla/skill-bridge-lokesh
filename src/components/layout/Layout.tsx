@@ -4,6 +4,7 @@ import Navbar from "./Navbar";
 import { AppSidebar } from "./AppSidebar";
 import AIAssistant from "@/components/ai/AIAssistant";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 
