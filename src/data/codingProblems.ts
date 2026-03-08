@@ -1,5 +1,11 @@
 // Auto-generated 4000 coding problems across categories and difficulties
 
+export interface ProblemExample {
+  input: string;
+  output: string;
+  explanation?: string;
+}
+
 export interface CodingProblem {
   id: number;
   title: string;
@@ -9,6 +15,9 @@ export interface CodingProblem {
   solved: boolean;
   description: string;
   hint: string;
+  examples: ProblemExample[];
+  constraints: string[];
+  topics: string[];
 }
 
 // Categories with problem templates
