@@ -60,6 +60,11 @@ export default function LiveRoomPage() {
   const [showChat, setShowChat] = useState(true);
   const [showParticipants, setShowParticipants] = useState(false);
   const [joined, setJoined] = useState(false);
+  const [lobbyAudioOn, setLobbyAudioOn] = useState(true);
+  const [lobbyVideoOn, setLobbyVideoOn] = useState(true);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const lobbyVideoRef = useRef<HTMLVideoElement>(null);
+  const lobbyStreamRef = useRef<MediaStream | null>(null);
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
