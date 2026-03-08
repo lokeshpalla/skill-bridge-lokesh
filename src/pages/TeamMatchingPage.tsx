@@ -351,20 +351,6 @@ export default function TeamMatchingPage() {
                   onChange={e => setNewProject({ ...newProject, tech_stack: e.target.value })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Team Size</Label>
-                <Select
-                  value={String(newProject.max_members)}
-                  onValueChange={v => setNewProject({ ...newProject, max_members: parseInt(v) })}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {[2, 3, 4, 5, 6, 8].map(n => (
-                      <SelectItem key={n} value={String(n)}>{n} members</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
               <Button onClick={handleCreate} className="w-full" disabled={!newProject.title.trim()}>
                 Create & Start Recruiting
               </Button>
