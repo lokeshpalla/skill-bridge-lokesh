@@ -18,20 +18,24 @@ const SplashScreen = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState<"enter" | "zoom" | "exit">("enter");
 
+  const [animationDone, setAnimationDone] = useState(false);
+
   useEffect(() => {
     const t1 = setTimeout(() => setPhase("zoom"), 1800);
-    const t2 = setTimeout(() => setPhase("exit"), 3200);
+    const t2 = setTimeout(() => setAnimationDone(true), 3200);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
+  // Only exit once both animation is done AND auth has resolved
   useEffect(() => {
-    if (phase === "exit" && !loading && !rolesLoading) {
+    if (animationDone && !loading && !rolesLoading) {
+      setPhase("exit");
       const t = setTimeout(() => {
         navigate(user ? getRedirectPath() : "/auth", { replace: true });
       }, 600);
       return () => clearTimeout(t);
     }
-  }, [phase, loading, rolesLoading, user, navigate]);
+  }, [animationDone, loading, rolesLoading, user, navigate, getRedirectPath]);
 
   return (
     <AnimatePresence>
