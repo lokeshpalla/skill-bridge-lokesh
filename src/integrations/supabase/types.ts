@@ -14,6 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      badges: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          icon_emoji: string | null
+          id: string
+          name: string
+          requirement_type: string
+          requirement_value: number | null
+          xp_reward: number | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          icon_emoji?: string | null
+          id?: string
+          name: string
+          requirement_type?: string
+          requirement_value?: number | null
+          xp_reward?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          icon_emoji?: string | null
+          id?: string
+          name?: string
+          requirement_type?: string
+          requirement_value?: number | null
+          xp_reward?: number | null
+        }
+        Relationships: []
+      }
+      challenge_participation: {
+        Row: {
+          challenge_id: string
+          completed: boolean
+          completed_at: string | null
+          id: string
+          joined_at: string
+          progress: number
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed?: boolean
+          completed_at?: string | null
+          id?: string
+          joined_at?: string
+          progress?: number
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed?: boolean
+          completed_at?: string | null
+          id?: string
+          joined_at?: string
+          progress?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_participation_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "seasonal_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_conversations: {
         Row: {
           created_at: string
@@ -474,6 +548,85 @@ export type Database = {
           xp?: number
         }
         Relationships: []
+      }
+      seasonal_challenges: {
+        Row: {
+          badge_id: string | null
+          challenge_type: string
+          created_at: string
+          description: string | null
+          ends_at: string
+          icon_emoji: string | null
+          id: string
+          starts_at: string
+          target_value: number
+          title: string
+          xp_reward: number | null
+        }
+        Insert: {
+          badge_id?: string | null
+          challenge_type?: string
+          created_at?: string
+          description?: string | null
+          ends_at: string
+          icon_emoji?: string | null
+          id?: string
+          starts_at: string
+          target_value?: number
+          title: string
+          xp_reward?: number | null
+        }
+        Update: {
+          badge_id?: string | null
+          challenge_type?: string
+          created_at?: string
+          description?: string | null
+          ends_at?: string
+          icon_emoji?: string | null
+          id?: string
+          starts_at?: string
+          target_value?: number
+          title?: string
+          xp_reward?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seasonal_challenges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
