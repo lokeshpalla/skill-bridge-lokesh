@@ -114,6 +114,7 @@ const SettingsPage = () => {
       await supabase.from("profiles").update({ avatar_url: urlWithCache }).eq("user_id", user.id);
       setAvatarUrl(urlWithCache);
       setCropImage(null);
+      await refreshProfile();
       toast.success("Avatar updated!");
     } catch {
       toast.error("Upload failed");
