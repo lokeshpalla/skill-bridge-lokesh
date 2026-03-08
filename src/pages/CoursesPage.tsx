@@ -23,6 +23,7 @@ const difficultyColor: Record<string, string> = {
 
 const CoursesPage = () => {
   const [activeCategory, setActiveCategory] = useState("All");
+  const navigate = useNavigate();
   const filtered = activeCategory === "All" ? courses : courses.filter(c => c.category === activeCategory);
 
   return (
