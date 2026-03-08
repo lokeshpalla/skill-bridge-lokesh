@@ -47,6 +47,7 @@ const MentorsPage = () => {
     title: "", bio: "", company: "", skills: "", hourly_rate: "3000",
   });
   const [regSlots, setRegSlots] = useState<AvailabilitySlot[]>([]);
+  const [regWeeklyPattern, setRegWeeklyPattern] = useState<WeeklyPattern>({});
 
   useEffect(() => {
     fetchMentors();
