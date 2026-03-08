@@ -27,15 +27,16 @@ export function usePushNotifications() {
       // Use service worker registration if available for better PWA support
       if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
         navigator.serviceWorker.ready.then((reg) => {
-          reg.showNotification(title, {
+          const notifOptions: NotificationOptions & Record<string, unknown> = {
             body: options?.body || "",
             icon: options?.icon || "/pwa-192x192.png",
             badge: "/pwa-192x192.png",
             tag: options?.tag || "skillbridge-notification",
-            vibrate: [100, 50, 100] as any,
             data: options?.data,
             requireInteraction: false,
-          });
+          };
+          (notifOptions as any).vibrate = [100, 50, 100];
+          reg.showNotification(title, notifOptions);
         });
       } else {
         // Fallback to basic Notification API
