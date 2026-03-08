@@ -273,6 +273,9 @@ export default function MentorSessionPage() {
                         <SelectItem value="cpp">C++</SelectItem>
                       </SelectContent>
                     </Select>
+                    <button onClick={handleSave} className="w-7 h-7 rounded-md bg-secondary/60 flex items-center justify-center hover:bg-secondary transition-all" title="Save code">
+                      {saved ? <Check className="w-3.5 h-3.5 text-success" /> : <Save className="w-3.5 h-3.5" />}
+                    </button>
                     <button onClick={handleCopy} className="w-7 h-7 rounded-md bg-secondary/60 flex items-center justify-center hover:bg-secondary transition-all" title="Copy code">
                       {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
@@ -287,6 +290,21 @@ export default function MentorSessionPage() {
                     spellCheck={false}
                   />
 
+                  {/* Custom Input */}
+                  <div className="border-t border-border/30">
+                    <div className="flex items-center gap-1.5 p-2 px-3">
+                      <Terminal className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-[10px] font-medium text-muted-foreground">Input</span>
+                    </div>
+                    <Textarea
+                      value={customInput}
+                      onChange={(e) => setCustomInput(e.target.value)}
+                      placeholder="Enter custom input (one value per line)..."
+                      className="resize-none rounded-none border-0 font-mono text-xs leading-relaxed bg-secondary/20 focus-visible:ring-0 focus-visible:ring-offset-0 px-3 pb-2 pt-0 h-16"
+                      spellCheck={false}
+                    />
+                  </div>
+
                   {/* Output panel */}
                   <div className="border-t border-border/30">
                     <div className="flex items-center justify-between p-2 px-3">
@@ -295,7 +313,7 @@ export default function MentorSessionPage() {
                         <Play className="w-3 h-3" /> Run
                       </Button>
                     </div>
-                    <ScrollArea className="h-24">
+                    <ScrollArea className="h-20">
                       <pre className="px-3 pb-2 text-[11px] font-mono text-muted-foreground whitespace-pre-wrap">
                         {output || "Click Run to execute code..."}
                       </pre>
