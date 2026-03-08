@@ -25,13 +25,13 @@ const SplashScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (phase === "exit" && !loading) {
+    if (phase === "exit" && !loading && !rolesLoading) {
       const t = setTimeout(() => {
         navigate(user ? getRedirectPath() : "/auth", { replace: true });
       }, 600);
       return () => clearTimeout(t);
     }
-  }, [phase, loading, user, navigate]);
+  }, [phase, loading, rolesLoading, user, navigate]);
 
   return (
     <AnimatePresence>
