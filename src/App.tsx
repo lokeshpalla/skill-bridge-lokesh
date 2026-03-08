@@ -20,6 +20,7 @@ import CommunityPage from "./pages/CommunityPage";
 import InstallPage from "./pages/InstallPage";
 import InterviewPage from "./pages/InterviewPage";
 import LearningPathsPage from "./pages/LearningPathsPage";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
