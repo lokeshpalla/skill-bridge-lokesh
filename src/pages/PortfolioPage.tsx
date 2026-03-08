@@ -25,6 +25,7 @@ const PortfolioPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [aiChatOpen, setAiChatOpen] = useState(false);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -113,11 +114,16 @@ const PortfolioPage = () => {
           onSave={handleSave}
           onDelete={handleDelete}
           onPreview={() => setPreviewMode(true)}
+          onOpenAI={() => setAiChatOpen(true)}
           saving={saving}
           userId={user?.id}
         />
       )}
-      <PortfolioAIChat portfolioContext={portfolioContext} />
+      <PortfolioAIChat
+        portfolioContext={portfolioContext}
+        externalOpen={aiChatOpen}
+        onExternalOpenChange={setAiChatOpen}
+      />
     </div>
   );
 };

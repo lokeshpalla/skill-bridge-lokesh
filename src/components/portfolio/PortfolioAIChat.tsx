@@ -19,12 +19,25 @@ interface Message {
 
 interface PortfolioAIChatProps {
   portfolioContext: PortfolioContext;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/portfolio-ai`;
 
-const PortfolioAIChat = ({ portfolioContext }: PortfolioAIChatProps) => {
+const PortfolioAIChat = ({ portfolioContext, externalOpen, onExternalOpenChange }: PortfolioAIChatProps) => {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (externalOpen !== undefined) {
+      setOpen(externalOpen);
+    }
+  }, [externalOpen]);
+
+  const handleOpenChange = (val: boolean) => {
+    setOpen(val);
+    onExternalOpenChange?.(val);
+  };
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -131,7 +144,7 @@ const PortfolioAIChat = ({ portfolioContext }: PortfolioAIChatProps) => {
             className="fixed bottom-6 right-6 z-50"
           >
             <Button
-              onClick={() => setOpen(true)}
+              onClick={() => handleOpenChange(true)}
               className="rounded-full w-14 h-14 shadow-lg shadow-primary/20 gap-0"
               variant="default"
             >
@@ -161,7 +174,7 @@ const PortfolioAIChat = ({ portfolioContext }: PortfolioAIChatProps) => {
                   <p className="text-[10px] text-muted-foreground">Customize your portfolio with AI</p>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setOpen(false)}>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenChange(false)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
