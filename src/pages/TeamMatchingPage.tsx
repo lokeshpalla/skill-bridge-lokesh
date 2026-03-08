@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Users, Search, UserPlus, Sparkles, Zap,
-  HandshakeIcon, Plus, Trash2, UserMinus, Eye, Link, Check
+  HandshakeIcon, Plus, Trash2, UserMinus, Eye, Link, Check, GitBranch
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -530,6 +530,16 @@ export default function TeamMatchingPage() {
 
                     {/* Actions */}
                     <div className="flex flex-col gap-2">
+                      {/* View Repo - always visible */}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full text-xs gap-1.5"
+                        onClick={() => navigate(`/teams/${project.id}/repo`)}
+                      >
+                        <GitBranch className="w-3.5 h-3.5" /> View Project Repo
+                      </Button>
+
                       {isOwner ? (
                         <>
                           <Button

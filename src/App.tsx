@@ -27,6 +27,7 @@ import AdminPage from "./pages/AdminPage";
 import RoomsPage from "./pages/RoomsPage";
 import LiveRoomPage from "./pages/LiveRoomPage";
 import TeamMatchingPage from "./pages/TeamMatchingPage";
+import TeamProjectRepoPage from "./pages/TeamProjectRepoPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import PublicPortfolioPage from "./pages/PublicPortfolioPage";
 import CertificatesPage from "./pages/CertificatesPage";
@@ -63,6 +64,7 @@ function AppRoutes() {
         <Route path="/rooms" element={<RoomsPage />} />
         <Route path="/rooms/:id" element={<LiveRoomPage />} />
         <Route path="/teams" element={<TeamMatchingPage />} />
+        <Route path="/teams/:projectId/repo" element={<TeamProjectRepoPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/certificates" element={<CertificatesPage />} />
         <Route path="*" element={<NotFound />} />
