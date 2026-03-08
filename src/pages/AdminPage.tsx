@@ -110,6 +110,7 @@ export default function AdminPage() {
     ["users", "👥 Users", UserCog],
     ["courses", "📚 Courses", GraduationCap],
     ["mentors", "👨‍🏫 Mentors", Users],
+    ["recruiters", "💼 Recruiters", Briefcase],
     ["moderation", "🛡️ Moderation", AlertTriangle],
     ["payouts", "💰 Payouts", IndianRupee],
     ["analytics", "📈 Analytics", TrendingUp],
