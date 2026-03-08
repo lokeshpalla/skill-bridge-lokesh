@@ -6,14 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  Users, Search, UserPlus, Sparkles, Code2, Target,
-  ChevronRight, Plus, Zap, HandshakeIcon
+  Users, Search, UserPlus, Sparkles, Zap,
+  HandshakeIcon, Plus, Trash2, UserMinus, Eye
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -30,6 +30,15 @@ interface GroupProject {
   owner_name?: string;
   member_count?: number;
   skill_match?: number;
+  is_member?: boolean;
+}
+
+interface TeamMember {
+  id: string;
+  user_id: string;
+  role: string;
+  joined_at: string;
+  display_name?: string;
 }
 
 export default function TeamMatchingPage() {
@@ -39,12 +48,16 @@ export default function TeamMatchingPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "best-match" | "needs-you">("all");
-  const [lookingForTeam, setLookingForTeam] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [newProject, setNewProject] = useState({
     title: "", description: "", tech_stack: "", max_members: 4,
   });
   const [joiningId, setJoiningId] = useState<string | null>(null);
+  const [deleteProject, setDeleteProject] = useState<GroupProject | null>(null);
+  const [membersProject, setMembersProject] = useState<GroupProject | null>(null);
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
 
   const userSkills = (profile?.skills || []).map(s => s.toLowerCase());
 
@@ -76,6 +89,17 @@ export default function TeamMatchingPage() {
           .select("*", { count: "exact", head: true })
           .eq("project_id", p.id);
 
+        // Check if current user is already a member
+        let isMember = false;
+        if (user) {
+          const { count: memberCount } = await supabase
+            .from("group_project_members")
+            .select("*", { count: "exact", head: true })
+            .eq("project_id", p.id)
+            .eq("user_id", user.id);
+          isMember = (memberCount || 0) > 0;
+        }
+
         const techLower = (p.tech_stack || []).map((t: string) => t.toLowerCase());
         const matchCount = userSkills.filter(s => techLower.includes(s)).length;
         const skillMatch = techLower.length > 0
@@ -86,8 +110,9 @@ export default function TeamMatchingPage() {
           ...p,
           tech_stack: p.tech_stack || [],
           owner_name: ownerProfile?.display_name || "Unknown",
-          member_count: (count || 0) + 1, // +1 for owner
+          member_count: (count || 0) + 1,
           skill_match: skillMatch,
+          is_member: isMember,
         };
       })
     );
@@ -116,6 +141,45 @@ export default function TeamMatchingPage() {
     setJoiningId(null);
   };
 
+  const handleLeave = async (projectId: string) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from("group_project_members")
+      .delete()
+      .eq("project_id", projectId)
+      .eq("user_id", user.id);
+
+    if (error) {
+      toast.error("Failed to leave team");
+    } else {
+      toast.success("You've left the team");
+      fetchProjects();
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteProject || !user) return;
+    // Delete all members first, then the project
+    await supabase
+      .from("group_project_members")
+      .delete()
+      .eq("project_id", deleteProject.id);
+
+    const { error } = await supabase
+      .from("group_projects")
+      .delete()
+      .eq("id", deleteProject.id)
+      .eq("owner_id", user.id);
+
+    if (error) {
+      toast.error("Failed to delete project");
+    } else {
+      toast.success("Project deleted");
+      fetchProjects();
+    }
+    setDeleteProject(null);
+  };
+
   const handleCreate = async () => {
     if (!user || !newProject.title.trim()) return;
     const techStack = newProject.tech_stack
@@ -123,7 +187,7 @@ export default function TeamMatchingPage() {
       .map(s => s.trim())
       .filter(Boolean);
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("group_projects")
       .insert({
         title: newProject.title.trim(),
@@ -144,6 +208,47 @@ export default function TeamMatchingPage() {
     setCreateOpen(false);
     setNewProject({ title: "", description: "", tech_stack: "", max_members: 4 });
     fetchProjects();
+  };
+
+  const fetchMembers = async (project: GroupProject) => {
+    setMembersProject(project);
+    setMembersLoading(true);
+    const { data } = await supabase
+      .from("group_project_members")
+      .select("*")
+      .eq("project_id", project.id);
+
+    if (data) {
+      const enriched = await Promise.all(
+        data.map(async (m) => {
+          const { data: prof } = await supabase
+            .from("profiles")
+            .select("display_name")
+            .eq("user_id", m.user_id)
+            .single();
+          return { ...m, display_name: prof?.display_name || "Unknown" };
+        })
+      );
+      setMembers(enriched);
+    }
+    setMembersLoading(false);
+  };
+
+  const handleRemoveMember = async (memberId: string, memberUserId: string) => {
+    setRemovingMemberId(memberId);
+    const { error } = await supabase
+      .from("group_project_members")
+      .delete()
+      .eq("id", memberId);
+
+    if (error) {
+      toast.error("Failed to remove member");
+    } else {
+      toast.success("Member removed from team");
+      setMembers(prev => prev.filter(m => m.id !== memberId));
+      fetchProjects();
+    }
+    setRemovingMemberId(null);
   };
 
   const filtered = projects
@@ -343,6 +448,7 @@ export default function TeamMatchingPage() {
           {filtered.map((project, i) => {
             const isFull = project.member_count! >= project.max_members;
             const isOwner = project.owner_id === user?.id;
+            const isMember = project.is_member;
 
             return (
               <motion.div
@@ -362,9 +468,14 @@ export default function TeamMatchingPage() {
                           ? `${project.skill_match}% match`
                           : "No match data"}
                       </Badge>
-                      {isFull && (
-                        <Badge variant="secondary" className="text-xs">Full</Badge>
-                      )}
+                      <div className="flex items-center gap-1">
+                        {isMember && (
+                          <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Joined</Badge>
+                        )}
+                        {isFull && (
+                          <Badge variant="secondary" className="text-xs">Full</Badge>
+                        )}
+                      </div>
                     </div>
                     <CardTitle className="text-base mt-2">{project.title}</CardTitle>
                     {project.description && (
@@ -406,26 +517,56 @@ export default function TeamMatchingPage() {
                       </div>
                     </div>
 
-                    {/* Action */}
-                    <Button
-                      size="sm"
-                      variant={isOwner ? "secondary" : "default"}
-                      className="w-full text-xs gap-1.5"
-                      disabled={isFull || isOwner || joiningId === project.id}
-                      onClick={() => handleJoin(project.id)}
-                    >
+                    {/* Actions */}
+                    <div className="flex flex-col gap-2">
                       {isOwner ? (
-                        "Your Project"
-                      ) : isFull ? (
-                        "Team Full"
-                      ) : joiningId === project.id ? (
-                        "Joining..."
-                      ) : (
                         <>
-                          <UserPlus className="w-3.5 h-3.5" /> Join Team
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="w-full text-xs gap-1.5"
+                            onClick={() => fetchMembers(project)}
+                          >
+                            <Eye className="w-3.5 h-3.5" /> View & Manage Members
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="w-full text-xs gap-1.5"
+                            onClick={() => setDeleteProject(project)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" /> Delete Project
+                          </Button>
                         </>
+                      ) : isMember ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full text-xs gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10"
+                          onClick={() => handleLeave(project.id)}
+                        >
+                          <UserMinus className="w-3.5 h-3.5" /> Leave Team
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="default"
+                          className="w-full text-xs gap-1.5"
+                          disabled={isFull || joiningId === project.id}
+                          onClick={() => handleJoin(project.id)}
+                        >
+                          {isFull ? (
+                            "Team Full"
+                          ) : joiningId === project.id ? (
+                            "Joining..."
+                          ) : (
+                            <>
+                              <UserPlus className="w-3.5 h-3.5" /> Join Team
+                            </>
+                          )}
+                        </Button>
                       )}
-                    </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -433,6 +574,79 @@ export default function TeamMatchingPage() {
           })}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteProject} onOpenChange={(open) => !open && setDeleteProject(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Project</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deleteProject?.title}"? This will remove all team members and cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Members Management Dialog */}
+      <Dialog open={!!membersProject} onOpenChange={(open) => !open && setMembersProject(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Team Members — {membersProject?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-2">
+            {/* Owner */}
+            <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">
+                  👑
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">{membersProject?.owner_name}</p>
+                  <p className="text-xs text-muted-foreground">Team Leader</p>
+                </div>
+              </div>
+            </div>
+
+            {membersLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
+              </div>
+            ) : members.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">No members have joined yet</p>
+            ) : (
+              members.map(member => (
+                <div key={member.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground">
+                      {member.display_name?.charAt(0)?.toUpperCase() || "?"}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{member.display_name}</p>
+                      <p className="text-xs text-muted-foreground capitalize">{member.role}</p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-1 text-xs"
+                    disabled={removingMemberId === member.id}
+                    onClick={() => handleRemoveMember(member.id, member.user_id)}
+                  >
+                    <UserMinus className="w-3.5 h-3.5" />
+                    {removingMemberId === member.id ? "Removing..." : "Remove"}
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
