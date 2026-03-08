@@ -259,6 +259,9 @@ const MentorDashboardPage = () => {
                     <Button variant="ghost" size="sm" className="h-7 text-xs text-destructive gap-1" onClick={() => updateBookingStatus(b.id, "cancelled")}>
                       <XCircle className="w-3 h-3" /> Decline
                     </Button>
+                    <Button variant="outline" size="sm" className="h-7 text-xs gap-1 ml-auto" onClick={() => navigate(`/messages?to=${b.student_id}`)}>
+                      <MessageSquare className="w-3 h-3" /> Message
+                    </Button>
                   </div>
                 )}
                 {b.status === "confirmed" && (
