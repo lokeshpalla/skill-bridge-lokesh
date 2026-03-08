@@ -963,7 +963,6 @@ function generateProblems(): CodingProblem[] {
           hint: p.h,
           ...extras,
         });
-        });
 
         modIdx++;
         if (modIdx % extraDescModifiers.length === 0) varIdx++;
