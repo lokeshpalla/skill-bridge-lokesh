@@ -6,8 +6,10 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
+  roles: string[];
   loading: boolean;
   refreshProfile: () => Promise<void>;
+  getRedirectPath: () => string;
   signUp: (email: string, password: string, displayName: string, phone?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
