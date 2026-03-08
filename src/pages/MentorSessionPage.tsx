@@ -1,15 +1,20 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from "@/components/ui/select";
+import {
   Mic, MicOff, VideoIcon, VideoOff, Monitor, MonitorOff,
-  Phone, Send, MessageSquare, Users, Clock, MoreVertical,
-  Hand, SmilePlus, Settings
+  Phone, Send, MessageSquare, Users, Clock, Code2,
+  Hand, Play, Copy, Check
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 interface ChatMsg {
   id: string;
@@ -18,10 +23,18 @@ interface ChatMsg {
   time: string;
 }
 
+const LANG_TEMPLATES: Record<string, string> = {
+  javascript: `// JavaScript\nfunction solution() {\n  \n}\n`,
+  python: `# Python\ndef solution():\n    pass\n`,
+  typescript: `// TypeScript\nfunction solution(): void {\n  \n}\n`,
+  java: `// Java\npublic class Solution {\n    public static void main(String[] args) {\n        \n    }\n}\n`,
+  cpp: `// C++\n#include <iostream>\nusing namespace std;\n\nint main() {\n    \n    return 0;\n}\n`,
+};
+
 export default function MentorSessionPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, profile } = useAuth();
+  const { profile } = useAuth();
 
   const mentorName = searchParams.get("mentor") || "Mentor";
   const slot = searchParams.get("slot") || "";
@@ -31,22 +44,25 @@ export default function MentorSessionPage() {
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
+  const [showCode, setShowCode] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [messages, setMessages] = useState<ChatMsg[]>([
-    { id: "1", sender: mentorName, text: `Hi! Welcome to the session. Let's get started.`, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) },
+    { id: "1", sender: mentorName, text: "Hi! Welcome to the session. Let's get started.", time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) },
   ]);
   const [elapsed, setElapsed] = useState(0);
   const [handRaised, setHandRaised] = useState(false);
+  const [code, setCode] = useState(LANG_TEMPLATES.javascript);
+  const [language, setLanguage] = useState("javascript");
+  const [copied, setCopied] = useState(false);
+  const [output, setOutput] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // Timer
   useEffect(() => {
     const interval = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Camera
   useEffect(() => {
     if (isVideoOn) {
       navigator.mediaDevices.getUserMedia({ video: true, audio: isMicOn }).then((stream) => {
@@ -57,12 +73,9 @@ export default function MentorSessionPage() {
       streamRef.current?.getTracks().forEach((t) => t.stop());
       if (videoRef.current) videoRef.current.srcObject = null;
     }
-    return () => {
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-    };
+    return () => { streamRef.current?.getTracks().forEach((t) => t.stop()); };
   }, [isVideoOn]);
 
-  // Toggle mic on existing stream
   useEffect(() => {
     streamRef.current?.getAudioTracks().forEach((t) => (t.enabled = isMicOn));
   }, [isMicOn]);
@@ -78,12 +91,7 @@ export default function MentorSessionPage() {
     if (!chatInput.trim()) return;
     setMessages((prev) => [
       ...prev,
-      {
-        id: Date.now().toString(),
-        sender: profile?.display_name || "You",
-        text: chatInput.trim(),
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      },
+      { id: Date.now().toString(), sender: profile?.display_name || "You", text: chatInput.trim(), time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) },
     ]);
     setChatInput("");
   };
@@ -93,7 +101,47 @@ export default function MentorSessionPage() {
     navigate("/mentors");
   };
 
+  const handleLangChange = (lang: string) => {
+    setLanguage(lang);
+    setCode(LANG_TEMPLATES[lang] || "");
+    setOutput("");
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    toast.success("Code copied!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleRun = () => {
+    if (language === "javascript") {
+      try {
+        const logs: string[] = [];
+        const fakeConsole = { log: (...args: any[]) => logs.push(args.map(String).join(" ")), error: (...args: any[]) => logs.push("Error: " + args.map(String).join(" ")) };
+        const fn = new Function("console", code);
+        fn(fakeConsole);
+        setOutput(logs.length ? logs.join("\n") : "(no output)");
+      } catch (e: any) {
+        setOutput("Error: " + e.message);
+      }
+    } else {
+      setOutput(`⚠ Live execution only available for JavaScript.\nShare your ${language} code with your mentor for review.`);
+    }
+  };
+
+  const toggleSidePanel = (panel: "chat" | "participants" | "code") => {
+    if (panel === "chat") {
+      setShowChat(!showChat); setShowParticipants(false); setShowCode(false);
+    } else if (panel === "participants") {
+      setShowParticipants(!showParticipants); setShowChat(false); setShowCode(false);
+    } else {
+      setShowCode(!showCode); setShowChat(false); setShowParticipants(false);
+    }
+  };
+
   const displayName = profile?.display_name || "You";
+  const sidePanelOpen = showChat || showParticipants || showCode;
 
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col bg-[hsl(var(--background))]">
@@ -113,16 +161,13 @@ export default function MentorSessionPage() {
 
       <div className="flex-1 flex overflow-hidden">
         {/* Main video area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 p-4 grid grid-cols-2 gap-3">
-            {/* Mentor video (placeholder) */}
+            {/* Mentor video */}
             <div className="rounded-2xl bg-secondary/30 border border-border/30 flex items-center justify-center relative overflow-hidden">
-              <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center text-5xl">
-                👨‍🏫
-              </div>
+              <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-4xl">👨‍🏫</div>
               <div className="absolute bottom-3 left-3 bg-background/80 backdrop-blur-sm rounded-lg px-2.5 py-1 text-[11px] font-medium flex items-center gap-1.5">
-                <Mic className="w-3 h-3 text-success" />
-                {mentorName}
+                <Mic className="w-3 h-3 text-success" /> {mentorName}
               </div>
             </div>
 
@@ -131,9 +176,7 @@ export default function MentorSessionPage() {
               {isVideoOn ? (
                 <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover rounded-2xl" />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center text-5xl">
-                  🧑‍💻
-                </div>
+                <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-4xl">🧑‍💻</div>
               )}
               <div className="absolute bottom-3 left-3 bg-background/80 backdrop-blur-sm rounded-lg px-2.5 py-1 text-[11px] font-medium flex items-center gap-1.5">
                 {isMicOn ? <Mic className="w-3 h-3 text-success" /> : <MicOff className="w-3 h-3 text-destructive" />}
@@ -148,86 +191,101 @@ export default function MentorSessionPage() {
           </div>
 
           {/* Controls bar */}
-          <div className="flex items-center justify-center gap-2 p-4 border-t border-border/30">
-            <button
-              onClick={() => setIsMicOn(!isMicOn)}
-              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
-                isMicOn ? "bg-secondary/80 text-foreground hover:bg-secondary" : "bg-destructive/20 text-destructive"
-              }`}
-              title={isMicOn ? "Mute" : "Unmute"}
-            >
+          <div className="flex items-center justify-center gap-2 p-3 border-t border-border/30">
+            <ControlBtn active={isMicOn} onClick={() => setIsMicOn(!isMicOn)} title={isMicOn ? "Mute" : "Unmute"}>
               {isMicOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
-            </button>
-
-            <button
-              onClick={() => setIsVideoOn(!isVideoOn)}
-              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
-                isVideoOn ? "bg-secondary/80 text-foreground hover:bg-secondary" : "bg-destructive/20 text-destructive"
-              }`}
-              title={isVideoOn ? "Turn off camera" : "Turn on camera"}
-            >
+            </ControlBtn>
+            <ControlBtn active={isVideoOn} onClick={() => setIsVideoOn(!isVideoOn)} title={isVideoOn ? "Camera off" : "Camera on"}>
               {isVideoOn ? <VideoIcon className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
-            </button>
-
-            <button
-              onClick={() => setIsScreenSharing(!isScreenSharing)}
-              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
-                isScreenSharing ? "bg-primary/20 text-primary" : "bg-secondary/80 text-foreground hover:bg-secondary"
-              }`}
-              title="Share screen"
-            >
+            </ControlBtn>
+            <ControlBtn active={!isScreenSharing} highlight={isScreenSharing} onClick={() => setIsScreenSharing(!isScreenSharing)} title="Screen share">
               {isScreenSharing ? <Monitor className="w-5 h-5" /> : <MonitorOff className="w-5 h-5" />}
-            </button>
-
-            <button
-              onClick={() => setHandRaised(!handRaised)}
-              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
-                handRaised ? "bg-warning/20 text-warning" : "bg-secondary/80 text-foreground hover:bg-secondary"
-              }`}
-              title="Raise hand"
-            >
+            </ControlBtn>
+            <ControlBtn active={!handRaised} highlight={handRaised} color="warning" onClick={() => setHandRaised(!handRaised)} title="Raise hand">
               <Hand className="w-5 h-5" />
-            </button>
+            </ControlBtn>
 
-            <button
-              onClick={() => { setShowChat(!showChat); setShowParticipants(false); }}
-              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
-                showChat ? "bg-primary/20 text-primary" : "bg-secondary/80 text-foreground hover:bg-secondary"
-              }`}
-              title="Chat"
-            >
+            <div className="w-px h-6 bg-border/40 mx-1" />
+
+            <ControlBtn active={!showCode} highlight={showCode} onClick={() => toggleSidePanel("code")} title="Code Editor">
+              <Code2 className="w-5 h-5" />
+            </ControlBtn>
+            <ControlBtn active={!showChat} highlight={showChat} onClick={() => toggleSidePanel("chat")} title="Chat">
               <MessageSquare className="w-5 h-5" />
-            </button>
-
-            <button
-              onClick={() => { setShowParticipants(!showParticipants); setShowChat(false); }}
-              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
-                showParticipants ? "bg-primary/20 text-primary" : "bg-secondary/80 text-foreground hover:bg-secondary"
-              }`}
-              title="Participants"
-            >
+            </ControlBtn>
+            <ControlBtn active={!showParticipants} highlight={showParticipants} onClick={() => toggleSidePanel("participants")} title="Participants">
               <Users className="w-5 h-5" />
-            </button>
+            </ControlBtn>
 
-            <button
-              onClick={endCall}
-              className="w-14 h-11 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:bg-destructive/90 transition-all"
-              title="Leave call"
-            >
+            <div className="w-px h-6 bg-border/40 mx-1" />
+
+            <button onClick={endCall} className="w-14 h-11 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:bg-destructive/90 transition-all" title="Leave call">
               <Phone className="w-5 h-5 rotate-[135deg]" />
             </button>
           </div>
         </div>
 
-        {/* Side panel: Chat or Participants */}
-        {(showChat || showParticipants) && (
+        {/* Side panel */}
+        {sidePanelOpen && (
           <motion.div
             initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 320, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
+            animate={{ width: showCode ? 420 : 320, opacity: 1 }}
             className="border-l border-border/30 bg-card/40 flex flex-col overflow-hidden"
-            style={{ width: 320 }}
+            style={{ width: showCode ? 420 : 320 }}
           >
+            {/* Code Editor Panel */}
+            {showCode && (
+              <div className="flex flex-col h-full">
+                <div className="p-3 border-b border-border/30 flex items-center justify-between">
+                  <span className="text-sm font-semibold flex items-center gap-1.5">
+                    <Code2 className="w-4 h-4 text-primary" /> Code Editor
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <Select value={language} onValueChange={handleLangChange}>
+                      <SelectTrigger className="h-7 w-28 text-[11px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="javascript">JavaScript</SelectItem>
+                        <SelectItem value="typescript">TypeScript</SelectItem>
+                        <SelectItem value="python">Python</SelectItem>
+                        <SelectItem value="java">Java</SelectItem>
+                        <SelectItem value="cpp">C++</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <button onClick={handleCopy} className="w-7 h-7 rounded-md bg-secondary/60 flex items-center justify-center hover:bg-secondary transition-all" title="Copy code">
+                      {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex-1 min-h-0 flex flex-col">
+                  <Textarea
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    className="flex-1 resize-none rounded-none border-0 border-b border-border/30 font-mono text-xs leading-relaxed bg-background/50 focus-visible:ring-0 focus-visible:ring-offset-0 p-3"
+                    spellCheck={false}
+                  />
+
+                  {/* Output panel */}
+                  <div className="border-t border-border/30">
+                    <div className="flex items-center justify-between p-2 px-3">
+                      <span className="text-[10px] font-medium text-muted-foreground">Output</span>
+                      <Button size="sm" variant="hero" className="h-6 text-[10px] gap-1 px-2" onClick={handleRun}>
+                        <Play className="w-3 h-3" /> Run
+                      </Button>
+                    </div>
+                    <ScrollArea className="h-24">
+                      <pre className="px-3 pb-2 text-[11px] font-mono text-muted-foreground whitespace-pre-wrap">
+                        {output || "Click Run to execute code..."}
+                      </pre>
+                    </ScrollArea>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Chat Panel */}
             {showChat && (
               <>
                 <div className="p-3 border-b border-border/30 text-sm font-semibold">Chat</div>
@@ -245,38 +303,25 @@ export default function MentorSessionPage() {
                   </div>
                 </ScrollArea>
                 <div className="p-3 border-t border-border/30 flex gap-2">
-                  <Input
-                    placeholder="Send a message..."
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    className="text-xs h-8"
-                    onKeyDown={(e) => e.key === "Enter" && sendChat()}
-                  />
-                  <Button size="sm" className="h-8 w-8 p-0" onClick={sendChat}>
-                    <Send className="w-3.5 h-3.5" />
-                  </Button>
+                  <Input placeholder="Send a message..." value={chatInput} onChange={(e) => setChatInput(e.target.value)} className="text-xs h-8" onKeyDown={(e) => e.key === "Enter" && sendChat()} />
+                  <Button size="sm" className="h-8 w-8 p-0" onClick={sendChat}><Send className="w-3.5 h-3.5" /></Button>
                 </div>
               </>
             )}
 
+            {/* Participants Panel */}
             {showParticipants && (
               <>
                 <div className="p-3 border-b border-border/30 text-sm font-semibold">Participants (2)</div>
                 <div className="p-3 space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-sm">👨‍🏫</div>
-                    <div>
-                      <p className="text-xs font-medium">{mentorName}</p>
-                      <p className="text-[10px] text-muted-foreground">Mentor • Host</p>
-                    </div>
+                    <div><p className="text-xs font-medium">{mentorName}</p><p className="text-[10px] text-muted-foreground">Mentor • Host</p></div>
                     <Mic className="w-3.5 h-3.5 text-success ml-auto" />
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-sm">🧑‍💻</div>
-                    <div>
-                      <p className="text-xs font-medium">{displayName}</p>
-                      <p className="text-[10px] text-muted-foreground">Student</p>
-                    </div>
+                    <div><p className="text-xs font-medium">{displayName}</p><p className="text-[10px] text-muted-foreground">Student</p></div>
                     {isMicOn ? <Mic className="w-3.5 h-3.5 text-success ml-auto" /> : <MicOff className="w-3.5 h-3.5 text-destructive ml-auto" />}
                   </div>
                 </div>
@@ -287,4 +332,19 @@ export default function MentorSessionPage() {
       </div>
     </div>
   );
+}
+
+// Reusable control button
+function ControlBtn({ active, highlight, color, onClick, title, children }: {
+  active?: boolean; highlight?: boolean; color?: "warning"; onClick: () => void; title: string; children: React.ReactNode;
+}) {
+  const base = "w-11 h-11 rounded-full flex items-center justify-center transition-all";
+  const cls = highlight
+    ? color === "warning"
+      ? `${base} bg-warning/20 text-warning`
+      : `${base} bg-primary/20 text-primary`
+    : active === false
+      ? `${base} bg-destructive/20 text-destructive`
+      : `${base} bg-secondary/80 text-foreground hover:bg-secondary`;
+  return <button onClick={onClick} className={cls} title={title}>{children}</button>;
 }
