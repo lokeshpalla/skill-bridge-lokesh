@@ -36,7 +36,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="pt-16"
+            className={hideNavbar ? "" : "pt-16"}
             role="main"
             aria-label="Page content"
           >
