@@ -672,6 +672,8 @@ export type Database = {
           cover_letter: string | null
           id: string
           internship_id: string
+          portfolio_url: string | null
+          resume_url: string | null
           status: string
           user_id: string
         }
@@ -680,6 +682,8 @@ export type Database = {
           cover_letter?: string | null
           id?: string
           internship_id: string
+          portfolio_url?: string | null
+          resume_url?: string | null
           status?: string
           user_id: string
         }
@@ -688,6 +692,8 @@ export type Database = {
           cover_letter?: string | null
           id?: string
           internship_id?: string
+          portfolio_url?: string | null
+          resume_url?: string | null
           status?: string
           user_id?: string
         }

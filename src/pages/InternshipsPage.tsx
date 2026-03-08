@@ -1,16 +1,20 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
   MapPin, Clock, Search, ExternalLink, Building2,
-  Briefcase, Globe, ArrowUpRight, Filter
+  Briefcase, Globe, ArrowUpRight, Filter, Send, CheckCircle, X
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle
+} from "@/components/ui/dialog";
 
 interface Internship {
   id: string;
@@ -43,10 +47,18 @@ const InternshipsPage = () => {
   const [locationFilter, setLocationFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"platforms" | "posted">("platforms");
+  const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
+
+  // Apply dialog state
+  const [applyDialog, setApplyDialog] = useState<Internship | null>(null);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [portfolioUrl, setPortfolioUrl] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchInternships();
-  }, []);
+    if (user) fetchMyApplications();
+  }, [user]);
 
   const fetchInternships = async () => {
     const { data } = await supabase
@@ -60,6 +72,43 @@ const InternshipsPage = () => {
       })));
     }
     setLoading(false);
+  };
+
+  const fetchMyApplications = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("internship_applications")
+      .select("internship_id")
+      .eq("user_id", user.id);
+    if (data) {
+      setAppliedIds(new Set(data.map((a: any) => a.internship_id)));
+    }
+  };
+
+  const handleApply = async () => {
+    if (!user || !applyDialog) return;
+    setSubmitting(true);
+    const { error } = await supabase.from("internship_applications").insert({
+      internship_id: applyDialog.id,
+      user_id: user.id,
+      cover_letter: coverLetter || null,
+      portfolio_url: portfolioUrl || profile?.portfolio_url || null,
+      status: "applied",
+    });
+    setSubmitting(false);
+    if (error) {
+      if (error.code === "23505") {
+        toast.error("You've already applied to this internship");
+      } else {
+        toast.error("Failed to submit application");
+      }
+      return;
+    }
+    toast.success("Application submitted! 🎉", { description: `You applied to ${applyDialog.title} at ${applyDialog.company}` });
+    setAppliedIds(prev => new Set([...prev, applyDialog.id]));
+    setApplyDialog(null);
+    setCoverLetter("");
+    setPortfolioUrl("");
   };
 
   const getApplyUrl = (intern: Internship) => {
@@ -182,65 +231,133 @@ const InternshipsPage = () => {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
-              {filtered.map((intern, i) => (
-                <motion.div
-                  key={intern.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                  className="rounded-xl border border-border/50 bg-card/60 p-5 hover:border-primary/20 transition-all"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-secondary/80 flex items-center justify-center text-xl">
-                        {intern.logo_emoji || "🏢"}
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-semibold">{intern.title}</h3>
-                        <p className="text-[11px] text-muted-foreground">{intern.company}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {intern.description && (
-                    <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{intern.description}</p>
-                  )}
-
-                  <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-3">
-                    {intern.location && (
-                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{intern.location}</span>
-                    )}
-                    {intern.duration && (
-                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{intern.duration}</span>
-                    )}
-                  </div>
-
-                  {intern.skills_required.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {intern.skills_required.map((s) => (
-                        <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary/80 text-secondary-foreground">{s}</span>
-                      ))}
-                    </div>
-                  )}
-
-                  <a
-                    href={getApplyUrl(intern)}
-                    target="_blank"
-                    rel="noopener noreferrer"
+              {filtered.map((intern, i) => {
+                const hasApplied = appliedIds.has(intern.id);
+                return (
+                  <motion.div
+                    key={intern.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                    className="rounded-xl border border-border/50 bg-card/60 p-5 hover:border-primary/20 transition-all"
                   >
-                    <Button
-                      variant="hero"
-                      className="w-full h-8 text-xs gap-1"
-                    >
-                      <ExternalLink className="w-3 h-3" /> Apply Now
-                    </Button>
-                  </a>
-                </motion.div>
-              ))}
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-secondary/80 flex items-center justify-center text-xl">
+                          {intern.logo_emoji || "🏢"}
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold">{intern.title}</h3>
+                          <p className="text-[11px] text-muted-foreground">{intern.company}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {intern.description && (
+                      <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{intern.description}</p>
+                    )}
+
+                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-3">
+                      {intern.location && (
+                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{intern.location}</span>
+                      )}
+                      {intern.duration && (
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{intern.duration}</span>
+                      )}
+                    </div>
+
+                    {intern.skills_required.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {intern.skills_required.map((s) => (
+                          <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary/80 text-secondary-foreground">{s}</span>
+                        ))}
+                      </div>
+                    )}
+
+                    {hasApplied ? (
+                      <Button variant="outline" className="w-full h-8 text-xs gap-1 text-success border-success/30" disabled>
+                        <CheckCircle className="w-3 h-3" /> Applied
+                      </Button>
+                    ) : user ? (
+                      <Button
+                        variant="hero"
+                        className="w-full h-8 text-xs gap-1"
+                        onClick={() => {
+                          setApplyDialog(intern);
+                          setPortfolioUrl(profile?.portfolio_url || "");
+                        }}
+                      >
+                        <Send className="w-3 h-3" /> Apply In-App
+                      </Button>
+                    ) : (
+                      <a href={getApplyUrl(intern)} target="_blank" rel="noopener noreferrer">
+                        <Button variant="hero" className="w-full h-8 text-xs gap-1">
+                          <ExternalLink className="w-3 h-3" /> Apply Now
+                        </Button>
+                      </a>
+                    )}
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </div>
       )}
+
+      {/* Apply Dialog */}
+      <Dialog open={!!applyDialog} onOpenChange={(open) => { if (!open) setApplyDialog(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Send className="w-4 h-4 text-primary" />
+              Apply to {applyDialog?.title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="rounded-lg bg-secondary/30 border border-border/30 p-3">
+              <div className="flex items-center gap-3">
+                <span className="text-xl">{applyDialog?.logo_emoji || "🏢"}</span>
+                <div>
+                  <p className="text-sm font-semibold">{applyDialog?.title}</p>
+                  <p className="text-[11px] text-muted-foreground">{applyDialog?.company} • {applyDialog?.location}</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-foreground mb-1 block">Cover Letter</label>
+              <Textarea
+                placeholder="Tell the recruiter why you're a great fit for this role..."
+                value={coverLetter}
+                onChange={e => setCoverLetter(e.target.value)}
+                rows={5}
+                className="text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-foreground mb-1 block">Portfolio / Project URL (optional)</label>
+              <Input
+                placeholder="https://your-portfolio.com"
+                value={portfolioUrl}
+                onChange={e => setPortfolioUrl(e.target.value)}
+                className="text-sm"
+              />
+            </div>
+
+            <div className="rounded-lg bg-primary/5 border border-primary/15 p-3">
+              <p className="text-[11px] text-muted-foreground">
+                📋 Your profile (skills, XP, certificates) will be shared with the recruiter automatically.
+              </p>
+            </div>
+
+            <Button variant="hero" className="w-full gap-1.5" onClick={handleApply} disabled={submitting}>
+              <Send className="w-3.5 h-3.5" />
+              {submitting ? "Submitting..." : "Submit Application"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

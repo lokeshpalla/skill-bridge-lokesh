@@ -1,6 +1,6 @@
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
-  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award, MessageSquare, Download, Brain, Compass, Shield, Video, BarChart3, HandshakeIcon
+  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award, MessageSquare, Download, Brain, Compass, Shield, Video, BarChart3, HandshakeIcon, Building2
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate, Link } from "react-router-dom";
@@ -54,11 +54,15 @@ export function AppSidebar() {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isRecruiter, setIsRecruiter] = useState(false);
 
   useEffect(() => {
-    if (!user) { setIsAdmin(false); return; }
-    supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin")
-      .then(({ data }) => setIsAdmin(!!(data && data.length > 0)));
+    if (!user) { setIsAdmin(false); setIsRecruiter(false); return; }
+    supabase.from("user_roles").select("role").eq("user_id", user.id)
+      .then(({ data }) => {
+        setIsAdmin(!!(data && data.some((r: any) => r.role === "admin")));
+        setIsRecruiter(!!(data && data.some((r: any) => r.role === "recruiter" || r.role === "admin")));
+      });
   }, [user]);
 
   const handleSignOut = async () => {
@@ -110,6 +114,7 @@ export function AppSidebar() {
         {renderGroup("Learn", mainItems)}
         {renderGroup("Community", socialItems)}
         {renderGroup("Career", careerItems)}
+        {isRecruiter && renderGroup("Recruiter", [{ title: "Recruiter Dashboard", url: "/recruiter", icon: Building2 }])}
         {isAdmin && renderGroup("Admin", [{ title: "Admin", url: "/admin", icon: Shield }])}
       </SidebarContent>
 
