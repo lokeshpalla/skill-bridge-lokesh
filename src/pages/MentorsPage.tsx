@@ -158,7 +158,7 @@ const MentorsPage = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Search mentors or skills..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 bg-card/60 border-border/50 h-9 text-sm" />
           </div>
-          {user && !isMentor && (
+          {user && !isMentor && !isStudentOnly && (
             <Dialog open={showRegister} onOpenChange={setShowRegister}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-1.5 h-9 whitespace-nowrap">
