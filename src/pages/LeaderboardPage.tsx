@@ -11,6 +11,7 @@ interface LeaderboardUser {
   streak: number;
   level: string;
   avatar: string;
+  avatar_url: string | null;
   user_id: string;
 }
 
@@ -48,7 +49,7 @@ const LeaderboardPage = () => {
     const fetchLeaderboard = async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("user_id, display_name, xp, streak")
+        .select("user_id, display_name, xp, streak, avatar_url")
         .order("xp", { ascending: false })
         .limit(50);
 
@@ -60,6 +61,7 @@ const LeaderboardPage = () => {
           streak: p.streak ?? 0,
           level: getLevel(p.xp ?? 0),
           avatar: getAvatar(i + 1),
+          avatar_url: p.avatar_url ?? null,
           user_id: p.user_id,
         }));
         setLeaderboard(mapped);
@@ -105,7 +107,11 @@ const LeaderboardPage = () => {
               >
                 <div className="relative">
                   {isFirst && <Crown className="w-4 h-4 text-warning absolute -top-5 left-1/2 -translate-x-1/2" />}
-                  <span className="text-2xl">{u.avatar}</span>
+                  {u.avatar_url ? (
+                    <img src={u.avatar_url} alt={u.name} className="w-8 h-8 rounded-full object-cover border-2 border-border" />
+                  ) : (
+                    <span className="text-2xl">{u.avatar}</span>
+                  )}
                 </div>
                 <p className={`text-xs font-semibold text-center truncate w-full mt-1 ${isMe ? "text-primary" : ""}`}>
                   {u.name}{isMe ? " (You)" : ""}
@@ -146,7 +152,11 @@ const LeaderboardPage = () => {
               >
                 <span className={`col-span-1 text-sm ${rankStyle(u.rank)}`}>{u.rank}</span>
                 <div className="col-span-5 flex items-center gap-2">
-                  <span className="text-base">{u.avatar}</span>
+                  {u.avatar_url ? (
+                    <img src={u.avatar_url} alt={u.name} className="w-7 h-7 rounded-full object-cover border border-border" />
+                  ) : (
+                    <span className="text-base">{u.avatar}</span>
+                  )}
                   <span className={`text-xs font-medium truncate ${isMe ? "text-primary font-semibold" : ""}`}>
                     {u.name}{isMe ? " (You)" : ""}
                   </span>
