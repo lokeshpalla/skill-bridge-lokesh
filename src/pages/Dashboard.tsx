@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
+import { DashboardSkeleton } from "@/components/ui/loading-skeletons";
 
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
