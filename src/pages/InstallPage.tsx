@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Download, Smartphone, Wifi, WifiOff, Zap, Shield, Bell, BellRing, Check } from "lucide-react";
+import { Download, Smartphone, Wifi, WifiOff, Zap, Shield, Bell, BellRing, Check, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
