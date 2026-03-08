@@ -58,6 +58,7 @@ const CoursesPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               className="glass-hover rounded-xl overflow-hidden group cursor-pointer"
+              onClick={() => navigate(`/courses/${course.id}`)}
             >
               {/* Card header */}
               <div className="h-32 bg-gradient-card flex items-center justify-center text-5xl relative">
