@@ -104,6 +104,7 @@ export default function AdminPage() {
     ["overview", "📊 Overview", Shield],
     ["users", "👥 Users", UserCog],
     ["moderation", "🛡️ Moderation", AlertTriangle],
+    ["payouts", "💰 Payouts", IndianRupee],
     ["analytics", "📈 Analytics", TrendingUp],
   ] as const;
 
