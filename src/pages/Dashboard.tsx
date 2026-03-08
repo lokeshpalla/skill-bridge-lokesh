@@ -193,12 +193,18 @@ const Dashboard = () => {
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{greeting()}, {displayName} 👋</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {streak > 0 ? "Keep up the streak! You're on fire." : "Start solving problems to build your streak!"}
-          </p>
-        </div>
+import { useEffect, useState, useCallback } from "react";
+import { motion } from "framer-motion";
+import {
+  Flame, BookOpen, Code2, Trophy, Target,
+  Calendar, Award, Zap, ArrowUpRight, Sparkles, Clock
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
+import { DashboardSkeleton } from "@/components/ui/loading-skeletons";
         <Link to="/coding">
           <Button variant="hero" size="sm" className="gap-1.5">
             <Zap className="w-3.5 h-3.5" /> Daily Challenge
