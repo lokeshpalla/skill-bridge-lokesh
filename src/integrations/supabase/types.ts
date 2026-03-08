@@ -994,6 +994,7 @@ export type Database = {
           total_earnings: number | null
           total_sessions: number | null
           user_id: string
+          weekly_pattern: string | null
         }
         Insert: {
           availability_slots?: string[] | null
@@ -1009,6 +1010,7 @@ export type Database = {
           total_earnings?: number | null
           total_sessions?: number | null
           user_id: string
+          weekly_pattern?: string | null
         }
         Update: {
           availability_slots?: string[] | null
@@ -1024,6 +1026,7 @@ export type Database = {
           total_earnings?: number | null
           total_sessions?: number | null
           user_id?: string
+          weekly_pattern?: string | null
         }
         Relationships: []
       }
