@@ -54,7 +54,7 @@ export interface ProjectForm {
   live_url: string;
 }
 
-const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, onOpenAI, saving, userId }: PortfolioFormProps) => {
+const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, onOpenAI, onResume, saving, userId }: PortfolioFormProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
