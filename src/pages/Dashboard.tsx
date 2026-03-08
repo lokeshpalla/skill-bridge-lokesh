@@ -18,9 +18,9 @@ const recentActivity = [
 ];
 
 const activeCourses = [
-  { title: "React & TypeScript", progress: 65, emoji: "🚀", modules: "16/24" },
-  { title: "System Design", progress: 30, emoji: "🏗️", modules: "6/20" },
-  { title: "Full-Stack Node.js", progress: 10, emoji: "🌐", modules: "1/28" },
+  { title: "React & TypeScript", progress: 0, emoji: "🚀", modules: "0/24" },
+  { title: "System Design", progress: 0, emoji: "🏗️", modules: "0/20" },
+  { title: "Full-Stack Node.js", progress: 0, emoji: "🌐", modules: "0/28" },
 ];
 
 const Dashboard = () => {
