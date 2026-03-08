@@ -39,7 +39,7 @@ const MentorsPage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedMentor, setSelectedMentor] = useState<MentorProfile | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
   const [bookingNotes, setBookingNotes] = useState("");
   const [showRegister, setShowRegister] = useState(false);
   const [isMentor, setIsMentor] = useState(false);
