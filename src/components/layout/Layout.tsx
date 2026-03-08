@@ -43,10 +43,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 flex items-center border-b border-border/40 px-4 bg-background/80 backdrop-blur-sm sticky top-0 z-30">
+          <header className="h-14 flex items-center justify-between border-b border-border/40 px-4 bg-background/80 backdrop-blur-sm sticky top-0 z-30">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground">
               <Menu className="w-5 h-5" />
             </SidebarTrigger>
+            <NotificationBell />
           </header>
           <AnimatePresence mode="wait">
             <motion.main
