@@ -175,7 +175,12 @@ const MentorsPage = () => {
                     <Input placeholder="Hourly rate (₹)" type="number" value={regForm.hourly_rate} onChange={e => setRegForm(f => ({ ...f, hourly_rate: e.target.value }))} />
                   </div>
                   <div className="text-xs font-medium text-muted-foreground mb-1">Set your availability:</div>
-                  <MentorAvailabilityCalendar slots={regSlots} onChange={setRegSlots} />
+                  <MentorAvailabilityCalendar
+                    slots={regSlots}
+                    onChange={setRegSlots}
+                    weeklyPattern={regWeeklyPattern}
+                    onWeeklyPatternChange={setRegWeeklyPattern}
+                  />
                   <Button variant="hero" className="w-full" onClick={registerAsMentor} disabled={!regForm.title}>
                     Register as Mentor
                   </Button>
