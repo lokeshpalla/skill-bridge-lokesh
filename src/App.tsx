@@ -27,6 +27,7 @@ import RoomsPage from "./pages/RoomsPage";
 import LiveRoomPage from "./pages/LiveRoomPage";
 import TeamMatchingPage from "./pages/TeamMatchingPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import PublicPortfolioPage from "./pages/PublicPortfolioPage";
 import NotFound from "./pages/NotFound";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
