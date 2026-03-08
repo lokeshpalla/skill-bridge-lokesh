@@ -273,9 +273,8 @@ export default function TeamMatchingPage() {
       return true;
     })
     .filter(p => {
-      // Best Match: Show YOUR projects (as leader) so you can see who might match
-      if (filter === "best-match") return p.owner_id === user?.id;
-      // Needs You: Other teams that need your skills and have open spots
+      if (filter === "best-match") return (p.skill_match || 0) > 0 && (p.member_count ?? 0) < p.max_members;
+      if (filter === "my-projects") return p.owner_id === user?.id;
       if (filter === "needs-you") return p.owner_id !== user?.id && (p.member_count ?? 0) < p.max_members;
       return true;
     })
