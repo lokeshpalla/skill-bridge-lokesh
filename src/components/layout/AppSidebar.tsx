@@ -54,11 +54,15 @@ export function AppSidebar() {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isRecruiter, setIsRecruiter] = useState(false);
 
   useEffect(() => {
-    if (!user) { setIsAdmin(false); return; }
-    supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin")
-      .then(({ data }) => setIsAdmin(!!(data && data.length > 0)));
+    if (!user) { setIsAdmin(false); setIsRecruiter(false); return; }
+    supabase.from("user_roles").select("role").eq("user_id", user.id)
+      .then(({ data }) => {
+        setIsAdmin(!!(data && data.some((r: any) => r.role === "admin")));
+        setIsRecruiter(!!(data && data.some((r: any) => r.role === "recruiter" || r.role === "admin")));
+      });
   }, [user]);
 
   const handleSignOut = async () => {
