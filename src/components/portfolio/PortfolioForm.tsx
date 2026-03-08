@@ -9,7 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Plus, Github, Globe, User, Trash2, Edit2, ExternalLink, FolderKanban, Eye,
+  Plus, Github, Globe, User, Trash2, Edit2, ExternalLink, FolderKanban, Eye, Share2, Copy, Check,
 } from "lucide-react";
 
 interface Profile {
@@ -41,6 +41,7 @@ interface PortfolioFormProps {
   onDelete: (id: string) => Promise<void>;
   onPreview: () => void;
   saving: boolean;
+  userId?: string;
 }
 
 export interface ProjectForm {
@@ -51,12 +52,21 @@ export interface ProjectForm {
   live_url: string;
 }
 
-const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, saving }: PortfolioFormProps) => {
+const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, saving, userId }: PortfolioFormProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [form, setForm] = useState<ProjectForm>({
     title: "", description: "", tech_stack: "", github_url: "", live_url: "",
   });
+
+  const handleShareLink = async () => {
+    if (!userId) return;
+    const url = `${window.location.origin}/portfolio/${userId}`;
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const openCreate = () => {
     setEditingId(null);
@@ -95,6 +105,12 @@ const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, saving 
           </div>
         </div>
         <div className="flex gap-2">
+          {userId && projects.length > 0 && (
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={handleShareLink}>
+              {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+              {copied ? "Copied!" : "Share"}
+            </Button>
+          )}
           {projects.length > 0 && (
             <Button variant="glow" size="sm" className="gap-1.5" onClick={onPreview}>
               <Eye className="w-4 h-4" /> Preview & Download

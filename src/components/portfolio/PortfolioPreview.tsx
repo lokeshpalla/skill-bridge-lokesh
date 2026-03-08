@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Download, Github, Globe, ExternalLink, Mail, Linkedin, ArrowLeft, MapPin, Sparkles, Briefcase } from "lucide-react";
+import { Download, Github, Globe, ExternalLink, Mail, Linkedin, ArrowLeft, Sparkles, Briefcase, Share2, Copy, Check } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
@@ -30,12 +30,22 @@ interface Project {
 interface PortfolioPreviewProps {
   profile: Profile;
   projects: Project[];
-  onBack: () => void;
+  onBack?: () => void;
+  shareUserId?: string;
 }
 
-const PortfolioPreview = ({ profile, projects, onBack }: PortfolioPreviewProps) => {
+const PortfolioPreview = ({ profile, projects, onBack, shareUserId }: PortfolioPreviewProps) => {
   const portfolioRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    if (!shareUserId) return;
+    const url = `${window.location.origin}/portfolio/${shareUserId}`;
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleDownload = async () => {
     if (!portfolioRef.current) return;
@@ -95,19 +105,29 @@ const PortfolioPreview = ({ profile, projects, onBack }: PortfolioPreviewProps) 
         className="flex items-center justify-between sticky top-0 z-50 py-3 px-4 -mx-4 rounded-xl"
         style={{ background: "rgba(5,10,21,0.85)", backdropFilter: "blur(12px)" }}
       >
-        <Button variant="ghost" size="sm" className="gap-1.5" onClick={onBack}>
-          <ArrowLeft className="w-4 h-4" /> Back to Editor
-        </Button>
-        <Button
-          variant="hero"
-          size="sm"
-          className="gap-2"
-          onClick={handleDownload}
-          disabled={downloading}
-        >
-          <Download className="w-4 h-4" />
-          {downloading ? "Generating..." : "Download as PDF"}
-        </Button>
+        {onBack ? (
+          <Button variant="ghost" size="sm" className="gap-1.5" onClick={onBack}>
+            <ArrowLeft className="w-4 h-4" /> Back to Editor
+          </Button>
+        ) : <div />}
+        <div className="flex gap-2">
+          {shareUserId && (
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={handleShare}>
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copied ? "Copied!" : "Copy Link"}
+            </Button>
+          )}
+          <Button
+            variant="hero"
+            size="sm"
+            className="gap-2"
+            onClick={handleDownload}
+            disabled={downloading}
+          >
+            <Download className="w-4 h-4" />
+            {downloading ? "Generating..." : "Download as PDF"}
+          </Button>
+        </div>
       </motion.div>
 
       {/* Full Portfolio Website */}

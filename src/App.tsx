@@ -27,6 +27,7 @@ import RoomsPage from "./pages/RoomsPage";
 import LiveRoomPage from "./pages/LiveRoomPage";
 import TeamMatchingPage from "./pages/TeamMatchingPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import PublicPortfolioPage from "./pages/PublicPortfolioPage";
 import NotFound from "./pages/NotFound";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
@@ -48,6 +49,7 @@ function AppRoutes() {
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/internships" element={<InternshipsPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
+        <Route path="/portfolio/:userId" element={<PublicPortfolioPage />} />
         <Route path="/achievements" element={<AchievementsPage />} />
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/install" element={<InstallPage />} />
