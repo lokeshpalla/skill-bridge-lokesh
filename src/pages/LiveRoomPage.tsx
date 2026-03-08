@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import {
   Mic, MicOff, VideoIcon, VideoOff, Monitor, MonitorOff,
-  Phone, Send, MessageSquare, Users, ChevronRight
+  Phone, Send, MessageSquare, Users, ChevronRight, Link2, Copy, Check, Settings
 } from "lucide-react";
 
 interface Participant {
@@ -60,6 +60,11 @@ export default function LiveRoomPage() {
   const [showChat, setShowChat] = useState(true);
   const [showParticipants, setShowParticipants] = useState(false);
   const [joined, setJoined] = useState(false);
+  const [lobbyAudioOn, setLobbyAudioOn] = useState(true);
+  const [lobbyVideoOn, setLobbyVideoOn] = useState(true);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const lobbyVideoRef = useRef<HTMLVideoElement>(null);
+  const lobbyStreamRef = useRef<MediaStream | null>(null);
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
@@ -362,31 +367,139 @@ export default function LiveRoomPage() {
 
   const remoteParticipants = participants.filter((p) => p.user_id !== user?.id);
 
-  // Pre-join screen
+  // Lobby: start camera preview
+  useEffect(() => {
+    if (joined) return;
+    if (lobbyVideoOn) {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: lobbyAudioOn }).then((stream) => {
+        lobbyStreamRef.current = stream;
+        if (lobbyVideoRef.current) lobbyVideoRef.current.srcObject = stream;
+      }).catch(() => {});
+    } else {
+      lobbyStreamRef.current?.getTracks().forEach((t) => t.stop());
+      if (lobbyVideoRef.current) lobbyVideoRef.current.srcObject = null;
+    }
+    return () => { if (!joined) lobbyStreamRef.current?.getTracks().forEach((t) => t.stop()); };
+  }, [lobbyVideoOn, joined]);
+
+  useEffect(() => {
+    lobbyStreamRef.current?.getAudioTracks().forEach((t) => (t.enabled = lobbyAudioOn));
+  }, [lobbyAudioOn]);
+
+  const copyMeetingLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setLinkCopied(true);
+    toast({ title: "Link copied!", description: "Share this link to invite others." });
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
+  const handleJoin = () => {
+    // Stop lobby stream before joining (joinRoom will get its own stream)
+    lobbyStreamRef.current?.getTracks().forEach((t) => t.stop());
+    setIsAudioOn(lobbyAudioOn);
+    setIsVideoOn(lobbyVideoOn);
+    joinRoom();
+  };
+
+  // Pre-join lobby — Google Meet style
   if (!joined) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-6 px-4">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center">
-          <VideoIcon className="w-8 h-8 text-primary-foreground" />
-        </div>
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground">{room?.name || "Loading..."}</h1>
-          {room?.description && <p className="text-muted-foreground mt-1">{room.description}</p>}
-          {room?.topic && <Badge variant="outline" className="mt-2">{room.topic}</Badge>}
-        </div>
-        <div className="w-80 aspect-video bg-card rounded-xl border border-border/50 overflow-hidden relative">
-          <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover scale-x-[-1]" />
-          <p className="absolute bottom-2 left-2 text-xs text-foreground/70 bg-background/60 px-2 py-0.5 rounded">
-            Camera preview
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button onClick={joinRoom} size="lg" className="gap-2">
-            <VideoIcon className="w-4 h-4" /> Join Room
-          </Button>
-          <Button onClick={() => navigate("/rooms")} variant="secondary" size="lg">
-            Back
-          </Button>
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-6">
+        <div className="grid lg:grid-cols-5 gap-8 max-w-5xl w-full items-center">
+          {/* Left: Camera preview */}
+          <div className="lg:col-span-3 space-y-4">
+            <div className="relative w-full aspect-video bg-secondary/30 rounded-2xl border border-border/30 overflow-hidden">
+              {lobbyVideoOn ? (
+                <video ref={lobbyVideoRef} autoPlay muted playsInline className="w-full h-full object-cover scale-x-[-1] rounded-2xl" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center text-5xl font-bold text-primary">
+                    {(profile?.display_name || "U").charAt(0).toUpperCase()}
+                  </div>
+                </div>
+              )}
+
+              {/* Overlay controls */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
+                <button
+                  onClick={() => setLobbyAudioOn(!lobbyAudioOn)}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                    lobbyAudioOn
+                      ? "bg-secondary/90 text-foreground hover:bg-secondary"
+                      : "bg-destructive text-destructive-foreground"
+                  }`}
+                  title={lobbyAudioOn ? "Mute microphone" : "Unmute microphone"}
+                >
+                  {lobbyAudioOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+                </button>
+                <button
+                  onClick={() => setLobbyVideoOn(!lobbyVideoOn)}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                    lobbyVideoOn
+                      ? "bg-secondary/90 text-foreground hover:bg-secondary"
+                      : "bg-destructive text-destructive-foreground"
+                  }`}
+                  title={lobbyVideoOn ? "Turn off camera" : "Turn on camera"}
+                >
+                  {lobbyVideoOn ? <VideoIcon className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
+                </button>
+              </div>
+
+              {/* Status indicators */}
+              <div className="absolute top-4 left-4 flex items-center gap-2">
+                {!lobbyAudioOn && (
+                  <span className="bg-destructive/90 text-destructive-foreground text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
+                    <MicOff className="w-3 h-3" /> Mic off
+                  </span>
+                )}
+                {!lobbyVideoOn && (
+                  <span className="bg-destructive/90 text-destructive-foreground text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
+                    <VideoOff className="w-3 h-3" /> Camera off
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Room info & Join */}
+          <div className="lg:col-span-2 space-y-5">
+            <div className="space-y-2">
+              <h1 className="text-xl font-bold">{room?.name || "Loading..."}</h1>
+              {room?.description && (
+                <p className="text-sm text-muted-foreground">{room.description}</p>
+              )}
+              {room?.topic && (
+                <Badge variant="outline" className="text-xs">{room.topic}</Badge>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Joining as</p>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/40 border border-border/30">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-lg font-bold text-primary">
+                  {(profile?.display_name || "U").charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-sm font-medium">{profile?.display_name || "User"}</p>
+                  <p className="text-[11px] text-muted-foreground">{profile?.email}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Button variant="hero" size="lg" className="w-full gap-2" onClick={handleJoin}>
+                Join Now
+              </Button>
+              <Button variant="outline" size="sm" className="w-full gap-2 text-xs" onClick={copyMeetingLink}>
+                {linkCopied ? <Check className="w-3.5 h-3.5" /> : <Link2 className="w-3.5 h-3.5" />}
+                {linkCopied ? "Link Copied!" : "Copy meeting link"}
+              </Button>
+            </div>
+
+            <p className="text-[11px] text-muted-foreground text-center">
+              Your mic and camera can be changed during the meeting
+            </p>
+          </div>
         </div>
       </div>
     );
