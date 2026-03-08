@@ -1,14 +1,22 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { Mail, Lock, User, Eye, EyeOff, Sparkles, Loader2, Phone } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Lock, User, Eye, EyeOff, Sparkles, Loader2, Phone, GraduationCap, Briefcase, Search, Shield, Info } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
+const roles = [
+  { key: "student", label: "Student", icon: GraduationCap, desc: "Learn, code & grow", color: "hsl(var(--primary))" },
+  { key: "mentor", label: "Mentor", icon: Briefcase, desc: "Guide & teach", color: "hsl(187 100% 42%)" },
+  { key: "recruiter", label: "Recruiter", icon: Search, desc: "Hire talent", color: "hsl(262 80% 55%)" },
+  { key: "admin", label: "Admin", icon: Shield, desc: "Manage platform", color: "hsl(0 72% 55%)" },
+] as const;
+
 const AuthPage = () => {
   const [mode, setMode] = useState<"login" | "register">("login");
+  const [selectedRole, setSelectedRole] = useState<string>("student");
   const [showPw, setShowPw] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +27,8 @@ const AuthPage = () => {
   const [resetSent, setResetSent] = useState(false);
   const { signIn, signUp, getRedirectPath } = useAuth();
   const navigate = useNavigate();
+
+  const activeRole = roles.find(r => r.key === selectedRole)!;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,8 +63,7 @@ const AuthPage = () => {
       if (error) {
         toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
       } else {
-        toast({ title: "Welcome back! 👋" });
-        // Small delay to let roles load
+        toast({ title: `Welcome back, ${activeRole.label}! 👋` });
         setTimeout(() => {
           navigate(getRedirectPath());
         }, 500);
@@ -76,7 +85,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero relative">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-hero relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.02]" style={{
         backgroundImage: "linear-gradient(hsl(187 100% 50%) 1px, transparent 1px), linear-gradient(90deg, hsl(187 100% 50%) 1px, transparent 1px)",
         backgroundSize: "40px 40px"
@@ -85,10 +94,11 @@ const AuthPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md mx-4"
+        className="w-full max-w-lg mx-4"
       >
         <div className="glass rounded-2xl p-8 shadow-card">
-          <div className="text-center mb-8">
+          {/* Header */}
+          <div className="text-center mb-6">
             <Link to="/" className="inline-flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-primary-foreground" />
@@ -98,10 +108,62 @@ const AuthPage = () => {
               {forgotMode ? "Reset Password" : mode === "login" ? "Welcome back" : "Create account"}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {forgotMode ? "We'll send you a reset link" : mode === "login" ? "Sign in to continue learning" : "Start your journey today"}
+              {forgotMode ? "We'll send you a reset link" : mode === "login" ? "Select your role and sign in" : "Start your journey today"}
             </p>
           </div>
 
+          {/* Role Selector — visible on login */}
+          {mode === "login" && !forgotMode && (
+            <div className="mb-6">
+              <p className="text-xs font-medium text-muted-foreground mb-3 text-center uppercase tracking-wider">I am a</p>
+              <div className="grid grid-cols-4 gap-2">
+                {roles.map((role) => {
+                  const Icon = role.icon;
+                  const isActive = selectedRole === role.key;
+                  return (
+                    <motion.button
+                      key={role.key}
+                      type="button"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => setSelectedRole(role.key)}
+                      className={`relative flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-200 ${
+                        isActive
+                          ? "border-primary bg-primary/10 shadow-md"
+                          : "border-border/50 bg-secondary/50 hover:border-primary/30 hover:bg-secondary"
+                      }`}
+                    >
+                      <div
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
+                          isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        <Icon className="w-4.5 h-4.5" />
+                      </div>
+                      <span className={`text-xs font-semibold ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
+                        {role.label}
+                      </span>
+                      {isActive && (
+                        <motion.div
+                          layoutId="roleIndicator"
+                          className="absolute -bottom-px left-2 right-2 h-0.5 bg-primary rounded-full"
+                        />
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+              {/* Info note */}
+              <div className="flex items-start gap-2 mt-3 p-2.5 rounded-lg bg-muted/50 border border-border/30">
+                <Info className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  All roles use the <strong>same login</strong>. Your dashboard will match your assigned role automatically. New users start as Students.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Sign In / Sign Up toggle */}
           {!forgotMode && (
             <div className="flex bg-secondary rounded-lg p-1 mb-6">
               {(["login", "register"] as const).map((m) => (
@@ -201,8 +263,28 @@ const AuthPage = () => {
               )}
 
               <Button variant="hero" className="w-full py-3" type="submit" disabled={loading}>
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : forgotMode ? "Send Reset Link" : mode === "login" ? "Sign In" : "Create Account"}
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : forgotMode ? (
+                  "Send Reset Link"
+                ) : mode === "login" ? (
+                  <span className="flex items-center gap-2">
+                    Sign In as {activeRole.label}
+                    <activeRole.icon className="w-4 h-4" />
+                  </span>
+                ) : (
+                  "Create Account"
+                )}
               </Button>
+
+              {mode === "register" && !forgotMode && (
+                <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted/50 border border-border/30">
+                  <Info className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    All new accounts start as <strong>Student</strong>. You can become a Mentor from the Mentors page. Recruiter & Admin roles are assigned by admins.
+                  </p>
+                </div>
+              )}
             </form>
           )}
 
