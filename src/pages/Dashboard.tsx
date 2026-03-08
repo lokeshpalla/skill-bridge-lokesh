@@ -436,6 +436,17 @@ const Dashboard = () => {
         )}
       </motion.div>
 
+      {/* Upcoming Sessions & Recommendations */}
+      {user && (
+        <div className="grid lg:grid-cols-2 gap-4">
+          <UpcomingSessions userId={user.id} />
+          <StudentRecommendations userId={user.id} skills={profile?.skills || []} />
+        </div>
+      )}
+
+      {/* Badges */}
+      {user && <BadgesEarned userId={user.id} />}
+
       {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
