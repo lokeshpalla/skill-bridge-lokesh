@@ -236,6 +236,9 @@ export default function AdminPage() {
       {/* Mentors Tab */}
       {tab === "mentors" && <AdminMentorManagement />}
 
+      {/* Recruiters Tab */}
+      {tab === "recruiters" && <AdminRecruiterManagement />}
+
       {/* Payouts Tab */}
       {tab === "payouts" && <AdminPayouts />}
 

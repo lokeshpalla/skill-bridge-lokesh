@@ -65,6 +65,24 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+
+      if (body.action === "delete_internship") {
+        // Delete applications first, then the internship
+        await supabase.from("internship_applications").delete().eq("internship_id", body.internship_id);
+        const { error } = await supabase.from("internships").delete().eq("id", body.internship_id);
+        if (error) throw error;
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (body.action === "update_application_status") {
+        const { error } = await supabase.from("internship_applications").update({ status: body.new_status }).eq("id", body.application_id);
+        if (error) throw error;
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     // Gather stats in parallel
