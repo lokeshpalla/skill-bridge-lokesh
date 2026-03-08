@@ -98,11 +98,8 @@ const MentorsPage = () => {
     });
     if (error) { toast.error("Failed to register"); return; }
 
-    // Update user role to mentor
-    const { data: existingRole } = await supabase.from("user_roles").select("id").eq("user_id", user.id).eq("role", "mentor").maybeSingle();
-    if (!existingRole) {
-      await supabase.from("user_roles").insert({ user_id: user.id, role: "mentor" as any });
-    }
+    // Assign mentor role via secure DB function
+    await supabase.rpc("register_as_mentor", { _user_id: user.id });
 
     toast.success("You're now a mentor! 🎉");
     setShowRegister(false);
