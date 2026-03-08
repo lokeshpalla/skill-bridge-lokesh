@@ -51,6 +51,7 @@ const App = () => (
               <Route path="/interview" element={<InterviewPage />} />
               <Route path="/paths" element={<LearningPathsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/admin" element={<AdminPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
