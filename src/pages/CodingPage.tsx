@@ -99,30 +99,87 @@ const CodingPage = () => {
   const runCode = () => {
     setRunning(true);
     setActiveTab("output");
-    setOutput("⏳ Compiling & running...");
+    setOutput("⏳ Running...");
     setTimerActive(false);
 
     setTimeout(() => {
       setRunning(false);
-      if (customInput.trim()) {
-        // Run with custom input
-        try {
-          // eslint-disable-next-line no-new-func
-          const fn = new Function("input", `${code}\nreturn typeof solution === 'function' ? solution(input) : 'No solution function found';`);
-          const result = fn(customInput.trim());
-          setOutput(
-            `📥 Custom Input:\n${customInput.trim()}\n\n📤 Output:\n${String(result)}\n\nRuntime: ${Math.floor(Math.random() * 20 + 2)}ms | Language: ${language.label}`
-          );
-        } catch (e) {
-          setOutput(`❌ Error:\n${(e as Error).message}`);
+      const startTime = performance.now();
+      try {
+        // Capture console.log output
+        const logs: string[] = [];
+        const mockConsole = {
+          log: (...args: unknown[]) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')),
+          warn: (...args: unknown[]) => logs.push('⚠️ ' + args.map(a => String(a)).join(' ')),
+          error: (...args: unknown[]) => logs.push('❌ ' + args.map(a => String(a)).join(' ')),
+        };
+
+        let execCode = code;
+
+        // If custom input provided, make it available as `input` variable
+        const inputVal = customInput.trim();
+        let parsedInput: unknown = inputVal;
+        if (inputVal) {
+          try { parsedInput = JSON.parse(inputVal); } catch { parsedInput = inputVal; }
         }
-      } else {
-        // Run with default test cases
-        setOutput(
-          `✅ All test cases passed! (${language.label})\n\nTest 1: Passed ✓\nTest 2: Passed ✓\nTest 3: Passed ✓\n\nRuntime: ${Math.floor(Math.random() * 20 + 2)}ms | Memory: ${(Math.random() * 20 + 30).toFixed(1)}MB\nLanguage: ${language.label}`
-        );
+
+        // eslint-disable-next-line no-new-func
+        const fn = new Function('console', 'input', `
+          ${execCode}
+          // Try to detect and call common function patterns
+          const __allFns = [];
+          ${execCode.match(/function\s+(\w+)/g)?.map(m => {
+            const name = m.replace('function ', '');
+            return `try { if (typeof ${name} === 'function' && '${name}' !== 'solution') __allFns.push({name: '${name}', fn: ${name}}); } catch(e) {}`;
+          })?.join('\n') || ''}
+          try { if (typeof solution === 'function') __allFns.unshift({name: 'solution', fn: solution}); } catch(e) {}
+          
+          let __result;
+          if (__allFns.length > 0) {
+            const __main = __allFns[0];
+            try {
+              if (arguments[1] !== undefined && arguments[1] !== '') {
+                const __input = arguments[1];
+                if (Array.isArray(__input)) {
+                  __result = __main.fn(...__input);
+                } else {
+                  __result = __main.fn(__input);
+                }
+              } else {
+                __result = __main.fn();
+              }
+            } catch(e) {
+              __result = '❌ ' + e.message;
+            }
+          }
+          return { logs: undefined, result: __result };
+        `);
+
+        const execResult = fn(mockConsole, parsedInput);
+        const elapsed = (performance.now() - startTime).toFixed(1);
+
+        const parts: string[] = [];
+        if (inputVal) {
+          parts.push(`📥 Input:\n${inputVal}`);
+        }
+        if (logs.length > 0) {
+          parts.push(`📋 Console Output:\n${logs.join('\n')}`);
+        }
+        if (execResult?.result !== undefined) {
+          const resultStr = typeof execResult.result === 'object' 
+            ? JSON.stringify(execResult.result, null, 2) 
+            : String(execResult.result);
+          parts.push(`📤 Return Value:\n${resultStr}`);
+        } else if (logs.length === 0) {
+          parts.push(`📤 Output:\n(no return value or console output)`);
+        }
+        parts.push(`\n⏱ Runtime: ${elapsed}ms | Language: ${language.label}`);
+        setOutput(parts.join('\n\n'));
+      } catch (e) {
+        const elapsed = (performance.now() - startTime).toFixed(1);
+        setOutput(`❌ Error:\n${(e as Error).message}\n\n⏱ Runtime: ${elapsed}ms`);
       }
-    }, 1200);
+    }, 300);
   };
 
   return (
