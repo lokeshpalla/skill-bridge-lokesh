@@ -119,7 +119,7 @@ const Index = () => {
       </section>
 
       {/* ─── STATS ─── */}
-      <section className="py-16 bg-background">
+      <section className="py-16 bg-background" aria-label="Platform statistics">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, i) => (
