@@ -14,6 +14,7 @@ const mentors = [
 ];
 
 const MentorsPage = () => {
+  const [booked, setBooked] = useState<Set<number>>(new Set());
   return (
     <div className="min-h-screen py-8">
       <div className="container">
