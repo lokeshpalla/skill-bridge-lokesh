@@ -1,11 +1,12 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
-  LayoutDashboard, Menu, X, Sparkles
+  LayoutDashboard, Menu, X, Sparkles, LogOut, User
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -19,7 +20,14 @@ const navItems = [
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, profile, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50">
@@ -33,7 +41,6 @@ const Navbar = () => {
           </span>
         </Link>
 
-        {/* Desktop nav */}
         <div className="hidden lg:flex items-center gap-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -54,12 +61,25 @@ const Navbar = () => {
         </div>
 
         <div className="hidden lg:flex items-center gap-2">
-          <Link to="/auth">
-            <Button variant="glow" size="sm">Sign In</Button>
-          </Link>
+          {user ? (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
+                  <User className="w-4 h-4 text-primary-foreground" />
+                </div>
+                <span className="text-sm font-medium">{profile?.display_name || "User"}</span>
+              </div>
+              <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign out">
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          ) : (
+            <Link to="/auth">
+              <Button variant="glow" size="sm">Sign In</Button>
+            </Link>
+          )}
         </div>
 
-        {/* Mobile toggle */}
         <Button
           variant="ghost"
           size="icon"
@@ -70,7 +90,6 @@ const Navbar = () => {
         </Button>
       </div>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -95,9 +114,15 @@ const Navbar = () => {
                   </Link>
                 );
               })}
-              <Link to="/auth" onClick={() => setMobileOpen(false)}>
-                <Button variant="hero" className="w-full mt-2">Sign In</Button>
-              </Link>
+              {user ? (
+                <Button variant="secondary" className="w-full mt-2" onClick={() => { handleSignOut(); setMobileOpen(false); }}>
+                  <LogOut className="w-4 h-4 mr-2" /> Sign Out
+                </Button>
+              ) : (
+                <Link to="/auth" onClick={() => setMobileOpen(false)}>
+                  <Button variant="hero" className="w-full mt-2">Sign In</Button>
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

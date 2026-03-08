@@ -1,12 +1,52 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, Eye, EyeOff, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Mail, Lock, User, Eye, EyeOff, Sparkles, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
 
 const AuthPage = () => {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [showPw, setShowPw] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { signIn, signUp } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast({ title: "Missing fields", description: "Please fill in all fields", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+
+    if (mode === "login") {
+      const { error } = await signIn(email, password);
+      if (error) {
+        toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Welcome back! 👋" });
+        navigate("/dashboard");
+      }
+    } else {
+      if (!name) {
+        toast({ title: "Name required", description: "Please enter your name", variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+      const { error } = await signUp(email, password, name);
+      if (error) {
+        toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Account created! 🎉", description: "Check your email to verify your account." });
+      }
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-hero relative">
@@ -35,7 +75,6 @@ const AuthPage = () => {
             </p>
           </div>
 
-          {/* Tabs */}
           <div className="flex bg-secondary rounded-lg p-1 mb-6">
             {(["login", "register"] as const).map((m) => (
               <button
@@ -50,13 +89,15 @@ const AuthPage = () => {
             ))}
           </div>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             {mode === "register" && (
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Full name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="w-full bg-secondary rounded-lg pl-10 pr-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
                 />
               </div>
@@ -67,6 +108,8 @@ const AuthPage = () => {
               <input
                 type="email"
                 placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-secondary rounded-lg pl-10 pr-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
               />
             </div>
@@ -76,6 +119,8 @@ const AuthPage = () => {
               <input
                 type={showPw ? "text" : "password"}
                 placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-secondary rounded-lg pl-10 pr-10 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
               />
               <button
@@ -87,8 +132,8 @@ const AuthPage = () => {
               </button>
             </div>
 
-            <Button variant="hero" className="w-full py-3" type="submit">
-              {mode === "login" ? "Sign In" : "Create Account"}
+            <Button variant="hero" className="w-full py-3" type="submit" disabled={loading}>
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : mode === "login" ? "Sign In" : "Create Account"}
             </Button>
           </form>
 
