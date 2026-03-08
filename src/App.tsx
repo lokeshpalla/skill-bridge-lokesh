@@ -36,6 +36,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
 import TalentBrowsePage from "./pages/TalentBrowsePage";
 import MessagesPage from "./pages/MessagesPage";
+import MentorDashboardPage from "./pages/MentorDashboardPage";
 import NotFound from "./pages/NotFound";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
