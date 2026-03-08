@@ -152,7 +152,11 @@ const LeaderboardPage = () => {
               >
                 <span className={`col-span-1 text-sm ${rankStyle(u.rank)}`}>{u.rank}</span>
                 <div className="col-span-5 flex items-center gap-2">
-                  <span className="text-base">{u.avatar}</span>
+                  {u.avatar_url ? (
+                    <img src={u.avatar_url} alt={u.name} className="w-7 h-7 rounded-full object-cover border border-border" />
+                  ) : (
+                    <span className="text-base">{u.avatar}</span>
+                  )}
                   <span className={`text-xs font-medium truncate ${isMe ? "text-primary font-semibold" : ""}`}>
                     {u.name}{isMe ? " (You)" : ""}
                   </span>
