@@ -92,6 +92,7 @@ const PortfolioPage = () => {
           profile={profile}
           projects={projects}
           onBack={() => setPreviewMode(false)}
+          shareUserId={user?.id}
         />
       ) : (
         <PortfolioForm
