@@ -5,8 +5,7 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+
 import {
   Sidebar,
   SidebarContent,
@@ -51,21 +50,11 @@ const careerItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, roles, signOut } = useAuth();
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isRecruiter, setIsRecruiter] = useState(false);
-  const [isMentor, setIsMentor] = useState(false);
-
-  useEffect(() => {
-    if (!user) { setIsAdmin(false); setIsRecruiter(false); setIsMentor(false); return; }
-    supabase.from("user_roles").select("role").eq("user_id", user.id)
-      .then(({ data }) => {
-        setIsAdmin(!!(data && data.some((r: any) => r.role === "admin")));
-        setIsRecruiter(!!(data && data.some((r: any) => r.role === "recruiter" || r.role === "admin")));
-        setIsMentor(!!(data && data.some((r: any) => r.role === "mentor")));
-      });
-  }, [user]);
+  const isAdmin = roles.includes("admin");
+  const isRecruiter = roles.includes("recruiter") || isAdmin;
+  const isMentor = roles.includes("mentor");
 
   const handleSignOut = async () => {
     await signOut();

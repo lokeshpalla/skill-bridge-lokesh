@@ -40,24 +40,19 @@ const CHART_COLORS = [
 ];
 
 export default function AdminPage() {
-  const { user, session } = useAuth();
+  const { user, session, roles } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = roles.includes("admin");
   const [tab, setTab] = useState<"overview" | "users" | "moderation" | "analytics" | "payouts" | "courses" | "mentors" | "announcements" | "recruiters" | "subscriptions">("overview");
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
-    const checkAdmin = async () => {
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin");
-      if (!data || data.length === 0) { setError("Admin access required"); setLoading(false); return; }
-      setIsAdmin(true);
-      fetchStats();
-    };
-    checkAdmin();
-  }, [user]);
+    if (!isAdmin) { setError("Admin access required"); setLoading(false); return; }
+    fetchStats();
+  }, [user, isAdmin]);
 
   const fetchStats = async () => {
     try {
