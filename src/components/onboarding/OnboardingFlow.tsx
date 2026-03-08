@@ -32,7 +32,7 @@ interface OnboardingProps {
   onComplete: () => void;
 }
 
-export default function OnboardingFlow({ onComplete }: OnboardingProps) {
+const OnboardingFlow = forwardRef<HTMLDivElement, OnboardingProps>(function OnboardingFlow({ onComplete }, ref) {
   const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
