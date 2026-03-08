@@ -10,6 +10,7 @@ interface ExamQuestion {
   question: string;
   options: string[];
   correctIndex: number;
+  codeSnippet?: string;
 }
 
 interface CourseExamProps {
@@ -18,62 +19,62 @@ interface CourseExamProps {
   onCertificateEarned: () => void;
 }
 
-// Exam questions per course
+// Exam questions per course — coding-focused with code snippets
 const courseExams: Record<number, ExamQuestion[]> = {
   1: [
-    { question: "What is the main benefit of using TypeScript with React?", options: ["Faster runtime", "Static type checking", "Smaller bundle size", "No need for JSX"], correctIndex: 1 },
-    { question: "Which hook is used to manage state in a functional component?", options: ["useEffect", "useRef", "useState", "useContext"], correctIndex: 2 },
-    { question: "What does useEffect's dependency array do?", options: ["Controls when the effect re-runs", "Defines state variables", "Sets default props", "Handles errors"], correctIndex: 0 },
-    { question: "How do you type props in a React TypeScript component?", options: ["Using PropTypes", "Using an interface or type alias", "Using var declarations", "Props don't need types"], correctIndex: 1 },
-    { question: "What is a custom hook?", options: ["A built-in React API", "A function starting with 'use' that shares logic", "A CSS framework", "A testing utility"], correctIndex: 1 },
-    { question: "Which is NOT a valid React hook rule?", options: ["Call hooks at the top level", "Call hooks in loops or conditions", "Call hooks from React functions", "Call hooks from custom hooks"], correctIndex: 1 },
-    { question: "What does React.memo() do?", options: ["Stores data in localStorage", "Memoizes a component to prevent re-renders", "Creates a new state", "Handles routing"], correctIndex: 1 },
-    { question: "What is Context API used for?", options: ["Routing", "State management without prop drilling", "API calls", "Styling"], correctIndex: 1 },
-    { question: "What does the 'key' prop help React do?", options: ["Style elements", "Identify which items changed in a list", "Create new components", "Handle events"], correctIndex: 1 },
-    { question: "Which tool is used for testing React components?", options: ["Webpack", "Babel", "Vitest/Jest", "ESLint"], correctIndex: 2 },
+    { question: "What will this component render?", codeSnippet: `const App = () => {\n  const [count, setCount] = useState(0);\n  return <p>{count}</p>;\n};`, options: ["undefined", "0", "null", "Error"], correctIndex: 1 },
+    { question: "What is the type of 'name' in this code?", codeSnippet: `interface Props {\n  name: string;\n  age?: number;\n}\nconst Greet = ({ name }: Props) => <h1>{name}</h1>;`, options: ["any", "string", "string | undefined", "unknown"], correctIndex: 1 },
+    { question: "What's wrong with this code?", codeSnippet: `const App = () => {\n  if (true) {\n    const [val, setVal] = useState(0);\n  }\n  return <div />;\n};`, options: ["Nothing wrong", "Hook called inside condition", "Missing return type", "Wrong import"], correctIndex: 1 },
+    { question: "What does this useEffect do?", codeSnippet: `useEffect(() => {\n  console.log("hello");\n  return () => console.log("bye");\n}, []);`, options: ["Runs on every render", "Runs once, cleans up on unmount", "Runs only on unmount", "Never runs"], correctIndex: 1 },
+    { question: "What will console.log output?", codeSnippet: `const nums: number[] = [1, 2, 3];\nconst doubled = nums.map(n => n * 2);\nconsole.log(doubled);`, options: ["[1, 2, 3]", "[2, 4, 6]", "[1, 4, 9]", "Error"], correctIndex: 1 },
+    { question: "What does this custom hook return?", codeSnippet: `function useToggle(init: boolean) {\n  const [val, setVal] = useState(init);\n  const toggle = () => setVal(v => !v);\n  return [val, toggle] as const;\n}`, options: ["A boolean", "An object", "A readonly tuple [boolean, function]", "undefined"], correctIndex: 2 },
+    { question: "What will this render?", codeSnippet: `const items = ["a", "b", "c"];\nreturn (\n  <ul>\n    {items.map(i => <li key={i}>{i.toUpperCase()}</li>)}\n  </ul>\n);`, options: ["a, b, c", "A, B, C", "Error: toUpperCase is not a function", "Nothing"], correctIndex: 1 },
+    { question: "What's the issue with this code?", codeSnippet: `const App = () => {\n  const ref = useRef<HTMLInputElement>(null);\n  ref.current.focus();\n  return <input ref={ref} />;\n};`, options: ["Wrong ref type", "ref.current may be null", "Missing useEffect", "Both B and C"], correctIndex: 3 },
+    { question: "What pattern does this implement?", codeSnippet: `const ThemeContext = createContext("light");\nconst App = () => (\n  <ThemeContext.Provider value="dark">\n    <Child />\n  </ThemeContext.Provider>\n);`, options: ["Higher-Order Component", "Render Props", "Context Provider pattern", "Observer pattern"], correctIndex: 2 },
+    { question: "What will this test check?", codeSnippet: `test("renders greeting", () => {\n  render(<Greet name="Ada" />);\n  expect(screen.getByText("Hello, Ada")).toBeInTheDocument();\n});`, options: ["Component renders with correct text", "Component handles clicks", "Component unmounts", "API response"], correctIndex: 0 },
   ],
   2: [
-    { question: "What is Python's primary data structure for ordered collections?", options: ["Dictionary", "Set", "List", "Tuple"], correctIndex: 2 },
-    { question: "Which library is used for numerical computing in Python?", options: ["Pandas", "NumPy", "Matplotlib", "Flask"], correctIndex: 1 },
-    { question: "What does a Pandas DataFrame represent?", options: ["A single value", "A 2D labeled data structure", "A graph", "A function"], correctIndex: 1 },
-    { question: "How do you create a NumPy array?", options: ["np.array()", "np.list()", "np.create()", "np.new()"], correctIndex: 0 },
-    { question: "Which method reads a CSV file in Pandas?", options: ["pd.open_csv()", "pd.read_csv()", "pd.load_csv()", "pd.csv()"], correctIndex: 1 },
-    { question: "What does matplotlib.pyplot.show() do?", options: ["Saves a file", "Displays the plot", "Clears the plot", "Creates data"], correctIndex: 1 },
-    { question: "What is a Python dictionary?", options: ["Ordered list", "Key-value pair collection", "A module", "A class"], correctIndex: 1 },
-    { question: "Which keyword defines a function in Python?", options: ["function", "func", "def", "fn"], correctIndex: 2 },
+    { question: "What does this code output?", codeSnippet: `x = [1, 2, 3, 4, 5]\nprint(x[1:3])`, options: ["[1, 2, 3]", "[2, 3]", "[2, 3, 4]", "[1, 2]"], correctIndex: 1 },
+    { question: "What is the output?", codeSnippet: `import numpy as np\narr = np.array([1, 2, 3])\nprint(arr * 2)`, options: ["[1, 2, 3, 1, 2, 3]", "[2, 4, 6]", "Error", "[1, 4, 9]"], correctIndex: 1 },
+    { question: "What does this return?", codeSnippet: `d = {"a": 1, "b": 2, "c": 3}\nprint(d.get("x", 0))`, options: ["None", "Error: KeyError", "0", "x"], correctIndex: 2 },
+    { question: "What does this code create?", codeSnippet: `import pandas as pd\ndf = pd.DataFrame({\n  "name": ["Alice", "Bob"],\n  "age": [25, 30]\n})\nprint(df.shape)`, options: ["(2,)", "(2, 2)", "(1, 2)", "Error"], correctIndex: 1 },
+    { question: "What will this print?", codeSnippet: `nums = [1, 2, 3, 4, 5]\nresult = list(filter(lambda x: x % 2 == 0, nums))\nprint(result)`, options: ["[1, 3, 5]", "[2, 4]", "[1, 2, 3, 4, 5]", "Error"], correctIndex: 1 },
+    { question: "What does this function return for f(3)?", codeSnippet: `def f(n):\n    if n <= 1:\n        return n\n    return f(n-1) + f(n-2)`, options: ["3", "2", "1", "5"], correctIndex: 1 },
+    { question: "What does this list comprehension produce?", codeSnippet: `result = [x**2 for x in range(5) if x % 2 != 0]\nprint(result)`, options: ["[0, 1, 4, 9, 16]", "[1, 9]", "[1, 4, 9]", "[0, 4, 16]"], correctIndex: 1 },
+    { question: "What is the output?", codeSnippet: `s = "hello world"\nprint(s.split()[0].capitalize())`, options: ["Hello", "hello", "HELLO", "Hello world"], correctIndex: 0 },
   ],
   3: [
-    { question: "What is horizontal scaling?", options: ["Adding more RAM", "Adding more servers", "Using a bigger CPU", "Reducing code size"], correctIndex: 1 },
-    { question: "What does a load balancer do?", options: ["Stores data", "Distributes traffic across servers", "Compiles code", "Monitors logs"], correctIndex: 1 },
-    { question: "What is database sharding?", options: ["Deleting old data", "Splitting data across databases", "Encrypting data", "Backing up data"], correctIndex: 1 },
-    { question: "What is a CDN?", options: ["Central Data Node", "Content Delivery Network", "Cloud Database Network", "Cache Data Node"], correctIndex: 1 },
-    { question: "What is the CAP theorem about?", options: ["CPU, API, Protocol", "Consistency, Availability, Partition tolerance", "Cache, Access, Performance", "Code, Architecture, Patterns"], correctIndex: 1 },
-    { question: "What is a microservices architecture?", options: ["One large application", "Small, independent services", "A database design", "A testing framework"], correctIndex: 1 },
+    { question: "What pattern does this pseudocode describe?", codeSnippet: `client -> load_balancer\nload_balancer -> server_1\nload_balancer -> server_2\nload_balancer -> server_3`, options: ["Database sharding", "Load balancing", "Caching", "Message queue"], correctIndex: 1 },
+    { question: "What caching strategy does this implement?", codeSnippet: `def get_data(key):\n    data = cache.get(key)\n    if data is None:\n        data = db.query(key)\n        cache.set(key, data, ttl=300)\n    return data`, options: ["Write-through", "Cache-aside (Lazy loading)", "Write-behind", "Read-through"], correctIndex: 1 },
+    { question: "What does this SQL achieve?", codeSnippet: `-- Users table partitioned by region\nCREATE TABLE users_us (...) -- shard 1\nCREATE TABLE users_eu (...) -- shard 2\nCREATE TABLE users_asia (...) -- shard 3`, options: ["Replication", "Horizontal sharding", "Vertical partitioning", "Normalization"], correctIndex: 1 },
+    { question: "What rate limiting algorithm is this?", codeSnippet: `class RateLimiter:\n    def __init__(self, capacity, rate):\n        self.tokens = capacity\n        self.capacity = capacity\n        self.rate = rate\n    def allow(self):\n        self.tokens = min(self.capacity, self.tokens + self.rate)\n        if self.tokens >= 1:\n            self.tokens -= 1\n            return True\n        return False`, options: ["Fixed window", "Sliding window", "Token bucket", "Leaky bucket"], correctIndex: 2 },
+    { question: "What consistency model does this represent?", codeSnippet: `# Write to primary DB\nprimary.write(data)\n# Async replicate to replicas\nfor replica in replicas:\n    queue.send(replica, data)`, options: ["Strong consistency", "Eventual consistency", "Causal consistency", "Linearizability"], correctIndex: 1 },
+    { question: "What pattern is this?", codeSnippet: `class CircuitBreaker:\n    def call(self, fn):\n        if self.state == "OPEN":\n            raise ServiceUnavailable\n        try:\n            result = fn()\n            self.reset()\n            return result\n        except:\n            self.failures += 1\n            if self.failures > threshold:\n                self.state = "OPEN"`, options: ["Retry pattern", "Circuit breaker", "Bulkhead", "Saga pattern"], correctIndex: 1 },
   ],
   4: [
-    { question: "What is the time complexity of binary search?", options: ["O(n)", "O(log n)", "O(n²)", "O(1)"], correctIndex: 1 },
-    { question: "Which data structure uses LIFO?", options: ["Queue", "Array", "Stack", "Linked List"], correctIndex: 2 },
-    { question: "What is a linked list?", options: ["An array with indices", "Nodes connected by pointers", "A hash table", "A tree structure"], correctIndex: 1 },
-    { question: "What is Big O notation?", options: ["A programming language", "A way to describe algorithm efficiency", "A data structure", "A design pattern"], correctIndex: 1 },
-    { question: "Which sorting algorithm has O(n log n) average case?", options: ["Bubble Sort", "Selection Sort", "Merge Sort", "Insertion Sort"], correctIndex: 2 },
-    { question: "What is dynamic programming?", options: ["Real-time programming", "Breaking problems into overlapping subproblems", "Object-oriented design", "Functional programming"], correctIndex: 1 },
-    { question: "What is a hash table's average lookup time?", options: ["O(n)", "O(log n)", "O(1)", "O(n²)"], correctIndex: 2 },
-    { question: "What traversal visits root, left, right?", options: ["Inorder", "Preorder", "Postorder", "Level-order"], correctIndex: 1 },
+    { question: "What does this function return for [2,7,11,15] and target=9?", codeSnippet: `function twoSum(nums, target) {\n  const map = {};\n  for (let i = 0; i < nums.length; i++) {\n    const comp = target - nums[i];\n    if (map[comp] !== undefined) return [map[comp], i];\n    map[nums[i]] = i;\n  }\n}`, options: ["[0, 1]", "[1, 2]", "[0, 2]", "undefined"], correctIndex: 0 },
+    { question: "What is the time complexity of this code?", codeSnippet: `function search(arr, target) {\n  let lo = 0, hi = arr.length - 1;\n  while (lo <= hi) {\n    const mid = Math.floor((lo + hi) / 2);\n    if (arr[mid] === target) return mid;\n    else if (arr[mid] < target) lo = mid + 1;\n    else hi = mid - 1;\n  }\n  return -1;\n}`, options: ["O(n)", "O(log n)", "O(n log n)", "O(1)"], correctIndex: 1 },
+    { question: "What data structure is implemented here?", codeSnippet: `class Node {\n  constructor(val) {\n    this.val = val;\n    this.next = null;\n  }\n}\nclass Structure {\n  push(val) { /* add to top */ }\n  pop() { /* remove from top */ }\n  peek() { /* view top */ }\n}`, options: ["Queue", "Stack", "Linked List", "Heap"], correctIndex: 1 },
+    { question: "What does this function compute?", codeSnippet: `function mystery(n, memo = {}) {\n  if (n <= 1) return n;\n  if (memo[n]) return memo[n];\n  memo[n] = mystery(n-1, memo) + mystery(n-2, memo);\n  return memo[n];\n}`, options: ["Factorial", "Fibonacci with memoization", "Power of 2", "Sum of digits"], correctIndex: 1 },
+    { question: "What sorting algorithm is this?", codeSnippet: `function sort(arr) {\n  if (arr.length <= 1) return arr;\n  const mid = Math.floor(arr.length / 2);\n  const left = sort(arr.slice(0, mid));\n  const right = sort(arr.slice(mid));\n  return merge(left, right);\n}`, options: ["Quick Sort", "Merge Sort", "Heap Sort", "Bubble Sort"], correctIndex: 1 },
+    { question: "What traversal order does this print?", codeSnippet: `function traverse(node) {\n  if (!node) return;\n  traverse(node.left);\n  console.log(node.val);\n  traverse(node.right);\n}`, options: ["Preorder", "Inorder", "Postorder", "Level-order"], correctIndex: 1 },
+    { question: "What will this return for 'racecar'?", codeSnippet: `function check(s) {\n  let l = 0, r = s.length - 1;\n  while (l < r) {\n    if (s[l] !== s[r]) return false;\n    l++; r--;\n  }\n  return true;\n}`, options: ["false", "true", "undefined", "Error"], correctIndex: 1 },
+    { question: "What is the space complexity of this BFS?", codeSnippet: `function bfs(root) {\n  const queue = [root];\n  while (queue.length) {\n    const node = queue.shift();\n    if (node.left) queue.push(node.left);\n    if (node.right) queue.push(node.right);\n  }\n}`, options: ["O(1)", "O(log n)", "O(n)", "O(n²)"], correctIndex: 2 },
   ],
   5: [
-    { question: "What does AWS stand for?", options: ["Advanced Web Systems", "Amazon Web Services", "Automated Web Solutions", "Azure Web Services"], correctIndex: 1 },
-    { question: "Which AWS service provides virtual servers?", options: ["S3", "EC2", "RDS", "Lambda"], correctIndex: 1 },
-    { question: "What is AWS S3 used for?", options: ["Compute", "Object storage", "Database", "Networking"], correctIndex: 1 },
-    { question: "What is AWS Lambda?", options: ["A database", "Serverless compute", "A CDN", "A load balancer"], correctIndex: 1 },
-    { question: "What is the AWS shared responsibility model?", options: ["AWS handles everything", "Customer handles everything", "AWS secures infra, customer secures data/apps", "No security needed"], correctIndex: 2 },
+    { question: "What AWS service does this config use?", codeSnippet: `resource "aws_instance" "web" {\n  ami           = "ami-0c55b159"\n  instance_type = "t2.micro"\n  tags = { Name = "WebServer" }\n}`, options: ["S3", "EC2", "Lambda", "RDS"], correctIndex: 1 },
+    { question: "What does this Lambda function do?", codeSnippet: `exports.handler = async (event) => {\n  const name = event.queryStringParameters?.name || "World";\n  return {\n    statusCode: 200,\n    body: JSON.stringify({ message: \`Hello, \${name}!\` })\n  };\n};`, options: ["Writes to database", "Returns a greeting API response", "Sends an email", "Processes a file"], correctIndex: 1 },
+    { question: "What S3 operation is this?", codeSnippet: `aws s3 cp ./build s3://my-bucket/ --recursive\naws cloudfront create-invalidation \\\n  --distribution-id E1234 \\\n  --paths "/*"`, options: ["Backup database", "Deploy static website", "Upload Lambda code", "Create VPC"], correctIndex: 1 },
+    { question: "What does this IAM policy allow?", codeSnippet: `{\n  "Effect": "Allow",\n  "Action": [\n    "s3:GetObject",\n    "s3:PutObject"\n  ],\n  "Resource": "arn:aws:s3:::my-bucket/*"\n}`, options: ["Full AWS access", "Read & write to a specific S3 bucket", "Delete S3 objects", "Create new buckets"], correctIndex: 1 },
+    { question: "What type of scaling is configured here?", codeSnippet: `resource "aws_autoscaling_group" "web" {\n  min_size         = 2\n  max_size         = 10\n  desired_capacity = 4\n  target_group_arns = [aws_lb_target_group.web.arn]\n}`, options: ["Vertical scaling", "Horizontal auto-scaling", "Manual scaling", "Database scaling"], correctIndex: 1 },
   ],
   6: [
-    { question: "What is Node.js?", options: ["A browser", "A JavaScript runtime built on V8", "A database", "A CSS framework"], correctIndex: 1 },
-    { question: "What does Express.js provide?", options: ["Database ORM", "Web application framework", "Testing tools", "Build tools"], correctIndex: 1 },
-    { question: "What is middleware in Express?", options: ["A database", "Functions that process requests", "A template engine", "A router"], correctIndex: 1 },
-    { question: "What does JWT stand for?", options: ["JavaScript Web Tool", "JSON Web Token", "Java Web Type", "Just Web Tech"], correctIndex: 1 },
-    { question: "What is REST?", options: ["A database", "An architectural style for APIs", "A programming language", "A testing framework"], correctIndex: 1 },
-    { question: "Which HTTP method is used to update a resource?", options: ["GET", "POST", "PUT", "DELETE"], correctIndex: 2 },
+    { question: "What does this Express route return?", codeSnippet: `app.get("/api/users/:id", async (req, res) => {\n  const user = await db.query(\n    "SELECT * FROM users WHERE id = $1",\n    [req.params.id]\n  );\n  res.json(user.rows[0]);\n});`, options: ["All users", "A single user by ID", "User count", "Error"], correctIndex: 1 },
+    { question: "What does this middleware do?", codeSnippet: `const auth = (req, res, next) => {\n  const token = req.headers.authorization?.split(" ")[1];\n  if (!token) return res.status(401).json({ error: "No token" });\n  try {\n    req.user = jwt.verify(token, SECRET);\n    next();\n  } catch {\n    res.status(403).json({ error: "Invalid token" });\n  }\n};`, options: ["Logs requests", "Validates JWT authentication", "Parses request body", "Handles CORS"], correctIndex: 1 },
+    { question: "What SQL operation does this perform?", codeSnippet: `app.post("/api/posts", auth, async (req, res) => {\n  const { title, content } = req.body;\n  const result = await db.query(\n    "INSERT INTO posts (title, content, author_id) VALUES ($1, $2, $3) RETURNING *",\n    [title, content, req.user.id]\n  );\n  res.status(201).json(result.rows[0]);\n});`, options: ["SELECT", "INSERT with parameterized query", "UPDATE", "DELETE"], correctIndex: 1 },
+    { question: "What does this code hash?", codeSnippet: `const bcrypt = require("bcrypt");\n\nasync function register(email, password) {\n  const salt = await bcrypt.genSalt(10);\n  const hash = await bcrypt.hash(password, salt);\n  await db.query(\n    "INSERT INTO users (email, password) VALUES ($1, $2)",\n    [email, hash]\n  );\n}`, options: ["The email", "The password before storing", "The user ID", "The database connection"], correctIndex: 1 },
+    { question: "What HTTP status does this return on success?", codeSnippet: `app.delete("/api/posts/:id", auth, async (req, res) => {\n  await db.query("DELETE FROM posts WHERE id = $1 AND author_id = $2",\n    [req.params.id, req.user.id]);\n  res.status(204).send();\n});`, options: ["200 OK", "201 Created", "204 No Content", "404 Not Found"], correctIndex: 2 },
+    { question: "What does this Dockerfile create?", codeSnippet: `FROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --only=production\nCOPY . .\nEXPOSE 3000\nCMD ["node", "server.js"]`, options: ["A database container", "A production Node.js container", "A test environment", "A static site"], correctIndex: 1 },
   ],
 };
 
