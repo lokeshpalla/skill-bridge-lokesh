@@ -243,4 +243,6 @@ const OnboardingFlow = forwardRef<HTMLDivElement, OnboardingProps>(function Onbo
       </div>
     </div>
   );
-}
+});
+
+export default OnboardingFlow;
