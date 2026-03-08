@@ -127,6 +127,7 @@ const SettingsPage = () => {
     setUploading(true);
     await supabase.from("profiles").update({ avatar_url: null }).eq("user_id", user.id);
     setAvatarUrl(null);
+    await refreshProfile();
     setUploading(false);
     toast.success("Avatar removed");
   };
