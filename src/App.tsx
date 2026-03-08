@@ -47,6 +47,7 @@ function AppRoutes() {
         <Route path="/" element={<SplashScreen />} />
         <Route path="/landing" element={<Index />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<CourseDetail />} />
