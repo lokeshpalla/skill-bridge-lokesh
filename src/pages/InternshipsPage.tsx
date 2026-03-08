@@ -22,7 +22,7 @@ interface Internship {
   skills_required: string[];
   logo_emoji: string | null;
   created_at: string;
-  applied?: boolean;
+  apply_url: string | null;
 }
 
 const externalPlatforms = [
@@ -39,7 +39,6 @@ const externalPlatforms = [
 const InternshipsPage = () => {
   const { user, profile } = useAuth();
   const [internships, setInternships] = useState<Internship[]>([]);
-  const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [locationFilter, setLocationFilter] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -47,8 +46,7 @@ const InternshipsPage = () => {
 
   useEffect(() => {
     fetchInternships();
-    if (user) fetchApplications();
-  }, [user]);
+  }, []);
 
   const fetchInternships = async () => {
     const { data } = await supabase
@@ -64,27 +62,14 @@ const InternshipsPage = () => {
     setLoading(false);
   };
 
-  const fetchApplications = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from("internship_applications")
-      .select("internship_id")
-      .eq("user_id", user.id);
-    if (data) setAppliedIds(new Set(data.map((a: any) => a.internship_id)));
-  };
-
-  const applyToInternship = async (internshipId: string, company: string) => {
-    if (!user) return toast.error("Sign in to apply");
-    const { error } = await supabase.from("internship_applications").insert({
-      user_id: user.id,
-      internship_id: internshipId,
-    });
-    if (error) {
-      if (error.code === "23505") return toast.info("Already applied!");
-      return toast.error("Failed to apply");
+  const applyToInternship = (intern: Internship) => {
+    if (intern.apply_url) {
+      window.open(intern.apply_url, "_blank", "noopener,noreferrer");
+    } else {
+      // Fallback: search for the internship on Google
+      const query = encodeURIComponent(`${intern.company} ${intern.title} internship apply`);
+      window.open(`https://www.google.com/search?q=${query}`, "_blank", "noopener,noreferrer");
     }
-    setAppliedIds(prev => new Set(prev).add(internshipId));
-    toast.success(`Application sent to ${company}!`);
   };
 
   const filtered = internships.filter(i => {
@@ -243,12 +228,11 @@ const InternshipsPage = () => {
                   )}
 
                   <Button
-                    variant={appliedIds.has(intern.id) ? "secondary" : "hero"}
-                    className="w-full h-8 text-xs"
-                    disabled={appliedIds.has(intern.id)}
-                    onClick={() => applyToInternship(intern.id, intern.company)}
+                    variant="hero"
+                    className="w-full h-8 text-xs gap-1"
+                    onClick={() => applyToInternship(intern)}
                   >
-                    {appliedIds.has(intern.id) ? "✅ Applied" : "Apply Now"}
+                    <ExternalLink className="w-3 h-3" /> Apply Now
                   </Button>
                 </motion.div>
               ))}
