@@ -29,6 +29,7 @@ const mainItems = [
 const socialItems = [
   { title: "Mentors", url: "/mentors", icon: Users },
   { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
+  { title: "Achievements", url: "/achievements", icon: Award },
 ];
 
 const careerItems = [
