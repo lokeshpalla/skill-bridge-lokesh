@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Github, Linkedin, Save, Loader2, Star, GitFork, Import,
-  ExternalLink, User, Globe, Check, Camera, Trash2
+  ExternalLink, User, Globe, Check, Camera, Trash2, Crop, X, ZoomIn
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import Cropper, { Area } from "react-easy-crop";
 
 interface GitHubRepo {
   name: string;
