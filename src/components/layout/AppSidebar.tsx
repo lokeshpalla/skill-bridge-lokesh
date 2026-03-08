@@ -37,7 +37,7 @@ const socialItems = [
   { title: "Find a Team", url: "/teams", icon: HandshakeIcon },
   
   { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
-  { title: "Achievements", url: "/achievements", icon: Award },
+  
   { title: "Certificates", url: "/certificates", icon: Award },
 ];
 
