@@ -6,8 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { SubscriptionProvider } from "@/hooks/useSubscription";
-import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import Layout from "@/components/layout/Layout";
 import SplashScreen from "./pages/SplashScreen";
 import { PageLoadingFallback } from "@/components/ui/loading-skeletons";
