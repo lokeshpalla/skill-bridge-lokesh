@@ -92,17 +92,15 @@ function AppRoutes() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <SubscriptionProvider>
-        <TooltipProvider>
-          <ErrorBoundary>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AppRoutes />
-            </BrowserRouter>
-          </ErrorBoundary>
-        </TooltipProvider>
-      </SubscriptionProvider>
+      <TooltipProvider>
+        <ErrorBoundary>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </ErrorBoundary>
+      </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

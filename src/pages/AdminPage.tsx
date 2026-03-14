@@ -245,8 +245,6 @@ export default function AdminPage() {
       {/* Analytics Tab */}
       {tab === "analytics" && <AdminAnalytics />}
 
-      {/* Subscriptions Tab */}
-      {tab === "subscriptions" && <AdminSubscriptions />}
     </div>
   );
 }
