@@ -12,57 +12,186 @@ interface ModuleViewerProps {
   onComplete: () => void;
 }
 
-// Curated YouTube videos mapped to course modules
-const moduleVideos: Record<number, string[]> = {
-  1: [ // React & TypeScript
-    "SqcY0GlETPk", // React TS intro
-    "TPACABQTHvM", // Component patterns
-    "O6P86uwfdR0", // useState & useEffect
-    "Jl4q2cccwf0", // Custom hooks
-    "5LrDIWkK_Bc", // Context API
-    "Ul3y1LXxzdU", // React Router
-    "SdzMBWT2CDQ", // Forms
-    "bYFYF2GnMy8", // API integration
-    "0ZJgIjIuY7U", // Performance
-    "7dTTFW7yACQ", // Testing
-  ],
-  2: [ // Python Data Science
-    "kqtD5dpn9C8", // Python basics
-    "gOMW_n2-2Mw", // Data types
-    "9Os0o3wzS_I", // Functions
-    "eg4xgjJQbS0", // NumPy
-    "2uvysYbKdjM", // Pandas
-    "UO98lJQ3QGI", // Data visualization
-  ],
-  3: [ // System Design
-    "Y-Gl4HEyeUQ", // Scalability
-    "K0Ta65OqQkY", // Load balancing
-    "ztHopE5Wnpc", // Database design
-    "U3RkDLtS7uY", // Caching
-    "rv4LlmLmVWk", // Microservices
-  ],
-  4: [ // DSA JavaScript
-    "orV1aMgfHEo", // Arrays & Strings
-    "Hj_rA0dhr2I", // Linked lists
-    "1AJ4ldKvASY", // Stacks & Queues
-    "i_Q0v_Ct5lY", // Trees & Graphs
-    "g-PGLbMth_g", // Sorting
-    "oBt53YbR9Kk", // Dynamic programming
-  ],
-  5: [ // AWS
-    "ulprqHHWlng", // Cloud concepts
-    "JIbIYCM48to", // AWS services
-    "i-xDbPRzfyA", // Security
-    "DSiOT7EZKIY", // Billing
-  ],
-  6: [ // Full-Stack Node.js
-    "Oe421EPjeBE", // Node fundamentals
-    "SccSCuHhOw0", // Express
-    "ldYcgPKEZC8", // PostgreSQL
-    "mbsmsi7l3r4", // Auth & JWT
-    "fgTGADljAMg", // REST API
-    "AXjD7ceS4F8", // Deployment
-  ],
+// Curated YouTube videos mapped by module title keywords
+// Each entry: [keyword in module title] → YouTube video ID
+const videoByModuleTitle: Record<string, string> = {
+  // ── JavaScript Fundamentals ──
+  "variables & types": "edlFjlzxkSI",         // JS variables explained
+  "functions & scope": "iLWTnMzWtj4",         // JS functions & scope
+  "arrays & objects": "oigfaZ5ApsM",          // JS arrays & objects
+  "async javascript": "ZYb_ZU8LNxs",          // Async JS - callbacks, promises, async/await
+  "dom manipulation": "5fb2aPlgoys",          // DOM manipulation crash course
+  "error handling": "blBoIyNhGvY",            // JS error handling
+
+  // ── React (multiple courses) ──
+  "introduction to react": "SqcY0GlETPk",     // React intro
+  "jsx & components": "bMknfKXIFA8",          // JSX & components
+  "component patterns": "TNhaISOUy6Q",        // React component patterns
+  "state & props": "4ORZ1GmjaMc",            // React state & props
+  "usestate & useeffect": "O6P86uwfdR0",      // useState & useEffect
+  "hooks deep dive": "TNhaISOUy6Q",           // React hooks deep dive
+  "custom hooks": "Jl4q2cccwf0",             // Custom hooks
+  "context api": "5LrDIWkK_Bc",              // Context API
+  "context & state management": "5LrDIWkK_Bc",
+  "react router": "Ul3y1LXxzdU",             // React Router
+  "forms & validation": "SdzMBWT2CDQ",        // React forms
+  "forms": "SdzMBWT2CDQ",
+  "api integration": "bYFYF2GnMy8",          // API integration
+  "performance optimization": "0ZJgIjIuY7U",  // React performance
+  "performance": "0ZJgIjIuY7U",
+  "testing": "7dTTFW7yACQ",                  // React testing
+  "testing with vitest": "7dTTFW7yACQ",
+  "deployment": "AXjD7ceS4F8",               // Deployment
+
+  // ── TypeScript ──
+  "typescript basics": "BwuLxPH8IDs",         // TS crash course
+  "type system": "ahCwqrYpIuM",              // TypeScript type system
+  "interfaces & types": "crjIq7LEAYw",        // TS interfaces
+  "generics": "nViEqpgwxHE",                 // TS generics
+  "advanced types": "F9wzk9cpQtM",            // TS advanced types
+  "type utilities": "F9wzk9cpQtM",
+  "decorators": "O6A-u_FoEX8",               // TS decorators
+  "project setup": "gp5H0Vw39yw",            // TS project setup
+
+  // ── Python / Data Science ──
+  "python basics": "kqtD5dpn9C8",            // Python basics
+  "data types": "gOMW_n2-2Mw",               // Python data types
+  "data types & structures": "gOMW_n2-2Mw",
+  "functions & modules": "9Os0o3wzS_I",       // Python functions
+  "functions": "9Os0o3wzS_I",
+  "numpy": "eg4xgjJQbS0",                    // NumPy tutorial
+  "numpy fundamentals": "eg4xgjJQbS0",
+  "numpy essentials": "eg4xgjJQbS0",
+  "pandas": "2uvysYbKdjM",                   // Pandas tutorial
+  "pandas dataframes": "2uvysYbKdjM",
+  "data visualization": "UO98lJQ3QGI",       // Data visualization
+  "statistical analysis": "xxpc-HPKN28",      // Statistics for data science
+  "real-world project": "r-uOLxNrNk8",        // Data science project
+
+  // ── System Design ──
+  "scalability": "Y-Gl4HEyeUQ",              // Scalability basics
+  "scalability basics": "Y-Gl4HEyeUQ",
+  "fundamentals": "Y-Gl4HEyeUQ",
+  "load balancing": "K0Ta65OqQkY",            // Load balancing
+  "database design": "ztHopE5Wnpc",           // Database design
+  "caching": "U3RkDLtS7uY",                  // Caching strategies
+  "caching strategies": "U3RkDLtS7uY",
+  "microservices": "rv4LlmLmVWk",             // Microservices
+  "microservices architecture": "rv4LlmLmVWk",
+  "message queues": "oUJbuFMyBDk",            // Message queues explained
+  "case studies": "jPKTo1iGQiE",              // System design case studies
+
+  // ── DSA ──
+  "arrays & strings": "orV1aMgfHEo",          // Arrays & strings
+  "linked lists": "Hj_rA0dhr2I",              // Linked lists
+  "stacks & queues": "1AJ4ldKvASY",           // Stacks & queues
+  "trees & graphs": "i_Q0v_Ct5lY",            // Trees & graphs
+  "sorting algorithms": "g-PGLbMth_g",        // Sorting
+  "sorting": "g-PGLbMth_g",
+  "dynamic programming": "oBt53YbR9Kk",       // Dynamic programming
+
+  // ── AWS / Cloud ──
+  "cloud concepts": "ulprqHHWlng",            // Cloud concepts
+  "aws core services": "JIbIYCM48to",         // AWS services overview
+  "aws services": "JIbIYCM48to",
+  "security & compliance": "i-xDbPRzfyA",     // AWS security
+  "security": "i-xDbPRzfyA",
+  "billing & pricing": "DSiOT7EZKIY",         // AWS billing
+
+  // ── Node.js / Full-Stack ──
+  "node.js fundamentals": "Oe421EPjeBE",      // Node fundamentals
+  "node fundamentals": "Oe421EPjeBE",
+  "express.js & routing": "SccSCuHhOw0",      // Express.js
+  "express": "SccSCuHhOw0",
+  "database with postgresql": "ldYcgPKEZC8",   // PostgreSQL
+  "postgresql": "ldYcgPKEZC8",
+  "authentication & jwt": "mbsmsi7l3r4",       // Auth & JWT
+  "rest api design": "fgTGADljAMg",           // REST API
+  "rest api": "fgTGADljAMg",
+
+  // ── Java ──
+  "java basics": "eIrMbAQSU34",              // Java crash course
+  "oop in java": "pTB0EiLXUC8",              // Java OOP
+  "collections framework": "rzA7UJ-hQn4",     // Java collections
+  "multithreading": "r_MbozD32eo",            // Java multithreading
+  "spring boot basics": "9SGDpanrc8U",         // Spring Boot
+  "spring boot intro": "9SGDpanrc8U",
+  "building rest apis": "9SGDpanrc8U",         // Spring REST APIs
+  "spring data jpa": "8SGI_XS5OPw",           // Spring Data JPA
+  "database integration": "8SGI_XS5OPw",
+  "spring security": "her_7pa0vrg",            // Spring Security
+  "microservices with spring": "BnknNTN8icw",  // Spring microservices
+  "ci/cd & deployment": "R8_veQiYBjI",        // CI/CD pipelines
+
+  // ── Mobile (React Native / Flutter) ──
+  "react native setup": "0-S5a0eXPoc",        // React Native setup
+  "core components": "0-S5a0eXPoc",
+  "navigation": "npe3Ii_sQIk",               // React Native navigation
+  "flutter basics": "1ukSR1GRtMU",            // Flutter crash course
+  "widgets & layout": "1ukSR1GRtMU",
+  "state management": "3tm-R7jcqjU",          // Flutter state management
+
+  // ── DevOps ──
+  "linux basics": "sWbUDq4S6Y8",              // Linux for beginners
+  "docker fundamentals": "pTFZFxd4hOI",       // Docker crash course
+  "docker": "pTFZFxd4hOI",
+  "kubernetes": "X48VuDVv0do",                // Kubernetes explained
+  "kubernetes basics": "X48VuDVv0do",
+  "ci/cd pipelines": "R8_veQiYBjI",           // CI/CD
+  "monitoring & logging": "9TJx7QTrTyo",       // Monitoring
+  "infrastructure as code": "SLB_c_ayRMo",     // Terraform/IaC
+
+  // ── AI / Machine Learning ──
+  "intro to ml": "ukzFI9rgwfU",               // ML intro
+  "supervised learning": "4qVRBYAdLAo",        // Supervised learning
+  "neural networks": "aircAruvnKk",           // Neural networks
+  "deep learning basics": "aircAruvnKk",
+  "nlp fundamentals": "CMrHM8a3hqw",          // NLP basics
+  "computer vision": "01sAkU_NvOY",           // Computer vision
+  "model deployment": "H73m_4A2bJ8",          // ML model deployment
+
+  // ── Cybersecurity ──
+  "security fundamentals": "hXSFdwIOfnE",     // Cybersecurity intro
+  "network security": "E03gh1huvR4",           // Network security
+  "ethical hacking": "3Kq1MIfTWCE",            // Ethical hacking
+  "cryptography": "jhXCTbFnK8o",              // Cryptography basics
+  "web security": "WlmKwIe9z1Q",              // Web security (OWASP)
+};
+
+// Finds the best matching video for a module title
+const getVideoForModule = (moduleTitle: string): string => {
+  const title = moduleTitle.toLowerCase().trim();
+
+  // Exact match
+  if (videoByModuleTitle[title]) return videoByModuleTitle[title];
+
+  // Partial match — find the best keyword overlap
+  let bestMatch = "";
+  let bestScore = 0;
+  for (const key of Object.keys(videoByModuleTitle)) {
+    if (title.includes(key) || key.includes(title)) {
+      const score = key.length;
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = key;
+      }
+    }
+  }
+  if (bestMatch) return videoByModuleTitle[bestMatch];
+
+  // Word-level fuzzy match
+  const words = title.split(/\s+/);
+  for (const key of Object.keys(videoByModuleTitle)) {
+    const matchingWords = words.filter(w => w.length > 2 && key.includes(w));
+    if (matchingWords.length > bestScore) {
+      bestScore = matchingWords.length;
+      bestMatch = key;
+    }
+  }
+  if (bestMatch) return videoByModuleTitle[bestMatch];
+
+  // Fallback — generic programming tutorial
+  return "PkZNo7MFNFg";
 };
 
 const starterCode: Record<string, string> = {
@@ -88,7 +217,7 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
   const [copied, setCopied] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
 
-  const videoId = moduleVideos[courseId]?.[moduleIndex] || "dQw4w9WgXcQ";
+  const videoId = getVideoForModule(moduleTitle);
 
   const handleLangChange = (langId: string) => {
     setSelectedLang(langId);
