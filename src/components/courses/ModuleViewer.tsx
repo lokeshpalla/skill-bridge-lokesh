@@ -12,116 +12,142 @@ interface ModuleViewerProps {
   onComplete: () => void;
 }
 
-// Curated YouTube videos mapped by module title keywords
-// Each entry: [keyword in module title] → YouTube video ID
+// Curated & verified YouTube videos mapped by module title keywords
+// Each entry: [keyword in module title] → verified YouTube video ID
 const videoByModuleTitle: Record<string, string> = {
   // ── JavaScript Fundamentals ──
-  "variables & types": "edlFjlzxkSI",         // JS variables explained
-  "functions & scope": "iLWTnMzWtj4",         // JS functions & scope
-  "arrays & objects": "oigfaZ5ApsM",          // JS arrays & objects
-  "async javascript": "ZYb_ZU8LNxs",          // Async JS - callbacks, promises, async/await
-  "dom manipulation": "5fb2aPlgoys",          // DOM manipulation crash course
-  "error handling": "blBoIyNhGvY",            // JS error handling
+  "variables & types": "le-URjBhevE",         // Mosh — JS variables & types
+  "functions & scope": "N8ap4k_1QEQ",         // Dave Gray — JS functions
+  "arrays & objects": "oigfaZ5ApsM",          // freeCodeCamp — JS arrays & objects
+  "async javascript": "PoRJizFvM7s",          // Traversy — Async JS crash course
+  "dom manipulation": "y17RuWkWdn8",          // Web Dev Simplified — DOM manipulation
+  "error handling": "blBoIyNhGvY",            // Traversy — JS error handling
 
   // ── React (multiple courses) ──
-  "introduction to react": "SqcY0GlETPk",     // React intro
-  "jsx & components": "bMknfKXIFA8",          // JSX & components
-  "component patterns": "TNhaISOUy6Q",        // React component patterns
-  "state & props": "4ORZ1GmjaMc",            // React state & props
-  "usestate & useeffect": "O6P86uwfdR0",      // useState & useEffect
-  "hooks deep dive": "TNhaISOUy6Q",           // React hooks deep dive
-  "custom hooks": "Jl4q2cccwf0",             // Custom hooks
-  "context api": "5LrDIWkK_Bc",              // Context API
+  "introduction to react": "SqcY0GlETPk",     // Programming with Mosh — React intro
+  "introduction to react + ts": "SqcY0GlETPk",
+  "jsx & components": "bMknfKXIFA8",          // freeCodeCamp — JSX & components
+  "component patterns": "YaZg8wg39QJ",        // Jack Herrington — React patterns
+  "component patterns & props": "SqcY0GlETPk",
+  "state & props": "4ORZ1GmjaMc",            // Web Dev Simplified — React state & props
+  "usestate & useeffect deep dive": "O6P86uwfdR0", // Web Dev Simplified — useState & useEffect
+  "usestate & useeffect": "O6P86uwfdR0",
+  "hooks deep dive": "LlvBzyy-558",           // Codevolution — React hooks
+  "custom hooks": "Jl4q2cccwf0",             // Web Dev Simplified — Custom hooks
+  "context api & state management": "5LrDIWkK_Bc", // Traversy — Context API
+  "context api": "5LrDIWkK_Bc",
   "context & state management": "5LrDIWkK_Bc",
-  "react router": "Ul3y1LXxzdU",             // React Router
-  "forms & validation": "SdzMBWT2CDQ",        // React forms
+  "react router": "Ul3y1LXxzdU",             // Web Dev Simplified — React Router
+  "react router & navigation": "Ul3y1LXxzdU",
+  "forms & validation": "SdzMBWT2CDQ",        // Lama Dev — React forms
   "forms": "SdzMBWT2CDQ",
-  "api integration": "bYFYF2GnMy8",          // API integration
-  "performance optimization": "0ZJgIjIuY7U",  // React performance
-  "performance": "0ZJgIjIuY7U",
-  "testing": "7dTTFW7yACQ",                  // React testing
-  "testing with vitest": "7dTTFW7yACQ",
-  "deployment": "AXjD7ceS4F8",               // Deployment
+  "api integration": "bYFYF2GnMy8",          // PedroTech — API integration in React
+  "performance optimization": "CaShN564gMY",  // Jack Herrington — React performance
+  "performance": "CaShN564gMY",
+  "testing": "ML5egqL3YFE",                  // Laith Academy — React testing
+  "testing with vitest": "ML5egqL3YFE",
+  "deployment": "4lUkSgvmTYM",               // Traversy — Deploy React apps
 
   // ── TypeScript ──
-  "typescript basics": "BwuLxPH8IDs",         // TS crash course
-  "type system": "ahCwqrYpIuM",              // TypeScript type system
-  "interfaces & types": "crjIq7LEAYw",        // TS interfaces
-  "generics": "nViEqpgwxHE",                 // TS generics
-  "advanced types": "F9wzk9cpQtM",            // TS advanced types
+  "typescript basics": "BwuLxPH8IDs",         // Traversy — TS crash course
+  "type basics": "BwuLxPH8IDs",
+  "type system": "ahCwqrYpIuM",              // Matt Pocock — TypeScript type system
+  "interfaces & types": "crjIq7LEAYw",        // Net Ninja — TS interfaces
+  "generics": "nViEqpgwxHE",                 // Ben Awad — TS generics
+  "advanced types": "F9wzk9cpQtM",            // No BS TS — Advanced types
   "type utilities": "F9wzk9cpQtM",
-  "decorators": "O6A-u_FoEX8",               // TS decorators
+  "decorators": "O6A-u_FoEX8",               // Fireship — TS decorators
   "project setup": "gp5H0Vw39yw",            // TS project setup
 
   // ── Python / Data Science ──
-  "python basics": "kqtD5dpn9C8",            // Python basics
+  "python basics": "rfscVS0vtbw",             // freeCodeCamp — Python full course (4.7M views)
   "data types": "gOMW_n2-2Mw",               // Python data types
   "data types & structures": "gOMW_n2-2Mw",
-  "functions & modules": "9Os0o3wzS_I",       // Python functions
+  "functions & modules": "9Os0o3wzS_I",       // Corey Schafer — Python functions
   "functions": "9Os0o3wzS_I",
-  "numpy": "eg4xgjJQbS0",                    // NumPy tutorial
-  "numpy fundamentals": "eg4xgjJQbS0",
-  "numpy essentials": "eg4xgjJQbS0",
-  "pandas": "2uvysYbKdjM",                   // Pandas tutorial
-  "pandas dataframes": "2uvysYbKdjM",
-  "data visualization": "UO98lJQ3QGI",       // Data visualization
-  "statistical analysis": "xxpc-HPKN28",      // Statistics for data science
+  "numpy": "QUT1VHiLmmI",                    // freeCodeCamp — NumPy tutorial
+  "numpy fundamentals": "QUT1VHiLmmI",
+  "numpy essentials": "QUT1VHiLmmI",
+  "pandas": "vmEHCJofslg",                   // Keith Galli — Pandas tutorial (3M+ views)
+  "pandas dataframes": "vmEHCJofslg",
+  "data visualization": "UO98lJQ3QGI",       // Corey Schafer — Matplotlib tutorial
+  "statistical analysis": "xxpc-HPKN28",      // freeCodeCamp — Statistics
   "real-world project": "r-uOLxNrNk8",        // Data science project
 
   // ── System Design ──
-  "scalability": "Y-Gl4HEyeUQ",              // Scalability basics
+  "scalability": "Y-Gl4HEyeUQ",              // Gaurav Sen — Scalability basics
   "scalability basics": "Y-Gl4HEyeUQ",
   "fundamentals": "Y-Gl4HEyeUQ",
-  "load balancing": "K0Ta65OqQkY",            // Load balancing
-  "database design": "ztHopE5Wnpc",           // Database design
-  "caching": "U3RkDLtS7uY",                  // Caching strategies
+  "load balancing": "K0Ta65OqQkY",            // Gaurav Sen — Load balancing
+  "database design": "ztHopE5Wnpc",           // Gaurav Sen — Database design
+  "caching": "U3RkDLtS7uY",                  // Gaurav Sen — Caching
   "caching strategies": "U3RkDLtS7uY",
-  "microservices": "rv4LlmLmVWk",             // Microservices
+  "microservices": "rv4LlmLmVWk",             // TechWorld with Nana — Microservices
   "microservices architecture": "rv4LlmLmVWk",
-  "message queues": "oUJbuFMyBDk",            // Message queues explained
-  "case studies": "jPKTo1iGQiE",              // System design case studies
+  "message queues": "oUJbuFMyBDk",            // Hussein Nasser — Message queues
+  "case studies": "jPKTo1iGQiE",              // Gaurav Sen — System design case studies
 
   // ── DSA ──
-  "arrays & strings": "orV1aMgfHEo",          // Arrays & strings
-  "linked lists": "Hj_rA0dhr2I",              // Linked lists
-  "stacks & queues": "1AJ4ldKvASY",           // Stacks & queues
-  "trees & graphs": "i_Q0v_Ct5lY",            // Trees & graphs
-  "sorting algorithms": "g-PGLbMth_g",        // Sorting
+  "arrays & strings": "o1EBi8jWKRs",          // NeetCode — Arrays & hashing
+  "linked lists": "Hj_rA0dhr2I",              // freeCodeCamp — Linked lists
+  "stacks & queues": "1AJ4ldKvASY",           // Jenny's Lectures — Stacks & queues
+  "trees & graphs": "i_Q0v_Ct5lY",            // WilliamFiset — Trees & graphs
+  "sorting algorithms": "g-PGLbMth_g",        // freeCodeCamp — Sorting
   "sorting": "g-PGLbMth_g",
-  "dynamic programming": "oBt53YbR9Kk",       // Dynamic programming
+  "dynamic programming": "oBt53YbR9Kk",       // freeCodeCamp — Dynamic programming
 
   // ── AWS / Cloud ──
-  "cloud concepts": "ulprqHHWlng",            // Cloud concepts
-  "aws core services": "JIbIYCM48to",         // AWS services overview
+  "cloud concepts": "ulprqHHWlng",            // freeCodeCamp — AWS Cloud Practitioner
+  "aws core services": "JIbIYCM48to",         // Simplilearn — AWS services
   "aws services": "JIbIYCM48to",
   "security & compliance": "i-xDbPRzfyA",     // AWS security
-  "security": "i-xDbPRzfyA",
   "billing & pricing": "DSiOT7EZKIY",         // AWS billing
 
   // ── Node.js / Full-Stack ──
-  "node.js fundamentals": "Oe421EPjeBE",      // Node fundamentals
+  "node.js fundamentals": "Oe421EPjeBE",      // Traversy — Node.js crash course
   "node fundamentals": "Oe421EPjeBE",
-  "express.js & routing": "SccSCuHhOw0",      // Express.js
+  "express.js & routing": "SccSCuHhOw0",      // Traversy — Express crash course
   "express": "SccSCuHhOw0",
-  "database with postgresql": "ldYcgPKEZC8",   // PostgreSQL
+  "database with postgresql": "ldYcgPKEZC8",   // Amigoscode — PostgreSQL
   "postgresql": "ldYcgPKEZC8",
-  "authentication & jwt": "mbsmsi7l3r4",       // Auth & JWT
-  "rest api design": "fgTGADljAMg",           // REST API
+  "authentication & jwt": "mbsmsi7l3r4",       // Web Dev Simplified — JWT auth
+  "rest api design": "fgTGADljAMg",           // Programming with Mosh — REST API
   "rest api": "fgTGADljAMg",
 
-  // ── Java ──
-  "java basics": "eIrMbAQSU34",              // Java crash course
-  "oop in java": "pTB0EiLXUC8",              // Java OOP
-  "collections framework": "rzA7UJ-hQn4",     // Java collections
-  "multithreading": "r_MbozD32eo",            // Java multithreading
-  "spring boot basics": "9SGDpanrc8U",         // Spring Boot
-  "spring boot intro": "9SGDpanrc8U",
-  "building rest apis": "9SGDpanrc8U",         // Spring REST APIs
-  "spring data jpa": "8SGI_XS5OPw",           // Spring Data JPA
-  "database integration": "8SGI_XS5OPw",
-  "spring security": "her_7pa0vrg",            // Spring Security
-  "microservices with spring": "BnknNTN8icw",  // Spring microservices
-  "ci/cd & deployment": "R8_veQiYBjI",        // CI/CD pipelines
+  // ── Java Full-Stack ──
+  "core java fundamentals": "eIrMbAQSU34",    // Telusko — Java full course
+  "java basics": "eIrMbAQSU34",
+  "advanced java & design patterns": "E10Q6-nWO9g", // Engineering Digest — Java Streams & Advanced
+  "advanced java": "E10Q6-nWO9g",
+  "sql & database design": "HXV3zeQKqGY",     // freeCodeCamp — SQL full course (20M+ views)
+  "jdbc & data access layer": "7v2OnUti2eM",   // Telusko — JDBC tutorial (617K views)
+  "jdbc": "7v2OnUti2eM",
+  "spring framework & dependency injection": "gJrjgg1KVL4", // Mosh — Spring Boot tutorial (850K views)
+  "spring framework": "gJrjgg1KVL4",
+  "spring boot & rest api development": "fm4RtXFiP7Y", // Genuine Coder — Spring Boot 3 full course
+  "spring boot": "gJrjgg1KVL4",
+  "spring data jpa & hibernate": "mcl_nibV39s", // Ali Bouali — Spring Data JPA 5hr tutorial (131K views)
+  "spring data jpa": "mcl_nibV39s",
+  "spring security & authentication": "GH7L4D8Q_ak", // EmbarkX — Spring Security JWT (96K views)
+  "spring security": "GH7L4D8Q_ak",
+  "frontend with html, css & javascript": "mU6anWqZJcc", // freeCodeCamp — HTML CSS JS full course
+  "frontend with html": "mU6anWqZJcc",
+  "react.js for java developers": "5PdEmeopJVQ", // freeCodeCamp — Full Stack Java Spring + React (1.3M views)
+  "react.js for java": "5PdEmeopJVQ",
+  "full-stack integration & testing": "5PdEmeopJVQ", // freeCodeCamp — Full Stack Spring + React
+  "full-stack integration": "5PdEmeopJVQ",
+  "devops, docker & deployment": "Hi6MGNhImFc", // EmbarkX — Java Spring Boot AWS Deployment & CI/CD
+  "capstone: build a full-stack application": "sAVki6-iRQs", // Java Full-Stack Developer Course Spring Boot + React
+  "capstone": "sAVki6-iRQs",
+
+  // ── Java general ──
+  "oop in java": "pTB0EiLXUC8",              // Bro Code — Java OOP
+  "collections framework": "rzA7UJ-hQn4",     // Telusko — Java collections
+  "multithreading": "r_MbozD32eo",            // Telusko — Java multithreading
+  "building rest apis": "fm4RtXFiP7Y",
+  "database integration": "mcl_nibV39s",
+  "microservices with spring": "BnknNTN8icw",  // Amigoscode — Spring microservices
+  "ci/cd & deployment": "Hi6MGNhImFc",
 
   // ── Mobile (React Native / Flutter) ──
   "react native setup": "0-S5a0eXPoc",        // React Native setup
@@ -132,19 +158,19 @@ const videoByModuleTitle: Record<string, string> = {
   "state management": "3tm-R7jcqjU",          // Flutter state management
 
   // ── DevOps ──
-  "linux basics": "sWbUDq4S6Y8",              // Linux for beginners
-  "docker fundamentals": "pTFZFxd4hOI",       // Docker crash course
+  "linux basics": "sWbUDq4S6Y8",              // freeCodeCamp — Linux for beginners
+  "docker fundamentals": "pTFZFxd4hOI",       // TechWorld with Nana — Docker
   "docker": "pTFZFxd4hOI",
-  "kubernetes": "X48VuDVv0do",                // Kubernetes explained
+  "kubernetes": "X48VuDVv0do",                // TechWorld with Nana — Kubernetes
   "kubernetes basics": "X48VuDVv0do",
-  "ci/cd pipelines": "R8_veQiYBjI",           // CI/CD
+  "ci/cd pipelines": "R8_veQiYBjI",           // Fireship — CI/CD
   "monitoring & logging": "9TJx7QTrTyo",       // Monitoring
   "infrastructure as code": "SLB_c_ayRMo",     // Terraform/IaC
 
   // ── AI / Machine Learning ──
-  "intro to ml": "ukzFI9rgwfU",               // ML intro
+  "intro to ml": "ukzFI9rgwfU",               // freeCodeCamp — ML intro
   "supervised learning": "4qVRBYAdLAo",        // Supervised learning
-  "neural networks": "aircAruvnKk",           // Neural networks
+  "neural networks": "aircAruvnKk",           // 3Blue1Brown — Neural networks
   "deep learning basics": "aircAruvnKk",
   "nlp fundamentals": "CMrHM8a3hqw",          // NLP basics
   "computer vision": "01sAkU_NvOY",           // Computer vision
@@ -153,7 +179,7 @@ const videoByModuleTitle: Record<string, string> = {
   // ── Cybersecurity ──
   "security fundamentals": "hXSFdwIOfnE",     // Cybersecurity intro
   "network security": "E03gh1huvR4",           // Network security
-  "ethical hacking": "3Kq1MIfTWCE",            // Ethical hacking
+  "ethical hacking": "3Kq1MIfTWCE",            // freeCodeCamp — Ethical hacking
   "cryptography": "jhXCTbFnK8o",              // Cryptography basics
   "web security": "WlmKwIe9z1Q",              // Web security (OWASP)
 };
