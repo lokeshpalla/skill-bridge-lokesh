@@ -217,7 +217,7 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
   const [copied, setCopied] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
 
-  const videoId = moduleVideos[courseId]?.[moduleIndex] || "dQw4w9WgXcQ";
+  const videoId = getVideoForModule(moduleTitle);
 
   const handleLangChange = (langId: string) => {
     setSelectedLang(langId);
