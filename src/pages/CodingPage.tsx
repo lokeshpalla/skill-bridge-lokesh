@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, CheckCircle, Search, ChevronDown, RotateCcw, Timer, Lightbulb, Terminal, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, CheckCircle, Search, ChevronDown, RotateCcw, Timer, Lightbulb, Terminal, ChevronLeft, ChevronRight, ArrowLeft, List } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { codingProblems, problemCategories, defaultHints, defaultDescriptions, CodingProblem } from "@/data/codingProblems";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,7 +46,9 @@ const CodingPage = () => {
   const [activeTab, setActiveTab] = useState<"output" | "input">("output");
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Timer effect
+  // Mobile view: show problem list or editor
+  const [mobileView, setMobileView] = useState<"list" | "editor">("list");
+
   useEffect(() => {
     if (timerActive) {
       timerRef.current = setInterval(() => setTimer(t => t + 1), 1000);
@@ -62,7 +64,6 @@ const CodingPage = () => {
     return `${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
   };
 
-  // Filter and paginate problems
   const filtered = useMemo(() => {
     return codingProblems
       .filter(p => filter === "All" || p.category === filter)
@@ -76,7 +77,6 @@ const CodingPage = () => {
     return filtered.slice(start, start + ITEMS_PER_PAGE);
   }, [filtered, page]);
 
-  // Reset page when filters change
   useEffect(() => { setPage(1); }, [filter, diffFilter, search]);
 
   const switchLanguage = (lang: typeof languages[0]) => {
@@ -93,6 +93,8 @@ const CodingPage = () => {
     setTimer(0);
     setTimerActive(false);
     setCustomInput("");
+    // On mobile, switch to editor view when a problem is selected
+    setMobileView("editor");
   };
 
   const resetCode = () => {
@@ -110,7 +112,6 @@ const CodingPage = () => {
       setRunning(false);
       const startTime = performance.now();
       try {
-        // Capture console.log output
         const logs: string[] = [];
         const mockConsole = {
           log: (...args: unknown[]) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')),
@@ -119,8 +120,6 @@ const CodingPage = () => {
         };
 
         let execCode = code;
-
-        // If custom input provided, make it available as `input` variable
         const inputVal = customInput.trim();
         let parsedInput: unknown = inputVal;
         if (inputVal) {
@@ -130,7 +129,6 @@ const CodingPage = () => {
         // eslint-disable-next-line no-new-func
         const fn = new Function('console', 'input', `
           ${execCode}
-          // Try to detect and call common function patterns
           const __allFns = [];
           ${execCode.match(/function\s+(\w+)/g)?.map(m => {
             const name = m.replace('function ', '');
@@ -180,13 +178,11 @@ const CodingPage = () => {
         parts.push(`\n⏱ Runtime: ${elapsed}ms | Language: ${language.label}`);
         setOutput(parts.join('\n\n'));
 
-        // Record activity & track solved problems
         if (user && !String(execResult?.result).startsWith('❌')) {
           const diffXp: Record<string, number> = { Easy: 20, Medium: 40, Hard: 80 };
           const baseXp = diffXp[selected.difficulty] ?? 30;
           const minutesSpent = Math.floor(timer / 60);
 
-          // Track solved problems locally
           const solvedKey = `solved_problems_${user.id}`;
           const solved: number[] = JSON.parse(localStorage.getItem(solvedKey) || "[]");
           if (!solved.includes(selected.id)) {
@@ -194,7 +190,6 @@ const CodingPage = () => {
             localStorage.setItem(solvedKey, JSON.stringify(solved));
           }
 
-          // Update streak & XP
           supabase.rpc("record_activity", {
             _user_id: user.id,
             _xp_amount: baseXp,
@@ -214,14 +209,355 @@ const CodingPage = () => {
     }, 300);
   };
 
+  // ── Problem List Panel ──
+  const problemListPanel = (
+    <div className={`rounded-xl border border-border/50 bg-card/60 flex flex-col ${mobileView === "list" ? "max-h-[85vh]" : "max-h-[78vh]"}`}>
+      <div className="p-3 border-b border-border/40 space-y-2">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <Input
+            placeholder="Search problems by name or ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-8 h-8 text-xs bg-secondary/40 border-border/30"
+          />
+        </div>
+        <div className="flex gap-1">
+          {["All", "Easy", "Medium", "Hard"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setDiffFilter(f)}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
+                diffFilter === f ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
+          {problemCategories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setFilter(cat)}
+              className={`px-2 py-0.5 rounded text-[10px] font-medium whitespace-nowrap transition-all ${
+                filter === cat ? "bg-accent/20 text-accent-foreground border border-accent/30" : "bg-secondary/30 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+        <div className="text-[10px] text-muted-foreground">
+          {filtered.length.toLocaleString()} problems found • Page {page}/{totalPages || 1}
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
+        {paginatedProblems.map((p) => (
+          <button
+            key={p.id}
+            onClick={() => switchProblem(p)}
+            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-all ${
+              selected.id === p.id ? "bg-primary/10 border border-primary/25" : "hover:bg-secondary/50 active:bg-secondary/70"
+            }`}
+          >
+            {p.solved ? (
+              <CheckCircle className="w-3.5 h-3.5 text-success flex-shrink-0" />
+            ) : (
+              <div className="w-3.5 h-3.5 rounded-full border border-muted-foreground/30 flex-shrink-0" />
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium truncate">{p.id}. {p.title}</p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className={`text-[10px] font-medium ${diffColor[p.difficulty]}`}>{p.difficulty}</span>
+                <span className="text-[10px] text-muted-foreground">{p.category}</span>
+              </div>
+            </div>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50 flex-shrink-0 lg:hidden" />
+            <span className="text-[10px] text-muted-foreground hidden lg:block">{p.acceptance}</span>
+          </button>
+        ))}
+      </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-3 py-2 border-t border-border/40">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-[11px] gap-1"
+            disabled={page <= 1}
+            onClick={() => setPage(p => p - 1)}
+          >
+            <ChevronLeft className="w-3 h-3" /> Prev
+          </Button>
+          <div className="flex gap-1">
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum: number;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (page <= 3) {
+                pageNum = i + 1;
+              } else if (page >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = page - 2 + i;
+              }
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setPage(pageNum)}
+                  className={`w-6 h-6 rounded text-[10px] font-medium ${
+                    page === pageNum ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-[11px] gap-1"
+            disabled={page >= totalPages}
+            onClick={() => setPage(p => p + 1)}
+          >
+            Next <ChevronRight className="w-3 h-3" />
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+
+  // ── Editor Panel ──
+  const editorPanel = (
+    <div className="flex flex-col gap-3">
+      {/* Mobile back button */}
+      <div className="lg:hidden">
+        <button
+          onClick={() => setMobileView("list")}
+          className="flex items-center gap-1.5 text-sm text-primary font-medium mb-1"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Problems
+        </button>
+      </div>
+
+      {/* Problem description */}
+      <div className="rounded-xl border border-border/50 bg-card/60 p-4 max-h-[40vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-sm font-semibold">{selected.id}. {selected.title}</h2>
+          <span className={`text-xs font-medium ${diffColor[selected.difficulty]}`}>{selected.difficulty}</span>
+        </div>
+
+        {selected.topics && selected.topics.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {selected.topics.map((topic) => (
+              <span key={topic} className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
+                {topic}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+          {defaultDescriptions[selected.id] || selected.description}
+        </p>
+
+        {selected.examples && selected.examples.length > 0 && (
+          <div className="space-y-2 mb-3">
+            {selected.examples.map((ex, idx) => (
+              <div key={idx} className="rounded-lg bg-secondary/30 border border-border/30 p-3 space-y-1">
+                <p className="text-[11px] font-semibold text-foreground">Example {idx + 1}:</p>
+                <div className="font-mono text-[11px] space-y-0.5">
+                  <p><span className="text-muted-foreground">Input: </span><span className="text-foreground whitespace-pre-wrap break-all">{ex.input}</span></p>
+                  <p><span className="text-muted-foreground">Output: </span><span className="text-foreground">{ex.output}</span></p>
+                  {ex.explanation && (
+                    <p className="text-muted-foreground mt-1"><span className="font-medium">Explanation: </span>{ex.explanation}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {selected.constraints && selected.constraints.length > 0 && (
+          <div className="mb-3">
+            <p className="text-[11px] font-semibold text-foreground mb-1">Constraints:</p>
+            <ul className="list-disc list-inside space-y-0.5">
+              {selected.constraints.map((c, idx) => (
+                <li key={idx} className="text-[11px] text-muted-foreground font-mono break-all">{c}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <button
+          onClick={() => setShowHint(!showHint)}
+          className="mt-1 flex items-center gap-1 text-[11px] text-primary hover:underline"
+        >
+          <Lightbulb className="w-3 h-3" />
+          {showHint ? "Hide Hint" : "Show Hint"}
+        </button>
+        {showHint && (
+          <motion.p
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="text-[11px] text-accent mt-2 p-2 rounded-lg bg-accent/5 border border-accent/15"
+          >
+            {defaultHints[selected.id]}
+          </motion.p>
+        )}
+      </div>
+
+      {/* Editor with language picker */}
+      <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden">
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-b border-border/40">
+          <div className="relative">
+            <button
+              onClick={() => setShowLangPicker(!showLangPicker)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary/60 hover:bg-secondary text-xs font-medium transition-all"
+            >
+              <span className={`font-mono text-[10px] font-bold ${language.color}`}>{language.icon}</span>
+              <span className="hidden sm:inline">{language.label}</span>
+              <ChevronDown className="w-3 h-3 text-muted-foreground" />
+            </button>
+
+            {showLangPicker && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-full left-0 mt-1 z-50 w-44 rounded-lg border border-border/50 bg-card shadow-lg p-1"
+              >
+                {languages.map((lang) => (
+                  <button
+                    key={lang.id}
+                    onClick={() => switchLanguage(lang)}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-left text-xs transition-all ${
+                      language.id === lang.id ? "bg-primary/10 text-primary" : "hover:bg-secondary/60 text-foreground"
+                    }`}
+                  >
+                    <span className={`font-mono text-[10px] font-bold w-5 ${lang.color}`}>{lang.icon}</span>
+                    <span className="font-medium">{lang.label}</span>
+                    {language.id === lang.id && <CheckCircle className="w-3 h-3 text-primary ml-auto" />}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              onClick={resetCode}
+              className="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all"
+              title="Reset code"
+            >
+              <RotateCcw className="w-3 h-3" />
+            </button>
+            <Button size="sm" onClick={runCode} disabled={running} className="h-7 text-[11px] px-3 bg-gradient-primary text-primary-foreground hover:opacity-90">
+              <Play className="w-3 h-3" /> {running ? "Running..." : "Run"}
+            </Button>
+          </div>
+        </div>
+        <textarea
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          className="w-full h-44 sm:h-52 bg-transparent p-3 sm:p-4 font-mono text-xs text-foreground resize-none outline-none"
+          spellCheck={false}
+        />
+      </div>
+
+      {/* Custom Input + Output tabs */}
+      <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden">
+        <div className="flex border-b border-border/40">
+          <button
+            onClick={() => setActiveTab("input")}
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-medium transition-all border-b-2 ${
+              activeTab === "input"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Terminal className="w-3 h-3" /> Input
+          </button>
+          <button
+            onClick={() => setActiveTab("output")}
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-medium transition-all border-b-2 ${
+              activeTab === "output"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Play className="w-3 h-3" /> Output
+          </button>
+        </div>
+        <div className="p-3 sm:p-4">
+          {activeTab === "input" ? (
+            <div className="space-y-2">
+              <p className="text-[11px] text-muted-foreground">
+                Enter custom test input passed as <code className="text-primary bg-primary/10 px-1 rounded">input</code> to your function.
+              </p>
+              <textarea
+                value={customInput}
+                onChange={(e) => setCustomInput(e.target.value)}
+                placeholder={"e.g. [1, 2, 3, 4, 5]"}
+                className="w-full h-20 sm:h-24 bg-secondary/30 rounded-lg p-3 font-mono text-xs text-foreground resize-none outline-none border border-border/30 focus:border-primary/30 transition-colors"
+                spellCheck={false}
+              />
+              <Button size="sm" onClick={runCode} disabled={running} className="h-7 text-[11px] gap-1 bg-gradient-primary text-primary-foreground hover:opacity-90">
+                <Play className="w-3 h-3" /> Run with Input
+              </Button>
+            </div>
+          ) : (
+            <div>
+              {output ? (
+                <pre className="text-[11px] font-mono text-muted-foreground whitespace-pre-wrap break-all">{output}</pre>
+              ) : (
+                <p className="text-xs text-muted-foreground">Click "Run" to see output here.</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Language stats bar */}
+      <div className="rounded-xl border border-border/50 bg-card/60 p-3">
+        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-2">Practice in any language</p>
+        <div className="flex flex-wrap gap-1.5">
+          {languages.map((lang) => (
+            <button
+              key={lang.id}
+              onClick={() => switchLanguage(lang)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all border ${
+                language.id === lang.id
+                  ? "bg-primary/10 border-primary/30 text-primary"
+                  : "bg-secondary/30 border-border/30 text-muted-foreground hover:text-foreground hover:border-border/60"
+              }`}
+            >
+              <span className={`font-mono text-[9px] font-bold ${lang.color}`}>{lang.icon}</span>
+              {lang.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="p-4 lg:p-6 max-w-[1600px] mx-auto space-y-4">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div className="p-3 sm:p-4 lg:p-6 max-w-[1600px] mx-auto space-y-4">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight mb-1">Coding Challenges</h1>
-          <p className="text-sm text-muted-foreground">{codingProblems.length.toLocaleString()} problems • {languages.length} languages supported</p>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight mb-0.5">Coding Challenges</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">{codingProblems.length.toLocaleString()} problems • {languages.length} languages</p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Mobile toggle between list and editor */}
+          <button
+            onClick={() => setMobileView(mobileView === "list" ? "editor" : "list")}
+            className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-secondary/60 border border-border/50 text-muted-foreground hover:text-foreground transition-all"
+          >
+            <List className="w-3.5 h-3.5" />
+            {mobileView === "list" ? "Editor" : "Problems"}
+          </button>
           <button
             onClick={() => setTimerActive(!timerActive)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
@@ -234,331 +570,19 @@ const CodingPage = () => {
         </div>
       </motion.div>
 
-      <div className="grid lg:grid-cols-5 gap-4">
-        {/* Problem list */}
-        <div className="lg:col-span-2 rounded-xl border border-border/50 bg-card/60 flex flex-col max-h-[78vh]">
-          <div className="p-3 border-b border-border/40 space-y-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-              <Input
-                placeholder="Search problems by name or ID..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-8 h-8 text-xs bg-secondary/40 border-border/30"
-              />
-            </div>
-            {/* Difficulty filter */}
-            <div className="flex gap-1">
-              {["All", "Easy", "Medium", "Hard"].map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setDiffFilter(f)}
-                  className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
-                    diffFilter === f ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
-            {/* Category filter */}
-            <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
-              {problemCategories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setFilter(cat)}
-                  className={`px-2 py-0.5 rounded text-[10px] font-medium whitespace-nowrap transition-all ${
-                    filter === cat ? "bg-accent/20 text-accent-foreground border border-accent/30" : "bg-secondary/30 text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-            <div className="text-[10px] text-muted-foreground">
-              {filtered.length.toLocaleString()} problems found • Page {page}/{totalPages || 1}
-            </div>
-          </div>
-          <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
-            {paginatedProblems.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => switchProblem(p)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all ${
-                  selected.id === p.id ? "bg-primary/10 border border-primary/25" : "hover:bg-secondary/50"
-                }`}
-              >
-                {p.solved ? (
-                  <CheckCircle className="w-3.5 h-3.5 text-success flex-shrink-0" />
-                ) : (
-                  <div className="w-3.5 h-3.5 rounded-full border border-muted-foreground/30 flex-shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">{p.id}. {p.title}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className={`text-[10px] font-medium ${diffColor[p.difficulty]}`}>{p.difficulty}</span>
-                    <span className="text-[10px] text-muted-foreground">{p.category}</span>
-                  </div>
-                </div>
-                <span className="text-[10px] text-muted-foreground">{p.acceptance}</span>
-              </button>
-            ))}
-          </div>
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between px-3 py-2 border-t border-border/40">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 text-[11px] gap-1"
-                disabled={page <= 1}
-                onClick={() => setPage(p => p - 1)}
-              >
-                <ChevronLeft className="w-3 h-3" /> Prev
-              </Button>
-              <div className="flex gap-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum: number;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (page <= 3) {
-                    pageNum = i + 1;
-                  } else if (page >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = page - 2 + i;
-                  }
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setPage(pageNum)}
-                      className={`w-6 h-6 rounded text-[10px] font-medium ${
-                        page === pageNum ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 text-[11px] gap-1"
-                disabled={page >= totalPages}
-                onClick={() => setPage(p => p + 1)}
-              >
-                Next <ChevronRight className="w-3 h-3" />
-              </Button>
-            </div>
-          )}
+      {/* Desktop: side-by-side layout */}
+      <div className="hidden lg:grid lg:grid-cols-5 gap-4">
+        <div className="lg:col-span-2">
+          {problemListPanel}
         </div>
-
-        {/* Code editor */}
-        <div className="lg:col-span-3 flex flex-col gap-3">
-          {/* Problem description */}
-          <div className="rounded-xl border border-border/50 bg-card/60 p-4 max-h-[40vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold">{selected.id}. {selected.title}</h2>
-              <span className={`text-xs font-medium ${diffColor[selected.difficulty]}`}>{selected.difficulty}</span>
-            </div>
-
-            {/* Topics */}
-            {selected.topics && selected.topics.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-3">
-                {selected.topics.map((topic) => (
-                  <span key={topic} className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
-                    {topic}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Description */}
-            <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-              {defaultDescriptions[selected.id] || selected.description}
-            </p>
-
-            {/* Examples */}
-            {selected.examples && selected.examples.length > 0 && (
-              <div className="space-y-2 mb-3">
-                {selected.examples.map((ex, idx) => (
-                  <div key={idx} className="rounded-lg bg-secondary/30 border border-border/30 p-3 space-y-1">
-                    <p className="text-[11px] font-semibold text-foreground">Example {idx + 1}:</p>
-                    <div className="font-mono text-[11px] space-y-0.5">
-                      <p><span className="text-muted-foreground">Input: </span><span className="text-foreground whitespace-pre-wrap">{ex.input}</span></p>
-                      <p><span className="text-muted-foreground">Output: </span><span className="text-foreground">{ex.output}</span></p>
-                      {ex.explanation && (
-                        <p className="text-muted-foreground mt-1"><span className="font-medium">Explanation: </span>{ex.explanation}</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Constraints */}
-            {selected.constraints && selected.constraints.length > 0 && (
-              <div className="mb-3">
-                <p className="text-[11px] font-semibold text-foreground mb-1">Constraints:</p>
-                <ul className="list-disc list-inside space-y-0.5">
-                  {selected.constraints.map((c, idx) => (
-                    <li key={idx} className="text-[11px] text-muted-foreground font-mono">{c}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Hint */}
-            <button
-              onClick={() => setShowHint(!showHint)}
-              className="mt-1 flex items-center gap-1 text-[11px] text-primary hover:underline"
-            >
-              <Lightbulb className="w-3 h-3" />
-              {showHint ? "Hide Hint" : "Show Hint"}
-            </button>
-            {showHint && (
-              <motion.p
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="text-[11px] text-accent mt-2 p-2 rounded-lg bg-accent/5 border border-accent/15"
-              >
-                {defaultHints[selected.id]}
-              </motion.p>
-            )}
-          </div>
-
-          {/* Editor with language picker */}
-          <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden flex-1">
-            <div className="flex items-center justify-between px-4 py-2 border-b border-border/40">
-              <div className="relative">
-                <button
-                  onClick={() => setShowLangPicker(!showLangPicker)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary/60 hover:bg-secondary text-xs font-medium transition-all"
-                >
-                  <span className={`font-mono text-[10px] font-bold ${language.color}`}>{language.icon}</span>
-                  <span>{language.label}</span>
-                  <ChevronDown className="w-3 h-3 text-muted-foreground" />
-                </button>
-
-                {showLangPicker && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="absolute top-full left-0 mt-1 z-50 w-44 rounded-lg border border-border/50 bg-card shadow-lg p-1"
-                  >
-                    {languages.map((lang) => (
-                      <button
-                        key={lang.id}
-                        onClick={() => switchLanguage(lang)}
-                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-left text-xs transition-all ${
-                          language.id === lang.id ? "bg-primary/10 text-primary" : "hover:bg-secondary/60 text-foreground"
-                        }`}
-                      >
-                        <span className={`font-mono text-[10px] font-bold w-5 ${lang.color}`}>{lang.icon}</span>
-                        <span className="font-medium">{lang.label}</span>
-                        {language.id === lang.id && <CheckCircle className="w-3 h-3 text-primary ml-auto" />}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={resetCode}
-                  className="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all"
-                  title="Reset code"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                </button>
-                <Button size="sm" variant="hero" onClick={runCode} disabled={running} className="h-7 text-[11px] px-3">
-                  <Play className="w-3 h-3" /> {running ? "Running..." : "Run"}
-                </Button>
-              </div>
-            </div>
-            <textarea
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className="w-full h-52 bg-transparent p-4 font-mono text-xs text-foreground resize-none outline-none"
-              spellCheck={false}
-            />
-          </div>
-
-          {/* Custom Input + Output tabs */}
-          <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden">
-            <div className="flex border-b border-border/40">
-              <button
-                onClick={() => setActiveTab("input")}
-                className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-all border-b-2 ${
-                  activeTab === "input"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Terminal className="w-3 h-3" /> Custom Input
-              </button>
-              <button
-                onClick={() => setActiveTab("output")}
-                className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-all border-b-2 ${
-                  activeTab === "output"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Play className="w-3 h-3" /> Output
-              </button>
-            </div>
-            <div className="p-4">
-              {activeTab === "input" ? (
-                <div className="space-y-2">
-                  <p className="text-[11px] text-muted-foreground">
-                    Enter custom test input. It will be passed as the <code className="text-primary bg-primary/10 px-1 rounded">input</code> parameter to your <code className="text-primary bg-primary/10 px-1 rounded">solution()</code> function.
-                  </p>
-                  <textarea
-                    value={customInput}
-                    onChange={(e) => setCustomInput(e.target.value)}
-                    placeholder={"Enter your input here...\ne.g. [1, 2, 3, 4, 5]\nor multiple lines of input"}
-                    className="w-full h-24 bg-secondary/30 rounded-lg p-3 font-mono text-xs text-foreground resize-none outline-none border border-border/30 focus:border-primary/30 transition-colors"
-                    spellCheck={false}
-                  />
-                  <Button size="sm" variant="default" onClick={runCode} disabled={running} className="h-7 text-[11px] gap-1">
-                    <Play className="w-3 h-3" /> Run with Custom Input
-                  </Button>
-                </div>
-              ) : (
-                <div>
-                  {output ? (
-                    <pre className="text-[11px] font-mono text-muted-foreground whitespace-pre-wrap">{output}</pre>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">Click "Run" to see output here.</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Language stats bar */}
-          <div className="rounded-xl border border-border/50 bg-card/60 p-3">
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-2">Practice in any language</p>
-            <div className="flex flex-wrap gap-1.5">
-              {languages.map((lang) => (
-                <button
-                  key={lang.id}
-                  onClick={() => switchLanguage(lang)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all border ${
-                    language.id === lang.id
-                      ? "bg-primary/10 border-primary/30 text-primary"
-                      : "bg-secondary/30 border-border/30 text-muted-foreground hover:text-foreground hover:border-border/60"
-                  }`}
-                >
-                  <span className={`font-mono text-[9px] font-bold ${lang.color}`}>{lang.icon}</span>
-                  {lang.label}
-                </button>
-              ))}
-            </div>
-          </div>
+        <div className="lg:col-span-3">
+          {editorPanel}
         </div>
+      </div>
+
+      {/* Mobile: toggle between list and editor */}
+      <div className="lg:hidden">
+        {mobileView === "list" ? problemListPanel : editorPanel}
       </div>
     </div>
   );
