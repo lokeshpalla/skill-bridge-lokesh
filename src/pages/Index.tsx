@@ -43,18 +43,17 @@ const Index = () => {
   return (
     <div className="min-h-screen" role="document">
       {/* ─── HERO ─── */}
-      <section className="relative min-h-[92vh] flex items-center bg-gradient-hero overflow-hidden" aria-label="Hero">
-        <div className="absolute inset-0 opacity-[0.025]" style={{
-          backgroundImage: "linear-gradient(hsl(187 100% 50%) 1px, transparent 1px), linear-gradient(90deg, hsl(187 100% 50%) 1px, transparent 1px)",
-          backgroundSize: "60px 60px"
-        }} />
-        <div className="absolute top-1/4 left-1/6 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/6 w-[400px] h-[400px] bg-accent/8 rounded-full blur-[100px]" />
+      <section className="relative min-h-[92vh] flex items-center bg-background overflow-hidden" aria-label="Hero">
+        {/* BlezeX-style subtle grid background */}
+        <div className="absolute inset-0 bg-grid-subtle" />
+        
+        {/* Warm radial glow */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-primary/[0.04] rounded-full blur-[100px]" />
 
         <div className="container relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-sm font-medium mb-8">
                 <Sparkles className="w-4 h-4" />
                 AI-Powered Learning Platform
               </div>
@@ -72,12 +71,12 @@ const Index = () => {
 
               <div className="flex flex-col sm:flex-row gap-3 mb-10">
                 <Link to="/auth">
-                  <Button variant="hero" size="lg" className="text-base px-8 h-12">
-                    Start Free <ArrowRight className="w-4 h-4 ml-1" />
+                  <Button size="lg" className="text-base px-8 h-12 bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-glow rounded-xl gap-2">
+                    Start Free <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
                 <Link to="/courses">
-                  <Button variant="glow" size="lg" className="text-base px-8 h-12">
+                  <Button variant="outline" size="lg" className="text-base px-8 h-12 rounded-xl border-border hover:border-primary/30 hover:bg-primary/5">
                     Explore Courses
                   </Button>
                 </Link>
@@ -86,7 +85,7 @@ const Index = () => {
               <div className="flex items-center gap-6 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-success" />Free forever tier</span>
                 <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-primary" />Setup in 30s</span>
-                <span className="flex items-center gap-1.5"><Globe className="w-4 h-4 text-accent" />Used in 120+ countries</span>
+                <span className="flex items-center gap-1.5"><Globe className="w-4 h-4 text-primary/70" />120+ countries</span>
               </div>
             </motion.div>
 
@@ -107,7 +106,7 @@ const Index = () => {
       </section>
 
       {/* ─── TRUSTED BY ─── */}
-      <section className="py-10 border-b border-border/30 bg-muted/20" aria-label="Trusted companies">
+      <section className="py-10 border-b border-border/50 bg-background" aria-label="Trusted companies">
         <div className="container">
           <p className="text-center text-xs text-muted-foreground uppercase tracking-widest mb-6">Our learners work at</p>
           <div className="flex items-center justify-center gap-10 flex-wrap opacity-40">
@@ -119,8 +118,9 @@ const Index = () => {
       </section>
 
       {/* ─── STATS ─── */}
-      <section className="py-16 bg-background" aria-label="Platform statistics">
-        <div className="container">
+      <section className="py-16 bg-background relative" aria-label="Platform statistics">
+        <div className="absolute inset-0 bg-dot-grid opacity-40" />
+        <div className="container relative">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, i) => (
               <motion.div key={stat.label} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.1 }} className="text-center">
@@ -153,9 +153,9 @@ const Index = () => {
                   key={feature.title}
                   {...fadeUp}
                   transition={{ ...fadeUp.transition, delay: i * 0.08 }}
-                  className="glass-hover rounded-xl p-6 group cursor-pointer"
+                  className="rounded-2xl border border-border/60 bg-card p-6 group cursor-pointer hover:border-primary/25 hover:shadow-lg hover:shadow-primary/[0.04] transition-all duration-300"
                 >
-                  <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center mb-4 group-hover:bg-primary/12 transition-colors">
                     <Icon className="w-5 h-5 text-primary" />
                   </div>
                   <h3 className="text-base font-semibold mb-1.5">{feature.title}</h3>
@@ -168,8 +168,9 @@ const Index = () => {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section className="py-24 bg-muted/20 border-y border-border/30" aria-label="How it works">
-        <div className="container">
+      <section className="py-24 bg-muted/30 border-y border-border/50 relative" aria-label="How it works">
+        <div className="absolute inset-0 bg-grid-subtle" />
+        <div className="container relative">
           <motion.div {...fadeUp} className="text-center mb-16">
             <span className="text-xs text-primary uppercase tracking-widest font-medium">Process</span>
             <h2 className="text-3xl md:text-4xl font-bold mt-2">
@@ -209,7 +210,7 @@ const Index = () => {
           </motion.div>
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {testimonials.map((t, i) => (
-              <motion.div key={t.name} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.1 }} className="glass rounded-xl p-6">
+              <motion.div key={t.name} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.1 }} className="rounded-2xl border border-border/60 bg-card p-6 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/[0.03] transition-all duration-300">
                 <p className="text-sm text-muted-foreground mb-4 leading-relaxed italic">"{t.quote}"</p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-xl">{t.avatar}</div>
@@ -225,8 +226,9 @@ const Index = () => {
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="py-24 bg-gradient-hero relative overflow-hidden border-t border-border/30" aria-label="Call to action">
-        <div className="absolute inset-0 bg-gradient-primary opacity-[0.03]" />
+      <section className="py-24 bg-muted/20 relative overflow-hidden border-t border-border/50" aria-label="Call to action">
+        <div className="absolute inset-0 bg-dot-grid opacity-30" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/[0.03] rounded-full blur-[80px]" />
         <div className="container relative z-10 text-center">
           <motion.div {...fadeUp}>
             <h2 className="text-3xl md:text-5xl font-bold mb-4">
@@ -236,8 +238,8 @@ const Index = () => {
               Join 50,000+ developers who chose SkillBridge to accelerate their careers.
             </p>
             <Link to="/auth">
-              <Button variant="hero" size="lg" className="text-base px-10 h-12">
-                Get Started — It's Free <Zap className="w-4 h-4 ml-1" />
+              <Button size="lg" className="text-base px-10 h-12 bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-glow rounded-xl gap-2">
+                Get Started — It's Free <Zap className="w-4 h-4" />
               </Button>
             </Link>
             <p className="text-xs text-muted-foreground mt-4">No credit card required • Free forever tier</p>
@@ -249,7 +251,6 @@ const Index = () => {
       <footer className="py-16 border-t border-border/50 bg-card/50" role="contentinfo">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
-            {/* Brand */}
             <div className="col-span-2 md:col-span-1">
               <Link to="/" className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
@@ -274,7 +275,6 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Links */}
             {[
               { title: "Product", links: ["Courses", "Coding", "Mentors", "Internships", "Leaderboard"] },
               { title: "Company", links: ["About", "Careers", "Blog", "Press", "Contact"] },
