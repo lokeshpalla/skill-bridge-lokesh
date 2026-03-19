@@ -57,7 +57,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
           <header
-            className="h-14 flex items-center justify-between border-b border-border/40 px-4 bg-background/80 backdrop-blur-sm sticky top-0 z-30"
+            className="h-14 flex items-center justify-between border-b border-border/50 px-4 bg-background/90 backdrop-blur-sm sticky top-0 z-30"
             role="banner"
             aria-label="App header"
           >

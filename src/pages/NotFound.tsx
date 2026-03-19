@@ -6,10 +6,7 @@ import { Home, ArrowLeft } from "lucide-react";
 const NotFound = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-hero relative">
-      <div className="absolute inset-0 opacity-[0.02]" style={{
-        backgroundImage: "linear-gradient(hsl(187 100% 50%) 1px, transparent 1px), linear-gradient(90deg, hsl(187 100% 50%) 1px, transparent 1px)",
-        backgroundSize: "40px 40px"
-      }} />
+      <div className="absolute inset-0 bg-grid-subtle" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

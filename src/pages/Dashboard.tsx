@@ -226,7 +226,7 @@ const Dashboard = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl p-6 relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, hsl(187 100% 50% / 0.12), hsl(262 80% 60% / 0.08))" }}
+        style={{ background: "linear-gradient(135deg, hsl(22 90% 52% / 0.08), hsl(32 95% 55% / 0.05))" }}
       >
         <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-accent/5 rounded-full translate-y-1/2 -translate-x-1/2" />
