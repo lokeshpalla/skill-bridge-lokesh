@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Briefcase, Users, Plus, Eye, Trash2, ChevronRight,
@@ -88,7 +89,8 @@ export const statusLabels: Record<string, string> = {
 export const statusFlow = ["applied", "reviewing", "interview", "offered", "hired"];
 
 const RecruiterDashboard = () => {
-  const { user } = useAuth();
+  const { user, roles, rolesLoading, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [internships, setInternships] = useState<Internship[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [interviews, setInterviews] = useState<Interview[]>([]);
@@ -103,8 +105,11 @@ const RecruiterDashboard = () => {
   });
 
   useEffect(() => {
-    if (user) fetchData();
-  }, [user]);
+    if (authLoading || rolesLoading) return;
+    if (!user) { navigate("/auth"); return; }
+    if (!roles.includes("recruiter") && !roles.includes("admin")) { navigate("/dashboard"); return; }
+    fetchData();
+  }, [user, authLoading, rolesLoading, roles]);
 
   const fetchData = async () => {
     if (!user) return;
