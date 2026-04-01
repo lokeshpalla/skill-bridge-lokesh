@@ -40,7 +40,7 @@ const CHART_COLORS = [
 ];
 
 export default function AdminPage() {
-  const { user, session, roles } = useAuth();
+  const { user, session, roles, rolesLoading, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,10 +49,11 @@ export default function AdminPage() {
   const [tab, setTab] = useState<"overview" | "users" | "moderation" | "analytics" | "payouts" | "courses" | "mentors" | "announcements" | "recruiters">("overview");
 
   useEffect(() => {
+    if (authLoading || rolesLoading) return;
     if (!user) { navigate("/auth"); return; }
     if (!isAdmin) { setError("Admin access required"); setLoading(false); return; }
     fetchStats();
-  }, [user, isAdmin]);
+  }, [user, isAdmin, authLoading, rolesLoading]);
 
   const fetchStats = async () => {
     try {

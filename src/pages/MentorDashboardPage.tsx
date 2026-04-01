@@ -38,7 +38,7 @@ interface Review {
 const formatRupees = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
 
 const MentorDashboardPage = () => {
-  const { user } = useAuth();
+  const { user, roles, rolesLoading, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [mentorProfile, setMentorProfile] = useState<any>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -49,8 +49,11 @@ const MentorDashboardPage = () => {
   const [payments, setPayments] = useState<any[]>([]);
 
   useEffect(() => {
-    if (user) fetchData();
-  }, [user]);
+    if (authLoading || rolesLoading) return;
+    if (!user) { navigate("/auth"); return; }
+    if (!roles.includes("mentor") && !roles.includes("admin")) { navigate("/dashboard"); return; }
+    fetchData();
+  }, [user, authLoading, rolesLoading, roles]);
 
   const fetchData = async () => {
     if (!user) return;
