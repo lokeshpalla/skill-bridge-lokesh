@@ -235,7 +235,7 @@ const Index = () => {
               Ready to <span className="text-gradient">Bridge the Gap?</span>
             </h2>
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Join 50,000+ developers who chose SkillBridge to accelerate their careers.
+              Join 50,000+ developers who chose GreXil to accelerate their careers.
             </p>
             <Link to="/auth">
               <Button size="lg" className="text-base px-10 h-12 bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-glow rounded-xl gap-2">
