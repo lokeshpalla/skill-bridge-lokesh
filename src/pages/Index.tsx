@@ -292,7 +292,7 @@ const Index = () => {
           </div>
 
           <div className="border-t border-border/50 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-muted-foreground">© 2026 SkillBridge Technologies, Inc. All rights reserved.</p>
+            <p className="text-xs text-muted-foreground">© 2026 GreXil Technologies, Inc. All rights reserved.</p>
             <p className="text-xs text-muted-foreground">Built with ❤️ for developers worldwide</p>
           </div>
         </div>
