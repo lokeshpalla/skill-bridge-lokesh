@@ -253,10 +253,8 @@ const Index = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
             <div className="col-span-2 md:col-span-1">
               <Link to="/" className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-primary-foreground" />
-                </div>
-                <span className="font-bold text-lg">SkillBridge</span>
+                <img src={grexilLogo} alt="GreXil" className="w-8 h-8 rounded-lg object-cover" />
+                <span className="font-bold text-lg">GreXil</span>
               </Link>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 AI-powered learning platform for the next generation of developers.
