@@ -147,7 +147,7 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
             >
               <GraduationCap className="w-5 h-5 text-white" />
             </motion.div>
-            <span className="text-xl font-bold text-white tracking-tight">SkillBridge</span>
+            <span className="text-xl font-bold text-white tracking-tight">GreXil</span>
           </Link>
         </div>
 
