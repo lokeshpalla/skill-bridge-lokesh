@@ -25,7 +25,7 @@ const stats = [
 ];
 
 const testimonials = [
-  { name: "Priya M.", role: "SDE @ Amazon", quote: "SkillBridge's coding challenges and AI mentor helped me crack my dream job in 3 months.", avatar: "👩‍💻" },
+  { name: "Priya M.", role: "SDE @ Amazon", quote: "GreXil's coding challenges and AI mentor helped me crack my dream job in 3 months.", avatar: "👩‍💻" },
   { name: "James L.", role: "Frontend @ Stripe", quote: "The courses are incredibly well-structured. Better than any bootcamp I've tried.", avatar: "👨‍💼" },
   { name: "Sofia R.", role: "ML Engineer @ Google", quote: "The AI internship matcher connected me with the perfect opportunity. Life-changing.", avatar: "👩‍🔬" },
 ];
