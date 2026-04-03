@@ -113,7 +113,7 @@ const SplashScreen = () => {
 
           {/* Title — letter by letter */}
           <motion.div className="mt-8 flex overflow-hidden z-10">
-            {"SkillBridge".split("").map((char, i) => (
+            {"GreXil".split("").map((char, i) => (
               <motion.span
                 key={i}
                 initial={{ y: 40, opacity: 0, rotateX: -90 }}

@@ -36,12 +36,10 @@ const Navbar = () => {
       aria-label="Main navigation"
     >
       <div className="container flex items-center justify-between h-16">
-        <Link to="/" className="flex items-center gap-2 group" aria-label="SkillBridge home">
-          <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center" aria-hidden="true">
-            <Sparkles className="w-4 h-4 text-primary-foreground" />
-          </div>
+        <Link to="/" className="flex items-center gap-2 group" aria-label="GreXil home">
+          <img src={grexilLogo} alt="GreXil" className="w-8 h-8 rounded-lg object-cover" aria-hidden="true" />
           <span className="text-lg font-bold text-foreground group-hover:text-gradient transition-colors">
-            SkillBridge
+            GreXil
           </span>
         </Link>
 

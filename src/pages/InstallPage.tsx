@@ -127,7 +127,7 @@ const InstallPage = () => {
         <div className="bg-white rounded-2xl p-4 inline-block shadow-md border border-border/30">
           <img
             src="/qr-install.png"
-            alt="QR Code to install SkillBridge"
+            alt="QR Code to install GreXil"
             className="w-[200px] h-[200px] rounded-lg"
           />
         </div>
