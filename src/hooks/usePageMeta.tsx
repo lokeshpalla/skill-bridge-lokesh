@@ -47,7 +47,7 @@ const pageMeta: Record<string, { title: string; description: string; jsonLd?: ob
   "/talent": { title: "Browse Talent | GreXil", description: "Discover skilled developers ready for internships and jobs." },
 };
 
-const BASE_URL = "https://skill-bridge-lokesh.lovable.app";
+const BASE_URL = "https://grexil-lokesh01.lovable.app";
 
 export function usePageMeta() {
   const location = useLocation();
