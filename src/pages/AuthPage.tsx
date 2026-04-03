@@ -147,7 +147,7 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
             >
               <GraduationCap className="w-5 h-5 text-white" />
             </motion.div>
-            <span className="text-xl font-bold text-white tracking-tight">SkillBridge</span>
+            <span className="text-xl font-bold text-white tracking-tight">GreXil</span>
           </Link>
         </div>
 
@@ -227,7 +227,7 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
         </div>
 
         <div className="relative z-10">
-          <p className="text-xs text-white/30">© 2026 SkillBridge · Made with ❤️</p>
+          <p className="text-xs text-white/30">© 2026 GreXil · Made with ❤️</p>
         </div>
       </div>
 
@@ -244,7 +244,7 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
               <GraduationCap className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="text-lg font-bold tracking-tight">SkillBridge</span>
+            <span className="text-lg font-bold tracking-tight">GreXil</span>
           </div>
 
           {/* Warm greeting */}

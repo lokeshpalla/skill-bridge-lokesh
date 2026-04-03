@@ -84,7 +84,7 @@ export function NotificationBell() {
           if (document.hidden || !open) {
             showNotification(newNotif.title, {
               body: newNotif.message || "",
-              tag: `skillbridge-${newNotif.type}-${newNotif.id}`,
+              tag: `grexil-${newNotif.type}-${newNotif.id}`,
               data: { url: newNotif.link || "/dashboard" },
             });
           }

@@ -31,7 +31,7 @@ export function usePushNotifications() {
             body: options?.body || "",
             icon: options?.icon || "/pwa-192x192.png",
             badge: "/pwa-192x192.png",
-            tag: options?.tag || "skillbridge-notification",
+            tag: options?.tag || "grexil-notification",
             data: options?.data,
             requireInteraction: false,
           };
@@ -43,7 +43,7 @@ export function usePushNotifications() {
         const notification = new Notification(title, {
           body: options?.body || "",
           icon: options?.icon || "/pwa-192x192.png",
-          tag: options?.tag || "skillbridge-notification",
+          tag: options?.tag || "grexil-notification",
         });
         if (options?.data?.url) {
           notification.onclick = () => {

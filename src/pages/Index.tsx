@@ -7,6 +7,7 @@ import {
   Github, Twitter, Linkedin, Mail, Shield, Globe, Clock
 } from "lucide-react";
 import heroIllustration from "@/assets/hero-illustration.png";
+import grexilLogo from "@/assets/grexil-logo.jpeg";
 
 const features = [
   { icon: Code2, title: "LeetCode-Style Coding", desc: "500+ problems with real-time execution, AI hints, and complexity analysis" },
@@ -25,7 +26,7 @@ const stats = [
 ];
 
 const testimonials = [
-  { name: "Priya M.", role: "SDE @ Amazon", quote: "SkillBridge's coding challenges and AI mentor helped me crack my dream job in 3 months.", avatar: "👩‍💻" },
+  { name: "Priya M.", role: "SDE @ Amazon", quote: "GreXil's coding challenges and AI mentor helped me crack my dream job in 3 months.", avatar: "👩‍💻" },
   { name: "James L.", role: "Frontend @ Stripe", quote: "The courses are incredibly well-structured. Better than any bootcamp I've tried.", avatar: "👨‍💼" },
   { name: "Sofia R.", role: "ML Engineer @ Google", quote: "The AI internship matcher connected me with the perfect opportunity. Life-changing.", avatar: "👩‍🔬" },
 ];
@@ -97,7 +98,7 @@ const Index = () => {
             >
               <img
                 src={heroIllustration}
-                alt="SkillBridge platform dashboard preview"
+                alt="GreXil platform dashboard preview"
                 className="w-full max-w-lg mx-auto animate-float drop-shadow-2xl"
               />
             </motion.div>
@@ -235,7 +236,7 @@ const Index = () => {
               Ready to <span className="text-gradient">Bridge the Gap?</span>
             </h2>
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Join 50,000+ developers who chose SkillBridge to accelerate their careers.
+              Join 50,000+ developers who chose GreXil to accelerate their careers.
             </p>
             <Link to="/auth">
               <Button size="lg" className="text-base px-10 h-12 bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-glow rounded-xl gap-2">
@@ -253,10 +254,8 @@ const Index = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
             <div className="col-span-2 md:col-span-1">
               <Link to="/" className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-primary-foreground" />
-                </div>
-                <span className="font-bold text-lg">SkillBridge</span>
+                <img src={grexilLogo} alt="GreXil" className="w-8 h-8 rounded-lg object-cover" />
+                <span className="font-bold text-lg">GreXil</span>
               </Link>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 AI-powered learning platform for the next generation of developers.
@@ -294,7 +293,7 @@ const Index = () => {
           </div>
 
           <div className="border-t border-border/50 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-muted-foreground">© 2026 SkillBridge Technologies, Inc. All rights reserved.</p>
+            <p className="text-xs text-muted-foreground">© 2026 GreXil Technologies, Inc. All rights reserved.</p>
             <p className="text-xs text-muted-foreground">Built with ❤️ for developers worldwide</p>
           </div>
         </div>
