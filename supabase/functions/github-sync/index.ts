@@ -14,7 +14,7 @@ serve(async (req) => {
 
     // Fetch profile
     const profileRes = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`, {
-      headers: { "Accept": "application/vnd.github.v3+json", "User-Agent": "SkillBridge" },
+      headers: { "Accept": "application/vnd.github.v3+json", "User-Agent": "GreXil" },
     });
     if (!profileRes.ok) {
       if (profileRes.status === 404) throw new Error("GitHub user not found");
