@@ -55,7 +55,7 @@ export function usePageMeta() {
   useEffect(() => {
     const path = location.pathname;
     const meta = pageMeta[path] || {
-      title: "SkillBridge — AI-Powered Learning Platform",
+      title: "GreXil — AI-Powered Learning Platform",
       description: "Master coding, land internships, and build your career.",
     };
 
