@@ -110,10 +110,10 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
 
   return (
     <div ref={ref} className="min-h-screen flex bg-background overflow-hidden">
-      {/* Left panel — warm & inviting */}
+      {/* Left panel — bold & professional */}
       <div className="hidden lg:flex lg:w-[48%] relative overflow-hidden flex-col justify-between p-12"
         style={{
-          background: "linear-gradient(160deg, hsl(32 95% 55%), hsl(15 85% 55%), hsl(340 75% 55%))"
+          background: "linear-gradient(160deg, hsl(217 78% 36%), hsl(210 85% 45%), hsl(220 70% 30%))"
         }}
       >
         {/* Floating shapes for warmth */}
