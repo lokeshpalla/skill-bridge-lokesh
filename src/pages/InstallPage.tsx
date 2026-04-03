@@ -122,7 +122,7 @@ const InstallPage = () => {
           <h2 className="text-sm font-semibold">Scan to Install</h2>
         </div>
         <p className="text-xs text-muted-foreground mb-4">
-          Scan this QR code from any device to open and install SkillBridge
+          Scan this QR code from any device to open and install GreXil
         </p>
         <div className="bg-white rounded-2xl p-4 inline-block shadow-md border border-border/30">
           <img
