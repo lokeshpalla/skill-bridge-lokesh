@@ -227,7 +227,7 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
         </div>
 
         <div className="relative z-10">
-          <p className="text-xs text-white/30">© 2026 SkillBridge · Made with ❤️</p>
+          <p className="text-xs text-white/30">© 2026 GreXil · Made with ❤️</p>
         </div>
       </div>
 
