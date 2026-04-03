@@ -97,7 +97,7 @@ const Index = () => {
             >
               <img
                 src={heroIllustration}
-                alt="SkillBridge platform dashboard preview"
+                alt="GreXil platform dashboard preview"
                 className="w-full max-w-lg mx-auto animate-float drop-shadow-2xl"
               />
             </motion.div>
