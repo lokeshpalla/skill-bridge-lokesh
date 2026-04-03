@@ -94,9 +94,9 @@ const SplashScreen = () => {
                 ? { duration: 0.8, ease: "easeInOut" }
                 : { type: "spring", stiffness: 180, damping: 14, delay: 0.3 }
             }
-            className="relative w-24 h-24 rounded-3xl bg-gradient-primary flex items-center justify-center shadow-2xl shadow-primary/40 z-10"
+            className="relative w-24 h-24 rounded-3xl overflow-hidden shadow-2xl shadow-primary/40 z-10"
           >
-            <Sparkles className="w-12 h-12 text-primary-foreground" />
+            <img src={grexilLogo} alt="GreXil" className="w-full h-full object-cover" />
 
             {/* Ring pulse */}
             <motion.div
