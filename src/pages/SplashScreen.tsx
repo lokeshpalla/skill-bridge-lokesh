@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import grexilLogo from "@/assets/grexil-logo.jpeg";
 import { useAuth } from "@/hooks/useAuth";
 
 const particles = Array.from({ length: 20 }, (_, i) => ({
