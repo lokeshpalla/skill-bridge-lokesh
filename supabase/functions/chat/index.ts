@@ -24,7 +24,7 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are SkillBridge Nexus AI Assistant — a helpful, encouraging learning companion for developers. You help with:
+            content: `You are GreXil Nexus AI Assistant — a helpful, encouraging learning companion for developers. You help with:
 - Coding questions (algorithms, data structures, system design)
 - Career advice (resume tips, interview prep, job search)
 - Course recommendations and learning paths

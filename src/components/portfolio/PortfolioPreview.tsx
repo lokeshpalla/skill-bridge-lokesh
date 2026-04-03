@@ -509,7 +509,7 @@ const PortfolioPreview = ({ profile, projects, onBack, shareUserId }: PortfolioP
               fontSize: "12px", color: c.textMuted,
             }}>
               © {new Date().getFullYear()} {profile.display_name}. Built with{" "}
-              <span style={{ color: c.cyan }}>SkillBridge</span>
+              <span style={{ color: c.cyan }}>GreXil</span>
             </div>
           </div>
         </div>

@@ -244,7 +244,7 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
               <GraduationCap className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="text-lg font-bold tracking-tight">SkillBridge</span>
+            <span className="text-lg font-bold tracking-tight">GreXil</span>
           </div>
 
           {/* Warm greeting */}
