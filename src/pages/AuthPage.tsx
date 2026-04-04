@@ -210,7 +210,7 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
             {[
               { icon: Users, num: "10K+", label: "Happy Learners" },
               { icon: BookOpen, num: "200+", label: "Free Courses" },
-              { icon: num: "95%", label: "Love It" },
+              { icon: Trophy, num: "95%", label: "Love It" },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
