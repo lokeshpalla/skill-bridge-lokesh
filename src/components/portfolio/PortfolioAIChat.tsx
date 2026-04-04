@@ -1,8 +1,9 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Send, X, Bot, User, Loader2, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { Send, X, Bot, User, Loader2, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 
@@ -263,7 +264,7 @@ const PortfolioAIChat = ({ portfolioContext, externalOpen, onExternalOpenChange 
               className="rounded-full w-14 h-14 shadow-lg shadow-primary/20 gap-0"
               variant="default"
             >
-              <Sparkles className="w-5 h-5" />
+              <GxIcon className="w-5 h-5" />
             </Button>
           </motion.div>
         )}
@@ -282,7 +283,7 @@ const PortfolioAIChat = ({ portfolioContext, externalOpen, onExternalOpenChange 
             <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-secondary/30">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  <GxIcon className="w-3.5 h-3.5 text-primary" />
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold">Portfolio AI</h3>

@@ -1,6 +1,7 @@
+import GxIcon from "@/components/ui/GxIcon";
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
-  LayoutDashboard, Sparkles, LogOut, User, ChevronLeft, Settings, Award, MessageSquare, Download, Brain, Compass, Shield, Video, BarChart3, HandshakeIcon, Building2, Search
+  LayoutDashboard, LogOut, User, ChevronLeft, Settings, Award, MessageSquare, Download, Brain, Compass, Shield, Video, BarChart3, HandshakeIcon, Building2, Search
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate, Link } from "react-router-dom";

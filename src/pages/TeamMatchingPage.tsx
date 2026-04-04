@@ -1,3 +1,4 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  Users, Search, UserPlus, Sparkles, Zap,
+  Users, Search, UserPlus, Zap,
   HandshakeIcon, Plus, Trash2, UserMinus, Eye, Link, Check, GitBranch
 } from "lucide-react";
 import { toast } from "sonner";
@@ -387,7 +388,7 @@ export default function TeamMatchingPage() {
 
       {userSkills.length === 0 && (
         <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 flex items-center gap-3">
-          <Sparkles className="w-5 h-5 text-amber-400 flex-shrink-0" />
+          <GxIcon className="w-5 h-5 text-amber-400 flex-shrink-0" />
           <div>
             <p className="text-sm font-medium text-foreground">Add your skills for smart matching</p>
             <p className="text-xs text-muted-foreground">
@@ -498,7 +499,7 @@ export default function TeamMatchingPage() {
                                   : "bg-muted/50 text-muted-foreground"
                               }`}
                             >
-                              {isMatch && <Sparkles className="w-2.5 h-2.5 mr-1" />}
+                              {isMatch && <GxIcon className="w-2.5 h-2.5 mr-1" />}
                               {tech}
                             </Badge>
                           );

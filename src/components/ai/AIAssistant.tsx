@@ -1,8 +1,9 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   MessageCircle, X, Send, Bot, User, Loader2, Mic, MicOff,
-  Volume2, VolumeX, Globe, Trash2, Plus, Sparkles, ChevronDown
+  Volume2, VolumeX, Globe, Trash2, Plus, ChevronDown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -389,7 +390,7 @@ const AIAssistant = () => {
               onClick={() => setOpen(true)}
               className="group relative h-14 w-14 rounded-2xl bg-gradient-primary shadow-glow flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
             >
-              <Sparkles className="w-6 h-6 text-primary-foreground transition-transform group-hover:rotate-12" />
+              <GxIcon className="w-6 h-6 text-primary-foreground transition-transform group-hover:rotate-12" />
               <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-success animate-pulse" />
             </button>
           </motion.div>
@@ -418,7 +419,7 @@ const AIAssistant = () => {
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
-                  <Sparkles className="w-5 h-5 text-primary-foreground" />
+                  <GxIcon className="w-5 h-5 text-primary-foreground" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-foreground">AI Assistant</h3>

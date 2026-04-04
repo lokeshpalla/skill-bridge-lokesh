@@ -1,8 +1,9 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
-  LayoutDashboard, Menu, X, Sparkles, LogOut, User
+  LayoutDashboard, Menu, X, LogOut, User
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";

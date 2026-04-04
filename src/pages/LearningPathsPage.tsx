@@ -1,7 +1,8 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Compass, Sparkles, Clock, ArrowRight, BookOpen, Target,
+  Compass, Clock, ArrowRight, BookOpen, Target,
   Loader2, ChevronRight, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -106,7 +107,7 @@ const LearningPathsPage = () => {
           <p className="text-sm text-muted-foreground mt-1">Structured roadmaps to guide your learning journey</p>
         </div>
         <Button variant="hero" size="sm" className="gap-1.5 text-xs" onClick={getRecommendations} disabled={loadingRec}>
-          {loadingRec ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+          {loadingRec ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <GxIcon className="w-3.5 h-3.5" />}
           AI Recommend
         </Button>
       </motion.div>
@@ -233,7 +234,7 @@ const LearningPathsPage = () => {
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                 className="rounded-xl border border-primary/20 bg-primary/5 p-4">
                 <div className="flex items-start gap-2">
-                  <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <GxIcon className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                   <p className="text-xs text-foreground">{recommendations.reasoning}</p>
                 </div>
               </motion.div>
@@ -316,7 +317,7 @@ const LearningPathsPage = () => {
             </>
           ) : (
             <div className="text-center py-12">
-              <Sparkles className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+              <GxIcon className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">Click "AI Recommend" to get personalized suggestions</p>
             </div>
           )}

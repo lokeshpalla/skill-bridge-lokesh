@@ -1,6 +1,7 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, BookOpen, ArrowRight } from "lucide-react";
+import { BookOpen, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -70,7 +71,7 @@ export default function StudentRecommendations({ userId, skills }: { userId: str
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-accent" />
+          <GxIcon className="w-4 h-4 text-accent" />
           <h2 className="text-sm font-semibold">Recommended for You</h2>
         </div>
         <Link to="/courses" className="text-[11px] text-primary hover:underline">Browse all</Link>
