@@ -1,7 +1,8 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useState, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, User, Eye, EyeOff, Loader2, Phone, GraduationCap, ArrowRight, Heart, Sparkles, BookOpen, Users } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, Loader2, Phone, GraduationCap, ArrowRight, Heart, BookOpen, Users, Trophy } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -209,7 +210,7 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
             {[
               { icon: Users, num: "10K+", label: "Happy Learners" },
               { icon: BookOpen, num: "200+", label: "Free Courses" },
-              { icon: Sparkles, num: "95%", label: "Love It" },
+              { icon: Trophy, num: "95%", label: "Love It" },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}

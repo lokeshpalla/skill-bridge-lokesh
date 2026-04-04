@@ -1,8 +1,9 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Flame, BookOpen, Code2, Trophy, Target,
-  Calendar, Award, Zap, ArrowUpRight, Sparkles, Clock, RotateCcw
+  Calendar, Award, Zap, ArrowUpRight, Clock, RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -234,7 +235,7 @@ const Dashboard = () => {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-primary" />
+                <GxIcon className="w-4 h-4 text-primary" />
               </div>
               <span className="text-[10px] font-semibold uppercase tracking-widest text-primary/80">Student Dashboard</span>
             </div>
@@ -410,7 +411,7 @@ const Dashboard = () => {
         <h2 className="text-sm font-semibold mb-4">Recent Activity</h2>
         {recentActivity.length === 0 ? (
           <div className="text-center py-6">
-            <Sparkles className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+            <GxIcon className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
             <p className="text-xs text-muted-foreground">No activity yet. Start solving problems!</p>
           </div>
         ) : (

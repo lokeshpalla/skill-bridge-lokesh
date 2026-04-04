@@ -1,3 +1,4 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Plus, Github, Globe, User, Trash2, Edit2, ExternalLink, FolderKanban, Eye, Share2, Copy, Check, Sparkles, FileText,
+  Plus, Github, Globe, User, Trash2, Edit2, ExternalLink, FolderKanban, Eye, Share2, Copy, Check, FileText,
 } from "lucide-react";
 
 interface Profile {
@@ -122,7 +123,7 @@ const PortfolioForm = ({ profile, projects, onSave, onDelete, onPreview, onOpenA
             <FileText className="w-4 h-4" /> Resume Maker
           </Button>
           <Button variant="outline" size="sm" className="gap-1.5" onClick={onOpenAI}>
-            <Sparkles className="w-4 h-4" /> AI Assistant
+            <GxIcon className="w-4 h-4" /> AI Assistant
           </Button>
           <Button variant="default" size="sm" className="gap-1.5" onClick={openCreate}>
             <Plus className="w-4 h-4" /> Add Project

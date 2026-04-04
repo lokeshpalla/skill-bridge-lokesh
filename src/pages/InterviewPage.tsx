@@ -1,8 +1,9 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Mic, MicOff, Send, StopCircle, Play, Brain, Code2, Layout,
-  Server, Users, Sparkles, Clock, Trophy, Volume2, VolumeX
+  Server, Users, Clock, Trophy, Volume2, VolumeX
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";

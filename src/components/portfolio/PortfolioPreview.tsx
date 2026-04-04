@@ -1,7 +1,8 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Download, Github, Globe, ExternalLink, Mail, Linkedin, ArrowLeft, Sparkles, Briefcase, Share2, Copy, Check } from "lucide-react";
+import { Download, Github, Globe, ExternalLink, Mail, Linkedin, ArrowLeft, Briefcase, Share2, Copy, Check } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
@@ -324,7 +325,7 @@ const PortfolioPreview = ({ profile, projects, onBack, shareUserId }: PortfolioP
           {profile.skills && profile.skills.length > 0 && (
             <div style={{ padding: "64px 40px", borderTop: `1px solid ${c.border}` }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                <Sparkles style={{ width: "18px", height: "18px", color: c.cyan }} />
+                <GxIcon style={{ width: "18px", height: "18px", color: c.cyan }} />
                 <span style={{ fontSize: "12px", fontWeight: 600, color: c.cyan, textTransform: "uppercase", letterSpacing: "2px" }}>
                   Skills & Technologies
                 </span>

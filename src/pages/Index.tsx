@@ -1,9 +1,10 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
-  Sparkles, ArrowRight, Zap, Brain, Target, TrendingUp,
+  ArrowRight, Zap, Brain, Target, TrendingUp,
   Github, Twitter, Linkedin, Mail, Shield, Globe, Clock
 } from "lucide-react";
 import heroIllustration from "@/assets/hero-illustration.png";
@@ -55,7 +56,7 @@ const Index = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-sm font-medium mb-8">
-                <Sparkles className="w-4 h-4" />
+                <GxIcon className="w-4 h-4" />
                 AI-Powered Learning Platform
               </div>
 

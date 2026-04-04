@@ -1,10 +1,11 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useState, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Code2, BookOpen, Brain, Briefcase, Rocket, ArrowRight,
-  CheckCircle2, Sparkles, Target, Users
+  CheckCircle2, Target, Users
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -73,7 +74,7 @@ const OnboardingFlow = forwardRef<HTMLDivElement, OnboardingProps>(function Onbo
     // Step 0: Welcome
     <motion.div key="welcome" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="text-center space-y-6">
       <div className="w-20 h-20 rounded-2xl bg-gradient-primary mx-auto flex items-center justify-center shadow-glow">
-        <Sparkles className="w-9 h-9 text-primary-foreground" aria-hidden="true" />
+        <GxIcon className="w-9 h-9 text-primary-foreground" aria-hidden="true" />
       </div>
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Welcome to GreXil! 🎉</h2>

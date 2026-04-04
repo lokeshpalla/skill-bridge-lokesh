@@ -1,6 +1,7 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Brain, Sparkles, Search, Trophy, Target, Loader2 } from "lucide-react";
+import { Brain, Search, Trophy, Target, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -155,7 +156,7 @@ const RecruiterAIMatch = ({ internships, applications }: Props) => {
 
           <Button variant="hero" className="gap-2" onClick={runAIMatch}
             disabled={loading || (!selectedInternship && !customQuery)}>
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <GxIcon className="w-4 h-4" />}
             {loading ? "Analyzing candidates..." : "Find Best Matches"}
           </Button>
         </div>

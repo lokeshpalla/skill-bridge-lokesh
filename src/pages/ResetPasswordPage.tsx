@@ -1,7 +1,8 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Lock, Eye, EyeOff, Sparkles, Loader2, CheckCircle } from "lucide-react";
+import { Lock, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -58,7 +59,7 @@ const ResetPasswordPage = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md mx-4">
           <div className="glass rounded-2xl p-8 shadow-card text-center">
-            <Sparkles className="w-10 h-10 text-primary mx-auto mb-4" />
+            <GxIcon className="w-10 h-10 text-primary mx-auto mb-4" />
             <h1 className="text-xl font-bold mb-2">Invalid Reset Link</h1>
             <p className="text-sm text-muted-foreground mb-6">This link is invalid or has expired. Please request a new password reset.</p>
             <Link to="/auth">
@@ -81,7 +82,7 @@ const ResetPasswordPage = () => {
         <div className="glass rounded-2xl p-8 shadow-card">
           <div className="text-center mb-8">
             <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-5 h-5 text-primary-foreground" />
+              <GxIcon className="w-5 h-5 text-primary-foreground" />
             </div>
             <h1 className="text-2xl font-bold">Set New Password</h1>
             <p className="text-sm text-muted-foreground mt-1">Enter your new password below</p>

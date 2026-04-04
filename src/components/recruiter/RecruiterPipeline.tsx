@@ -1,6 +1,7 @@
+import GxIcon from "@/components/ui/GxIcon";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Users, ChevronRight, XCircle, Calendar, Eye, Trophy, Code2, Award, ExternalLink, Brain, Sparkles, BookOpen } from "lucide-react";
+import { Users, ChevronRight, XCircle, Calendar, Eye, Trophy, Code2, Award, ExternalLink, Brain, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -125,7 +126,7 @@ const RecruiterPipeline = ({ internships, applications, selectedInternship, onSe
                             skillMatch.pct >= 50 ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" :
                             "bg-red-500/10 text-red-400 border-red-500/20"
                           }`}>
-                            <Sparkles className="w-2.5 h-2.5 inline mr-0.5" />
+                            <GxIcon className="w-2.5 h-2.5 inline mr-0.5" />
                             {skillMatch.pct}% match ({skillMatch.matched}/{skillMatch.total})
                           </span>
                         )}
