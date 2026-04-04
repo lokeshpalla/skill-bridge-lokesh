@@ -2,7 +2,7 @@ import GxIcon from "@/components/ui/GxIcon";
 import { useState, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, User, Eye, EyeOff, Loader2, Phone, GraduationCap, ArrowRight, Heart, BookOpen, Users } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, Loader2, Phone, GraduationCap, ArrowRight, Heart, BookOpen, Users, Trophy } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
