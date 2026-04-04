@@ -7,7 +7,7 @@ import {
   Github, Twitter, Linkedin, Mail, Shield, Globe, Clock
 } from "lucide-react";
 import heroIllustration from "@/assets/hero-illustration.png";
-import grexilLogo from "@/assets/grexil-logo.jpeg";
+import grexilLogo from "@/assets/grexil-logo.png";
 
 const features = [
   { icon: Code2, title: "LeetCode-Style Coding", desc: "500+ problems with real-time execution, AI hints, and complexity analysis" },
