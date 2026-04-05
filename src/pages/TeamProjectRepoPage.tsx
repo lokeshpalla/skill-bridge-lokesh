@@ -279,12 +279,14 @@ export default function TeamProjectRepoPage() {
   const [readmeContent, setReadmeContent] = useState<string | null>(null);
   useEffect(() => {
     if (readmeFile) {
-      const { data } = supabase.storage
+      supabase.storage
         .from("team-projects")
-        .getPublicUrl(readmeFile.file_path);
-      fetch(data.publicUrl)
-        .then(res => res.text())
-        .then(setReadmeContent)
+        .createSignedUrl(readmeFile.file_path, 3600)
+        .then(({ data }) => {
+          if (data?.signedUrl) {
+            return fetch(data.signedUrl).then(res => res.text()).then(setReadmeContent);
+          }
+        })
         .catch(() => setReadmeContent(null));
     } else {
       setReadmeContent(null);
