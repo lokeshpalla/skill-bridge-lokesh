@@ -165,9 +165,9 @@ export default function TeamProjectRepoPage() {
         continue;
       }
 
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = await supabase.storage
         .from("team-projects")
-        .getPublicUrl(storagePath);
+        .createSignedUrl(storagePath, 3600);
 
       await supabase.from("project_files").insert({
         project_id: projectId,
