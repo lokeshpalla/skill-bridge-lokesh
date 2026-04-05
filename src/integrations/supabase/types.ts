@@ -1590,6 +1590,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      issue_certificate: { Args: { p_course_id: number }; Returns: string }
       record_activity: {
         Args: { _minutes_spent?: number; _user_id: string; _xp_amount: number }
         Returns: Json
