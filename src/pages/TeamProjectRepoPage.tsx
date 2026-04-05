@@ -210,10 +210,10 @@ export default function TeamProjectRepoPage() {
     setFileUrl(null);
 
     const ext = file.file_name.split(".").pop()?.toLowerCase() || "";
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = await supabase.storage
       .from("team-projects")
-      .getPublicUrl(file.file_path);
-    const publicUrl = urlData.publicUrl;
+      .createSignedUrl(file.file_path, 3600);
+    const publicUrl = urlData?.signedUrl;
 
     if (IMAGE_EXTENSIONS.includes(ext)) {
       setFileUrl(publicUrl);
