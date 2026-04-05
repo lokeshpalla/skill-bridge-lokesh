@@ -165,9 +165,9 @@ export default function TeamProjectRepoPage() {
         continue;
       }
 
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = await supabase.storage
         .from("team-projects")
-        .getPublicUrl(storagePath);
+        .createSignedUrl(storagePath, 3600);
 
       await supabase.from("project_files").insert({
         project_id: projectId,
@@ -210,10 +210,10 @@ export default function TeamProjectRepoPage() {
     setFileUrl(null);
 
     const ext = file.file_name.split(".").pop()?.toLowerCase() || "";
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = await supabase.storage
       .from("team-projects")
-      .getPublicUrl(file.file_path);
-    const publicUrl = urlData.publicUrl;
+      .createSignedUrl(file.file_path, 3600);
+    const publicUrl = urlData?.signedUrl;
 
     if (IMAGE_EXTENSIONS.includes(ext)) {
       setFileUrl(publicUrl);
@@ -234,12 +234,13 @@ export default function TeamProjectRepoPage() {
     setFileUrl(publicUrl);
   };
 
-  const handleDownload = (file: ProjectFile) => {
-    const { data } = supabase.storage
+  const handleDownload = async (file: ProjectFile) => {
+    const { data } = await supabase.storage
       .from("team-projects")
-      .getPublicUrl(file.file_path);
+      .createSignedUrl(file.file_path, 3600);
+    if (!data?.signedUrl) return;
     const a = document.createElement("a");
-    a.href = data.publicUrl;
+    a.href = data.signedUrl;
     a.download = file.file_name;
     a.click();
   };
@@ -278,12 +279,14 @@ export default function TeamProjectRepoPage() {
   const [readmeContent, setReadmeContent] = useState<string | null>(null);
   useEffect(() => {
     if (readmeFile) {
-      const { data } = supabase.storage
+      supabase.storage
         .from("team-projects")
-        .getPublicUrl(readmeFile.file_path);
-      fetch(data.publicUrl)
-        .then(res => res.text())
-        .then(setReadmeContent)
+        .createSignedUrl(readmeFile.file_path, 3600)
+        .then(({ data }) => {
+          if (data?.signedUrl) {
+            return fetch(data.signedUrl).then(res => res.text()).then(setReadmeContent);
+          }
+        })
         .catch(() => setReadmeContent(null));
     } else {
       setReadmeContent(null);
