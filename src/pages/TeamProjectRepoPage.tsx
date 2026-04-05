@@ -234,12 +234,13 @@ export default function TeamProjectRepoPage() {
     setFileUrl(publicUrl);
   };
 
-  const handleDownload = (file: ProjectFile) => {
-    const { data } = supabase.storage
+  const handleDownload = async (file: ProjectFile) => {
+    const { data } = await supabase.storage
       .from("team-projects")
-      .getPublicUrl(file.file_path);
+      .createSignedUrl(file.file_path, 3600);
+    if (!data?.signedUrl) return;
     const a = document.createElement("a");
-    a.href = data.publicUrl;
+    a.href = data.signedUrl;
     a.download = file.file_name;
     a.click();
   };
