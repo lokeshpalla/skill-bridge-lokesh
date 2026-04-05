@@ -291,10 +291,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
     }, { onConflict: "user_id,course_id" });
 
     if (passed) {
-      await supabase.from("course_certificates").upsert({
-        user_id: user.id, course_id: courseId,
-        course_title: courseTitle, grade, percentage: pct,
-      }, { onConflict: "user_id,course_id" });
+      await supabase.rpc("issue_certificate", { p_course_id: courseId });
       onCertificateEarned();
     }
     setSaving(false);

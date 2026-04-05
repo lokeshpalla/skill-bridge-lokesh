@@ -1583,6 +1583,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      award_badge: {
+        Args: { p_badge_id: string; p_user_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1590,6 +1594,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      issue_certificate: { Args: { p_course_id: number }; Returns: string }
       record_activity: {
         Args: { _minutes_spent?: number; _user_id: string; _xp_amount: number }
         Returns: Json
