@@ -347,9 +347,31 @@ const AIAssistant = () => {
       });
     };
 
+    // Fetch user context for personalized AI
+    let userContext: UserContext | undefined;
+    if (user) {
+      try {
+        const [profileRes, enrollmentRes] = await Promise.all([
+          supabase.from("profiles").select("display_name, xp, streak, skills").eq("user_id", user.id).maybeSingle(),
+          supabase.from("course_enrollments").select("courses(title)").eq("user_id", user.id).limit(10),
+        ]);
+        const solvedKey = `solved_problems_${user.id}`;
+        const solved: number[] = JSON.parse(localStorage.getItem(solvedKey) || "[]");
+        userContext = {
+          displayName: profileRes.data?.display_name || undefined,
+          xp: profileRes.data?.xp ?? undefined,
+          streak: profileRes.data?.streak ?? undefined,
+          skills: (profileRes.data?.skills as string[]) || undefined,
+          enrolledCourses: enrollmentRes.data?.map((e: any) => e.courses?.title).filter(Boolean) || undefined,
+          solvedCount: solved.length || undefined,
+        };
+      } catch { /* non-critical */ }
+    }
+
     try {
       await streamChat({
         messages: newMessages,
+        userContext,
         onDelta: upsertAssistant,
         onDone: async () => {
           setIsStreaming(false);
