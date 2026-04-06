@@ -9,14 +9,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 
 const languages = [
-  { id: "javascript", label: "JavaScript", icon: "JS", color: "text-warning" },
-  { id: "python", label: "Python", icon: "PY", color: "text-success" },
-  { id: "java", label: "Java", icon: "JV", color: "text-destructive" },
-  { id: "cpp", label: "C++", icon: "C+", color: "text-primary" },
-  { id: "typescript", label: "TypeScript", icon: "TS", color: "text-accent" },
-  { id: "go", label: "Go", icon: "GO", color: "text-primary" },
-  { id: "rust", label: "Rust", icon: "RS", color: "text-warning" },
-  { id: "csharp", label: "C#", icon: "C#", color: "text-accent" },
+  { id: "javascript", label: "JavaScript", icon: "JS", color: "text-warning", supported: true },
+  { id: "python", label: "Python", icon: "PY", color: "text-success", supported: false },
+  { id: "java", label: "Java", icon: "JV", color: "text-destructive", supported: false },
+  { id: "cpp", label: "C++", icon: "C+", color: "text-primary", supported: false },
+  { id: "typescript", label: "TypeScript", icon: "TS", color: "text-accent", supported: false },
+  { id: "go", label: "Go", icon: "GO", color: "text-primary", supported: false },
+  { id: "rust", label: "Rust", icon: "RS", color: "text-warning", supported: false },
+  { id: "csharp", label: "C#", icon: "C#", color: "text-accent", supported: false },
 ];
 
 const diffColor: Record<string, string> = {
