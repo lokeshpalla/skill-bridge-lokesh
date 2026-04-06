@@ -98,29 +98,21 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ─── TRUSTED BY ─── */}
-      <section className="py-10 border-b border-border/50 bg-background" aria-label="Trusted companies">
-        <div className="container">
-          <p className="text-center text-xs text-muted-foreground uppercase tracking-widest mb-6">Our learners work at</p>
-          <div className="flex items-center justify-center gap-10 flex-wrap opacity-40">
-            {trustedBy.map((name) => (
-              <span key={name} className="text-lg font-bold tracking-wide">{name}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── STATS ─── */}
       <section className="py-16 bg-background relative" aria-label="Platform statistics">
         <div className="absolute inset-0 bg-dot-grid opacity-40" />
         <div className="container relative">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, i) => (
-              <motion.div key={stat.label} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.1 }} className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-gradient mb-1">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </motion.div>
-            ))}
+          <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+            {stats.map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <motion.div key={stat.label} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.1 }} className="text-center">
+                  <Icon className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                  <div className="text-4xl md:text-5xl font-bold text-gradient mb-1">{stat.value}</div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
