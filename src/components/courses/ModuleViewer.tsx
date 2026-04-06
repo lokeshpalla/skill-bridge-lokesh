@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import CourseNotes from "./CourseNotes";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, Code2, ChevronDown, Copy, Check } from "lucide-react";
+import { ArrowLeft, Play, Code2, ChevronDown, Copy, Check, CheckCircle } from "lucide-react";
 
 interface ModuleViewerProps {
   moduleTitle: string;
@@ -242,8 +242,54 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
   const [output, setOutput] = useState("");
   const [copied, setCopied] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [videoCompleted, setVideoCompleted] = useState(false);
+  const playerRef = useRef<any>(null);
+  const iframeRef = useRef<HTMLDivElement>(null);
 
   const videoId = getVideoForModule(moduleTitle);
+
+  // Load YouTube IFrame API and detect video end
+  useEffect(() => {
+    let player: any;
+
+    const onPlayerStateChange = (event: any) => {
+      // YT.PlayerState.ENDED === 0
+      if (event.data === 0) {
+        setVideoCompleted(true);
+        onComplete();
+      }
+    };
+
+    const createPlayer = () => {
+      if (!iframeRef.current) return;
+      player = new (window as any).YT.Player(iframeRef.current, {
+        videoId,
+        playerVars: {
+          rel: 0,
+          modestbranding: 1,
+          disablekb: 1, // disable keyboard seeking
+        },
+        events: {
+          onStateChange: onPlayerStateChange,
+        },
+      });
+      playerRef.current = player;
+    };
+
+    if ((window as any).YT && (window as any).YT.Player) {
+      createPlayer();
+    } else {
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      const existing = document.getElementsByTagName("script")[0];
+      existing.parentNode?.insertBefore(tag, existing);
+      (window as any).onYouTubeIframeAPIReady = createPlayer;
+    }
+
+    return () => {
+      if (player && player.destroy) player.destroy();
+    };
+  }, [videoId, onComplete]);
 
   const handleLangChange = (langId: string) => {
     setSelectedLang(langId);
@@ -287,9 +333,11 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
         <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Modules
         </button>
-        <Button variant="hero" size="sm" className="gap-1.5" onClick={onComplete}>
-          <Check className="w-4 h-4" /> Mark Complete
-        </Button>
+        {videoCompleted && (
+          <span className="flex items-center gap-1.5 text-xs text-success font-medium">
+            <CheckCircle className="w-4 h-4" /> Completed
+          </span>
+        )}
       </div>
 
       {/* Module title */}
@@ -306,15 +354,14 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
       {/* Video Player */}
       <div className="rounded-xl overflow-hidden border border-border/50 bg-card/60">
         <div className="aspect-video w-full">
-          <iframe
-            src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
-            title={moduleTitle}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full"
-            style={{ border: "none" }}
-          />
+          <div ref={iframeRef} className="w-full h-full" />
         </div>
+        {!videoCompleted && (
+          <div className="px-4 py-2 border-t border-border/40 flex items-center gap-2 text-[11px] text-muted-foreground">
+            <Play className="w-3 h-3" />
+            <span>Watch the full video to mark this module as complete</span>
+          </div>
+        )}
       </div>
 
       {/* Code Practice Section */}
