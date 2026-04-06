@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import CourseNotes from "./CourseNotes";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, Code2, ChevronDown, Copy, Check } from "lucide-react";
+import { ArrowLeft, Play, Code2, ChevronDown, Copy, Check, CheckCircle } from "lucide-react";
 
 interface ModuleViewerProps {
   moduleTitle: string;
