@@ -333,9 +333,11 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
         <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Modules
         </button>
-        <Button variant="hero" size="sm" className="gap-1.5" onClick={onComplete}>
-          <Check className="w-4 h-4" /> Mark Complete
-        </Button>
+        {videoCompleted && (
+          <span className="flex items-center gap-1.5 text-xs text-success font-medium">
+            <CheckCircle className="w-4 h-4" /> Completed
+          </span>
+        )}
       </div>
 
       {/* Module title */}
