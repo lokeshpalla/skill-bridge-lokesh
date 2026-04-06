@@ -184,32 +184,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ─── TESTIMONIALS ─── */}
-      <section className="py-24 bg-background" aria-label="Testimonials">
-        <div className="container">
-          <motion.div {...fadeUp} className="text-center mb-16">
-            <span className="text-xs text-primary uppercase tracking-widest font-medium">Testimonials</span>
-            <h2 className="text-3xl md:text-4xl font-bold mt-2">
-              Loved by <span className="text-gradient">Developers</span>
-            </h2>
-          </motion.div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {testimonials.map((t, i) => (
-              <motion.div key={t.name} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.1 }} className="rounded-2xl border border-border/60 bg-card p-6 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/[0.03] transition-all duration-300">
-                <p className="text-sm text-muted-foreground mb-4 leading-relaxed italic">"{t.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-xl">{t.avatar}</div>
-                  <div>
-                    <p className="text-sm font-semibold">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── CTA ─── */}
       <section className="py-24 bg-muted/20 relative overflow-hidden border-t border-border/50" aria-label="Call to action">
         <div className="absolute inset-0 bg-dot-grid opacity-30" />
