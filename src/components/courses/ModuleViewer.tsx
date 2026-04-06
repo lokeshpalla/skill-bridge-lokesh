@@ -242,8 +242,54 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
   const [output, setOutput] = useState("");
   const [copied, setCopied] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [videoCompleted, setVideoCompleted] = useState(false);
+  const playerRef = useRef<any>(null);
+  const iframeRef = useRef<HTMLDivElement>(null);
 
   const videoId = getVideoForModule(moduleTitle);
+
+  // Load YouTube IFrame API and detect video end
+  useEffect(() => {
+    let player: any;
+
+    const onPlayerStateChange = (event: any) => {
+      // YT.PlayerState.ENDED === 0
+      if (event.data === 0) {
+        setVideoCompleted(true);
+        onComplete();
+      }
+    };
+
+    const createPlayer = () => {
+      if (!iframeRef.current) return;
+      player = new (window as any).YT.Player(iframeRef.current, {
+        videoId,
+        playerVars: {
+          rel: 0,
+          modestbranding: 1,
+          disablekb: 1, // disable keyboard seeking
+        },
+        events: {
+          onStateChange: onPlayerStateChange,
+        },
+      });
+      playerRef.current = player;
+    };
+
+    if ((window as any).YT && (window as any).YT.Player) {
+      createPlayer();
+    } else {
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      const existing = document.getElementsByTagName("script")[0];
+      existing.parentNode?.insertBefore(tag, existing);
+      (window as any).onYouTubeIframeAPIReady = createPlayer;
+    }
+
+    return () => {
+      if (player && player.destroy) player.destroy();
+    };
+  }, [videoId, onComplete]);
 
   const handleLangChange = (langId: string) => {
     setSelectedLang(langId);
