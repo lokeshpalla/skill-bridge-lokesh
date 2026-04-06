@@ -233,16 +233,25 @@ const Index = () => {
             </div>
 
             {[
-              { title: "Product", links: ["Courses", "Coding", "Mentors", "Internships", "Leaderboard"] },
-              { title: "Company", links: ["About", "Careers", "Blog", "Press", "Contact"] },
-              { title: "Legal", links: ["Privacy Policy", "Terms of Service", "Cookie Policy", "Security"] },
+              { title: "Product", links: [
+                { label: "Courses", href: "/courses" },
+                { label: "Coding", href: "/coding" },
+                { label: "Mentors", href: "/mentors" },
+                { label: "Internships", href: "/internships" },
+                { label: "Leaderboard", href: "/leaderboard" },
+              ]},
+              { title: "Resources", links: [
+                { label: "Community", href: "/community" },
+                { label: "AI Assistant", href: "/dashboard" },
+                { label: "Portfolio Builder", href: "/portfolio" },
+              ]},
             ].map((group) => (
               <div key={group.title}>
                 <h4 className="font-semibold text-sm mb-4">{group.title}</h4>
                 <ul className="space-y-2.5">
                   {group.links.map((link) => (
-                    <li key={link}>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link}</a>
+                    <li key={link.label}>
+                      <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
                     </li>
                   ))}
                 </ul>
