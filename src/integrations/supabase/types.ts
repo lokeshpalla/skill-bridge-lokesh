@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_rate_limits: {
+        Row: {
+          endpoint: string
+          id: string
+          request_count: number
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          endpoint?: string
+          id?: string
+          request_count?: number
+          user_id: string
+          window_start?: string
+        }
+        Update: {
+          endpoint?: string
+          id?: string
+          request_count?: number
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           active: boolean
@@ -1586,6 +1610,15 @@ export type Database = {
       award_badge: {
         Args: { p_badge_id: string; p_user_id: string }
         Returns: undefined
+      }
+      check_ai_rate_limit: {
+        Args: {
+          _endpoint: string
+          _max_requests?: number
+          _user_id: string
+          _window_minutes?: number
+        }
+        Returns: boolean
       }
       has_role: {
         Args: {

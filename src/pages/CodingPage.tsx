@@ -9,14 +9,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 
 const languages = [
-  { id: "javascript", label: "JavaScript", icon: "JS", color: "text-warning" },
-  { id: "python", label: "Python", icon: "PY", color: "text-success" },
-  { id: "java", label: "Java", icon: "JV", color: "text-destructive" },
-  { id: "cpp", label: "C++", icon: "C+", color: "text-primary" },
-  { id: "typescript", label: "TypeScript", icon: "TS", color: "text-accent" },
-  { id: "go", label: "Go", icon: "GO", color: "text-primary" },
-  { id: "rust", label: "Rust", icon: "RS", color: "text-warning" },
-  { id: "csharp", label: "C#", icon: "C#", color: "text-accent" },
+  { id: "javascript", label: "JavaScript", icon: "JS", color: "text-warning", supported: true },
+  { id: "python", label: "Python", icon: "PY", color: "text-success", supported: false },
+  { id: "java", label: "Java", icon: "JV", color: "text-destructive", supported: false },
+  { id: "cpp", label: "C++", icon: "C+", color: "text-primary", supported: false },
+  { id: "typescript", label: "TypeScript", icon: "TS", color: "text-accent", supported: false },
+  { id: "go", label: "Go", icon: "GO", color: "text-primary", supported: false },
+  { id: "rust", label: "Rust", icon: "RS", color: "text-warning", supported: false },
+  { id: "csharp", label: "C#", icon: "C#", color: "text-accent", supported: false },
 ];
 
 const diffColor: Record<string, string> = {
@@ -161,22 +161,86 @@ const CodingPage = () => {
         const elapsed = (performance.now() - startTime).toFixed(1);
 
         const parts: string[] = [];
-        if (inputVal) {
-          parts.push(`📥 Input:\n${inputVal}`);
+
+        // Run test cases from problem examples if no custom input
+        if (!inputVal && selected.examples && selected.examples.length > 0 && language.id === "javascript") {
+          let passed = 0;
+          const total = selected.examples.length;
+          const testResults: string[] = [];
+
+          for (const ex of selected.examples) {
+            try {
+              // Parse input from example string (e.g. "nums = [2,7,11,15], target = 9")
+              const inputStr = ex.input;
+              const args: unknown[] = [];
+              const assignments = inputStr.split(/,\s*(?=[a-zA-Z_]\w*\s*=)/);
+              for (const assign of assignments) {
+                const valueMatch = assign.match(/=\s*(.+)$/);
+                if (valueMatch) {
+                  try { args.push(JSON.parse(valueMatch[1].trim())); } catch { args.push(valueMatch[1].trim()); }
+                }
+              }
+
+              const testFn = new Function('console', 'args', `
+                ${code}
+                const __allFns = [];
+                ${code.match(/function\s+(\w+)/g)?.map(m => {
+                  const name = m.replace('function ', '');
+                  return `try { if (typeof ${name} === 'function') __allFns.push({name: '${name}', fn: ${name}}); } catch(e) {}`;
+                })?.join('\n') || ''}
+                if (__allFns.length === 0) return undefined;
+                const __main = __allFns[0];
+                return __main.fn(...args);
+              `);
+              const testResult = testFn(mockConsole, args);
+              const resultStr = typeof testResult === 'object' ? JSON.stringify(testResult) : String(testResult);
+              const expectedStr = ex.output.trim();
+
+              // Normalize comparison
+              const normalize = (s: string) => s.replace(/\s+/g, '').toLowerCase();
+              const pass = normalize(resultStr) === normalize(expectedStr);
+              if (pass) passed++;
+
+              testResults.push(`${pass ? "✅" : "❌"} Test: ${ex.input}\n   Expected: ${expectedStr}\n   Got: ${resultStr}`);
+            } catch (testErr) {
+              testResults.push(`❌ Test: ${ex.input}\n   Error: ${(testErr as Error).message}`);
+            }
+          }
+
+          parts.push(`🧪 Test Results: ${passed}/${total} passed\n\n${testResults.join('\n\n')}`);
+          
+          if (logs.length > 0) {
+            parts.push(`📋 Console Output:\n${logs.join('\n')}`);
+          }
+          parts.push(`\n⏱ Runtime: ${elapsed}ms | Language: ${language.label}`);
+          
+          // Only award XP if all tests pass
+          if (passed === total) {
+            setOutput(parts.join('\n\n'));
+            // XP award handled below
+          } else {
+            setOutput(parts.join('\n\n'));
+            setRunning(false);
+            return;
+          }
+        } else {
+          if (inputVal) {
+            parts.push(`📥 Input:\n${inputVal}`);
+          }
+          if (logs.length > 0) {
+            parts.push(`📋 Console Output:\n${logs.join('\n')}`);
+          }
+          if (execResult?.result !== undefined) {
+            const resultStr = typeof execResult.result === 'object' 
+              ? JSON.stringify(execResult.result, null, 2) 
+              : String(execResult.result);
+            parts.push(`📤 Return Value:\n${resultStr}`);
+          } else if (logs.length === 0) {
+            parts.push(`📤 Output:\n(no return value or console output)`);
+          }
+          parts.push(`\n⏱ Runtime: ${elapsed}ms | Language: ${language.label}`);
+          setOutput(parts.join('\n\n'));
         }
-        if (logs.length > 0) {
-          parts.push(`📋 Console Output:\n${logs.join('\n')}`);
-        }
-        if (execResult?.result !== undefined) {
-          const resultStr = typeof execResult.result === 'object' 
-            ? JSON.stringify(execResult.result, null, 2) 
-            : String(execResult.result);
-          parts.push(`📤 Return Value:\n${resultStr}`);
-        } else if (logs.length === 0) {
-          parts.push(`📤 Output:\n(no return value or console output)`);
-        }
-        parts.push(`\n⏱ Runtime: ${elapsed}ms | Language: ${language.label}`);
-        setOutput(parts.join('\n\n'));
 
         if (user && !String(execResult?.result).startsWith('❌')) {
           const diffXp: Record<string, number> = { Easy: 20, Medium: 40, Hard: 80 };
@@ -431,14 +495,16 @@ const CodingPage = () => {
                 {languages.map((lang) => (
                   <button
                     key={lang.id}
-                    onClick={() => switchLanguage(lang)}
+                    onClick={() => lang.supported ? switchLanguage(lang) : null}
                     className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-left text-xs transition-all ${
-                      language.id === lang.id ? "bg-primary/10 text-primary" : "hover:bg-secondary/60 text-foreground"
+                      language.id === lang.id ? "bg-primary/10 text-primary" : lang.supported ? "hover:bg-secondary/60 text-foreground" : "text-muted-foreground/50 cursor-not-allowed"
                     }`}
+                    disabled={!lang.supported}
                   >
-                    <span className={`font-mono text-[10px] font-bold w-5 ${lang.color}`}>{lang.icon}</span>
+                    <span className={`font-mono text-[10px] font-bold w-5 ${lang.supported ? lang.color : "text-muted-foreground/40"}`}>{lang.icon}</span>
                     <span className="font-medium">{lang.label}</span>
-                    {language.id === lang.id && <CheckCircle className="w-3 h-3 text-primary ml-auto" />}
+                    {!lang.supported && <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">Soon</span>}
+                    {lang.supported && language.id === lang.id && <CheckCircle className="w-3 h-3 text-primary ml-auto" />}
                   </button>
                 ))}
               </motion.div>

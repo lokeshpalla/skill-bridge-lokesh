@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
   ArrowRight, Zap, Brain, Target, TrendingUp,
-  Github, Twitter, Linkedin, Mail, Shield, Globe, Clock
+  Mail, Shield, Globe, Clock
 } from "lucide-react";
 import heroIllustration from "@/assets/hero-illustration.png";
 import grexilLogo from "@/assets/grexil-logo.png";
@@ -220,12 +220,9 @@ const Index = () => {
               </p>
               <div className="flex items-center gap-3" role="list" aria-label="Social links">
                 {[
-                  { Icon: Twitter, label: "Twitter" },
-                  { Icon: Github, label: "GitHub" },
-                  { Icon: Linkedin, label: "LinkedIn" },
-                  { Icon: Mail, label: "Email" },
-                ].map(({ Icon, label }) => (
-                  <a key={label} href="#" className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" aria-label={label} role="listitem">
+                  { Icon: Mail, label: "Email", href: "mailto:support@grexil.com" },
+                ].map(({ Icon, label, href }) => (
+                  <a key={label} href={href} className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" aria-label={label} role="listitem">
                     <Icon className="w-4 h-4" aria-hidden="true" />
                   </a>
                 ))}
@@ -233,16 +230,25 @@ const Index = () => {
             </div>
 
             {[
-              { title: "Product", links: ["Courses", "Coding", "Mentors", "Internships", "Leaderboard"] },
-              { title: "Company", links: ["About", "Careers", "Blog", "Press", "Contact"] },
-              { title: "Legal", links: ["Privacy Policy", "Terms of Service", "Cookie Policy", "Security"] },
+              { title: "Product", links: [
+                { label: "Courses", href: "/courses" },
+                { label: "Coding", href: "/coding" },
+                { label: "Mentors", href: "/mentors" },
+                { label: "Internships", href: "/internships" },
+                { label: "Leaderboard", href: "/leaderboard" },
+              ]},
+              { title: "Resources", links: [
+                { label: "Community", href: "/community" },
+                { label: "AI Assistant", href: "/dashboard" },
+                { label: "Portfolio Builder", href: "/portfolio" },
+              ]},
             ].map((group) => (
               <div key={group.title}>
                 <h4 className="font-semibold text-sm mb-4">{group.title}</h4>
                 <ul className="space-y-2.5">
                   {group.links.map((link) => (
-                    <li key={link}>
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link}</a>
+                    <li key={link.label}>
+                      <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
                     </li>
                   ))}
                 </ul>
