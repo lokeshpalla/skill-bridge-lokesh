@@ -14,6 +14,32 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    // Rate limiting: extract user from auth header
+    const authHeader = req.headers.get("Authorization");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+    if (authHeader) {
+      const supabase = createClient(supabaseUrl, supabaseKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const adminClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+        const { data: allowed } = await adminClient.rpc("check_ai_rate_limit", {
+          _user_id: user.id,
+          _endpoint: "chat",
+          _max_requests: 30,
+          _window_minutes: 60,
+        });
+        if (allowed === false) {
+          return new Response(JSON.stringify({ error: "Rate limit exceeded. You can send up to 30 messages per hour. Please wait and try again." }), {
+            status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+    }
+
     // Build personalized system prompt with user context
     let contextBlock = "";
     if (userContext) {
