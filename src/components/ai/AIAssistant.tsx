@@ -48,13 +48,24 @@ function extractLangTag(content: string): { cleanContent: string; langCode: stri
   return { cleanContent: content, langCode: null };
 }
 
+interface UserContext {
+  displayName?: string;
+  xp?: number;
+  streak?: number;
+  skills?: string[];
+  enrolledCourses?: string[];
+  solvedCount?: number;
+}
+
 async function streamChat({
   messages,
+  userContext,
   onDelta,
   onDone,
   onError,
 }: {
   messages: Message[];
+  userContext?: UserContext;
   onDelta: (text: string) => void;
   onDone: () => void;
   onError: (msg: string) => void;
@@ -65,7 +76,7 @@ async function streamChat({
       "Content-Type": "application/json",
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, userContext }),
   });
 
   if (!resp.ok) {
