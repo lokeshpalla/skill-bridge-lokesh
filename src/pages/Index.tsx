@@ -20,19 +20,10 @@ const features = [
 ];
 
 const stats = [
-  { value: "50K+", label: "Active Learners" },
-  { value: "500+", label: "Coding Problems" },
-  { value: "200+", label: "Expert Courses" },
-  { value: "98%", label: "Placement Rate" },
+  { value: "10K+", label: "HAPPY LEARNERS", icon: Users },
+  { value: "200+", label: "FREE COURSES", icon: BookOpen },
+  { value: "95%", label: "LOVE IT", icon: Trophy },
 ];
-
-const testimonials = [
-  { name: "Priya M.", role: "SDE @ Amazon", quote: "GreXil's coding challenges and AI mentor helped me crack my dream job in 3 months.", avatar: "👩‍💻" },
-  { name: "James L.", role: "Frontend @ Stripe", quote: "The courses are incredibly well-structured. Better than any bootcamp I've tried.", avatar: "👨‍💼" },
-  { name: "Sofia R.", role: "ML Engineer @ Google", quote: "The AI internship matcher connected me with the perfect opportunity. Life-changing.", avatar: "👩‍🔬" },
-];
-
-const trustedBy = ["Google", "Microsoft", "Amazon", "Meta", "Netflix", "Stripe"];
 
 const fadeUp = {
   initial: { opacity: 0, y: 24 },
