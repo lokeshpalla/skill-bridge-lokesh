@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   Code2, BookOpen, Users, Trophy, Briefcase, FolderKanban,
   ArrowRight, Zap, Brain, Target, TrendingUp,
-  Github, Twitter, Linkedin, Mail, Shield, Globe, Clock
+  Mail, Shield, Globe, Clock
 } from "lucide-react";
 import heroIllustration from "@/assets/hero-illustration.png";
 import grexilLogo from "@/assets/grexil-logo.png";
