@@ -20,19 +20,10 @@ const features = [
 ];
 
 const stats = [
-  { value: "50K+", label: "Active Learners" },
-  { value: "500+", label: "Coding Problems" },
-  { value: "200+", label: "Expert Courses" },
-  { value: "98%", label: "Placement Rate" },
+  { value: "10K+", label: "HAPPY LEARNERS", icon: Users },
+  { value: "200+", label: "FREE COURSES", icon: BookOpen },
+  { value: "95%", label: "LOVE IT", icon: Trophy },
 ];
-
-const testimonials = [
-  { name: "Priya M.", role: "SDE @ Amazon", quote: "GreXil's coding challenges and AI mentor helped me crack my dream job in 3 months.", avatar: "👩‍💻" },
-  { name: "James L.", role: "Frontend @ Stripe", quote: "The courses are incredibly well-structured. Better than any bootcamp I've tried.", avatar: "👨‍💼" },
-  { name: "Sofia R.", role: "ML Engineer @ Google", quote: "The AI internship matcher connected me with the perfect opportunity. Life-changing.", avatar: "👩‍🔬" },
-];
-
-const trustedBy = ["Google", "Microsoft", "Amazon", "Meta", "Netflix", "Stripe"];
 
 const fadeUp = {
   initial: { opacity: 0, y: 24 },
@@ -107,29 +98,21 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ─── TRUSTED BY ─── */}
-      <section className="py-10 border-b border-border/50 bg-background" aria-label="Trusted companies">
-        <div className="container">
-          <p className="text-center text-xs text-muted-foreground uppercase tracking-widest mb-6">Our learners work at</p>
-          <div className="flex items-center justify-center gap-10 flex-wrap opacity-40">
-            {trustedBy.map((name) => (
-              <span key={name} className="text-lg font-bold tracking-wide">{name}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── STATS ─── */}
       <section className="py-16 bg-background relative" aria-label="Platform statistics">
         <div className="absolute inset-0 bg-dot-grid opacity-40" />
         <div className="container relative">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, i) => (
-              <motion.div key={stat.label} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.1 }} className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-gradient mb-1">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </motion.div>
-            ))}
+          <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+            {stats.map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <motion.div key={stat.label} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.1 }} className="text-center">
+                  <Icon className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                  <div className="text-4xl md:text-5xl font-bold text-gradient mb-1">{stat.value}</div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -201,32 +184,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ─── TESTIMONIALS ─── */}
-      <section className="py-24 bg-background" aria-label="Testimonials">
-        <div className="container">
-          <motion.div {...fadeUp} className="text-center mb-16">
-            <span className="text-xs text-primary uppercase tracking-widest font-medium">Testimonials</span>
-            <h2 className="text-3xl md:text-4xl font-bold mt-2">
-              Loved by <span className="text-gradient">Developers</span>
-            </h2>
-          </motion.div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {testimonials.map((t, i) => (
-              <motion.div key={t.name} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.1 }} className="rounded-2xl border border-border/60 bg-card p-6 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/[0.03] transition-all duration-300">
-                <p className="text-sm text-muted-foreground mb-4 leading-relaxed italic">"{t.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-xl">{t.avatar}</div>
-                  <div>
-                    <p className="text-sm font-semibold">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── CTA ─── */}
       <section className="py-24 bg-muted/20 relative overflow-hidden border-t border-border/50" aria-label="Call to action">
         <div className="absolute inset-0 bg-dot-grid opacity-30" />
@@ -237,7 +194,7 @@ const Index = () => {
               Ready to <span className="text-gradient">Bridge the Gap?</span>
             </h2>
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Join 50,000+ developers who chose GreXil to accelerate their careers.
+              Join thousands of developers who chose GreXil to accelerate their careers.
             </p>
             <Link to="/auth">
               <Button size="lg" className="text-base px-10 h-12 bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-glow rounded-xl gap-2">
