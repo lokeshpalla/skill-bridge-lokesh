@@ -431,14 +431,16 @@ const CodingPage = () => {
                 {languages.map((lang) => (
                   <button
                     key={lang.id}
-                    onClick={() => switchLanguage(lang)}
+                    onClick={() => lang.supported ? switchLanguage(lang) : null}
                     className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-left text-xs transition-all ${
-                      language.id === lang.id ? "bg-primary/10 text-primary" : "hover:bg-secondary/60 text-foreground"
+                      language.id === lang.id ? "bg-primary/10 text-primary" : lang.supported ? "hover:bg-secondary/60 text-foreground" : "text-muted-foreground/50 cursor-not-allowed"
                     }`}
+                    disabled={!lang.supported}
                   >
-                    <span className={`font-mono text-[10px] font-bold w-5 ${lang.color}`}>{lang.icon}</span>
+                    <span className={`font-mono text-[10px] font-bold w-5 ${lang.supported ? lang.color : "text-muted-foreground/40"}`}>{lang.icon}</span>
                     <span className="font-medium">{lang.label}</span>
-                    {language.id === lang.id && <CheckCircle className="w-3 h-3 text-primary ml-auto" />}
+                    {!lang.supported && <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">Soon</span>}
+                    {lang.supported && language.id === lang.id && <CheckCircle className="w-3 h-3 text-primary ml-auto" />}
                   </button>
                 ))}
               </motion.div>
