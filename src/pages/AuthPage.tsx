@@ -302,8 +302,33 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
             </div>
           )}
 
-          {/* Reset sent state */}
-          {forgotMode && resetSent ? (
+          {/* Signup success state */}
+          {signupSuccess ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-10"
+            >
+              <motion.div
+                animate={{ y: [-3, 3, -3] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-5"
+              >
+                <Mail className="w-7 h-7 text-green-500" />
+              </motion.div>
+              <p className="font-semibold text-lg">Check your email 📬</p>
+              <p className="text-sm text-muted-foreground mt-2 max-w-[280px] mx-auto leading-relaxed">
+                We sent a verification link to <span className="font-medium text-foreground">{email}</span>.
+                Please verify your email before signing in.
+              </p>
+              <button
+                onClick={() => { setSignupSuccess(false); setMode("login"); }}
+                className="text-primary hover:underline text-sm mt-6 inline-flex items-center gap-1.5 font-medium"
+              >
+                ← Go to sign in
+              </button>
+            </motion.div>
+          ) : forgotMode && resetSent ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
