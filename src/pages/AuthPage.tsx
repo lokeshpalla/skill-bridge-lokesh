@@ -33,6 +33,10 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
   const [loading, setLoading] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
+  const isLockedOut = lockoutUntil !== null && Date.now() < lockoutUntil;
   const [greeting] = useState(() =>
     greetings[Math.floor(Math.random() * greetings.length)]
   );
