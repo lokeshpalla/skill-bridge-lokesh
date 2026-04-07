@@ -604,15 +604,19 @@ const CodingPage = () => {
           {languages.map((lang) => (
             <button
               key={lang.id}
-              onClick={() => switchLanguage(lang)}
+              onClick={() => lang.supported ? switchLanguage(lang) : null}
+              disabled={!lang.supported}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all border ${
                 language.id === lang.id
                   ? "bg-primary/10 border-primary/30 text-primary"
-                  : "bg-secondary/30 border-border/30 text-muted-foreground hover:text-foreground hover:border-border/60"
+                  : lang.supported
+                    ? "bg-secondary/30 border-border/30 text-muted-foreground hover:text-foreground hover:border-border/60"
+                    : "bg-secondary/20 border-border/20 text-muted-foreground/40 cursor-not-allowed"
               }`}
             >
-              <span className={`font-mono text-[9px] font-bold ${lang.color}`}>{lang.icon}</span>
+              <span className={`font-mono text-[9px] font-bold ${lang.supported ? lang.color : "text-muted-foreground/40"}`}>{lang.icon}</span>
               {lang.label}
+              {!lang.supported && <span className="text-[8px] px-1 py-0.5 rounded bg-muted text-muted-foreground">Soon</span>}
             </button>
           ))}
         </div>
