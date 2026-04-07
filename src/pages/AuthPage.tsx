@@ -73,8 +73,19 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
       return;
     }
 
-    if (mode === "register" && password.length < 6) {
-      toast({ title: "A little longer please", description: "Use at least 6 characters for a strong password 💪", variant: "destructive" });
+    if (mode === "register") {
+      if (password.length < 8) {
+        toast({ title: "A little longer please", description: "Use at least 8 characters for a strong password 💪", variant: "destructive" });
+        return;
+      }
+      if (!/(?=.*[0-9!@#$%^&*])/.test(password)) {
+        toast({ title: "Make it stronger", description: "Add at least one number or special character 🔐", variant: "destructive" });
+        return;
+      }
+    }
+
+    if (isLockedOut) {
+      toast({ title: "Too many attempts", description: "Please wait 30 seconds before trying again ⏳", variant: "destructive" });
       return;
     }
 
