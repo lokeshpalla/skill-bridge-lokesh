@@ -502,13 +502,6 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
             </p>
           </div>
 
-          {!forgotMode && mode === "login" && (
-            <p className="text-center text-[11px] text-muted-foreground/30 mt-3">
-              <Link to="/auth?role=mentor" className="hover:text-muted-foreground/50 transition-colors">
-                Staff & Mentor login →
-              </Link>
-            </p>
-          )}
         </motion.div>
       </div>
     </div>
