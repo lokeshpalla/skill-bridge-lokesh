@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, CheckCircle, Search, ChevronDown, RotateCcw, Timer, Lightbulb, Terminal, ChevronLeft, ChevronRight, ArrowLeft, List } from "lucide-react";
+import MonacoEditor from "@monaco-editor/react";
 import { Input } from "@/components/ui/input";
 import { codingProblems, problemCategories, defaultHints, defaultDescriptions, CodingProblem } from "@/data/codingProblems";
 import { supabase } from "@/integrations/supabase/client";
