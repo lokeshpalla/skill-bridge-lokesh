@@ -33,6 +33,10 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
   const [loading, setLoading] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
+  const isLockedOut = lockoutUntil !== null && Date.now() < lockoutUntil;
   const [greeting] = useState(() =>
     greetings[Math.floor(Math.random() * greetings.length)]
   );
@@ -69,8 +73,19 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
       return;
     }
 
-    if (mode === "register" && password.length < 6) {
-      toast({ title: "A little longer please", description: "Use at least 6 characters for a strong password 💪", variant: "destructive" });
+    if (mode === "register") {
+      if (password.length < 8) {
+        toast({ title: "A little longer please", description: "Use at least 8 characters for a strong password 💪", variant: "destructive" });
+        return;
+      }
+      if (!/(?=.*[0-9!@#$%^&*])/.test(password)) {
+        toast({ title: "Make it stronger", description: "Add at least one number or special character 🔐", variant: "destructive" });
+        return;
+      }
+    }
+
+    if (isLockedOut) {
+      toast({ title: "Too many attempts", description: "Please wait 30 seconds before trying again ⏳", variant: "destructive" });
       return;
     }
 
@@ -79,11 +94,19 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
     if (mode === "login") {
       const { error, roles: userRoles } = await signIn(email, password);
       if (error) {
+        const newAttempts = failedAttempts + 1;
+        setFailedAttempts(newAttempts);
+        if (newAttempts >= 5) {
+          setLockoutUntil(Date.now() + 30000);
+          setTimeout(() => { setLockoutUntil(null); setFailedAttempts(0); }, 30000);
+        }
         const msg = error.message.includes("Invalid login")
-          ? "Hmm, that doesn't match our records. Try again?"
+          ? `Hmm, that doesn't match our records. Try again?${newAttempts >= 3 ? ` (${5 - newAttempts} attempts left)` : ""}`
           : error.message;
         toast({ title: "Couldn't sign you in", description: msg, variant: "destructive" });
       } else {
+        setFailedAttempts(0);
+        setLockoutUntil(null);
         const redirectPath = getRedirectPath(userRoles);
         toast({ title: "Welcome back! 🎉" });
         navigate(redirectPath, { replace: true });
@@ -98,12 +121,8 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
       if (error) {
         toast({ title: "Registration hiccup", description: error.message, variant: "destructive" });
       } else {
-        toast({ title: "You're in! 🎊", description: "Welcome to the family. Setting things up for you..." });
-        const { error: signInError, roles: userRoles } = await signIn(email, password);
-        if (!signInError) {
-          const redirectPath = getRedirectPath(userRoles);
-          navigate(redirectPath, { replace: true });
-        }
+        setSignupSuccess(true);
+        toast({ title: "Almost there! 📬", description: "Check your email to verify your account." });
       }
     }
     setLoading(false);
@@ -183,45 +202,24 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
             </motion.p>
           </div>
 
-          {/* Testimonial-style social proof */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 max-w-sm border border-white/10"
-          >
-            <p className="text-white/90 text-sm italic leading-relaxed">
-              "This platform genuinely cares about my growth. The mentors, the community —
-              it feels like home."
-            </p>
-            <div className="flex items-center gap-3 mt-3">
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm">
-                🙂
-              </div>
-              <div>
-                <p className="text-white/90 text-xs font-medium">Priya Sharma</p>
-                <p className="text-white/50 text-[11px]">Full-Stack Developer</p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Stats with friendly icons */}
-          <div className="flex gap-6">
+          {/* Feature highlights */}
+          <div className="space-y-4">
             {[
-              { icon: Users, num: "10K+", label: "Happy Learners" },
-              { icon: BookOpen, num: "200+", label: "Free Courses" },
-              { icon: Trophy, num: "95%", label: "Love It" },
-            ].map((stat, i) => (
+              { icon: BookOpen, text: "Structured courses with certificates" },
+              { icon: Users, text: "1-on-1 mentorship from industry experts" },
+              { icon: Trophy, text: "Coding challenges & leaderboards" },
+            ].map((item, i) => (
               <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 + i * 0.1, duration: 0.4 }}
-                className="text-center"
+                key={item.text}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 + i * 0.1, duration: 0.4 }}
+                className="flex items-center gap-3"
               >
-                <stat.icon className="w-4 h-4 text-white/60 mx-auto mb-1" />
-                <div className="text-xl font-bold text-white">{stat.num}</div>
-                <div className="text-[10px] text-white/50 uppercase tracking-wider mt-0.5">{stat.label}</div>
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                  <item.icon className="w-4 h-4 text-white/70" />
+                </div>
+                <span className="text-sm text-white/80">{item.text}</span>
               </motion.div>
             ))}
           </div>
@@ -304,8 +302,33 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
             </div>
           )}
 
-          {/* Reset sent state */}
-          {forgotMode && resetSent ? (
+          {/* Signup success state */}
+          {signupSuccess ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-10"
+            >
+              <motion.div
+                animate={{ y: [-3, 3, -3] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-5"
+              >
+                <Mail className="w-7 h-7 text-green-500" />
+              </motion.div>
+              <p className="font-semibold text-lg">Check your email 📬</p>
+              <p className="text-sm text-muted-foreground mt-2 max-w-[280px] mx-auto leading-relaxed">
+                We sent a verification link to <span className="font-medium text-foreground">{email}</span>.
+                Please verify your email before signing in.
+              </p>
+              <button
+                onClick={() => { setSignupSuccess(false); setMode("login"); }}
+                className="text-primary hover:underline text-sm mt-6 inline-flex items-center gap-1.5 font-medium"
+              >
+                ← Go to sign in
+              </button>
+            </motion.div>
+          ) : forgotMode && resetSent ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -403,10 +426,23 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
                       {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
-                  {mode === "register" && (
-                    <p className="text-[11px] text-muted-foreground/50 mt-1.5 ml-1">
-                      At least 6 characters — mix it up for safety 🔒
-                    </p>
+              {mode === "register" && (
+                    <div className="mt-1.5 ml-1">
+                      <p className="text-[11px] text-muted-foreground/50">
+                        At least 8 characters with a number or special character 🔒
+                      </p>
+                      {password.length > 0 && (
+                        <div className="flex gap-1 mt-1.5">
+                          {[
+                            password.length >= 8,
+                            /[0-9]/.test(password),
+                            /[!@#$%^&*]/.test(password),
+                          ].map((met, i) => (
+                            <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${met ? "bg-green-500" : "bg-muted-foreground/20"}`} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
@@ -435,9 +471,7 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
 
               {mode === "register" && !forgotMode && (
                 <p className="text-[11px] text-muted-foreground/50 text-center leading-relaxed mt-2">
-                  By joining, you agree to our{" "}
-                  <span className="underline decoration-dotted cursor-pointer">Terms</span> and{" "}
-                  <span className="underline decoration-dotted cursor-pointer">Privacy Policy</span>.
+                  By joining, you agree to our terms of service and privacy policy.
                   We respect your data. Always.
                 </p>
               )}
@@ -468,13 +502,6 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
             </p>
           </div>
 
-          {!forgotMode && mode === "login" && (
-            <p className="text-center text-[11px] text-muted-foreground/30 mt-3">
-              <Link to="/auth?role=mentor" className="hover:text-muted-foreground/50 transition-colors">
-                Staff & Mentor login →
-              </Link>
-            </p>
-          )}
         </motion.div>
       </div>
     </div>

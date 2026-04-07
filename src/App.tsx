@@ -10,6 +10,7 @@ import Layout from "@/components/layout/Layout";
 import SplashScreen from "./pages/SplashScreen";
 import { PageLoadingFallback } from "@/components/ui/loading-skeletons";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import PrivateRoute from "@/components/PrivateRoute";
 
 // Lazy-loaded pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -52,36 +53,42 @@ function AppRoutes() {
     <Layout>
       <Suspense fallback={<PageLoadingFallback />}>
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<SplashScreen />} />
           <Route path="/landing" element={<Index />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/courses" element={<CoursesPage />} />
-          <Route path="/courses/:id" element={<CourseDetail />} />
-          <Route path="/coding" element={<CodingPage />} />
-          <Route path="/mentors" element={<MentorsPage />} />
-          <Route path="/mentor-session" element={<MentorSessionPage />} />
-          <Route path="/mentor-dashboard" element={<MentorDashboardPage />} />
-          <Route path="/leaderboard" element={<LeaderboardPage />} />
-          <Route path="/internships" element={<InternshipsPage />} />
-          <Route path="/portfolio" element={<PortfolioPage />} />
-          <Route path="/recruiter" element={<RecruiterDashboard />} />
-          <Route path="/talent" element={<TalentBrowsePage />} />
-          <Route path="/messages" element={<MessagesPage />} />
           <Route path="/portfolio/:userId" element={<PublicPortfolioPage />} />
-          <Route path="/community" element={<CommunityPage />} />
           <Route path="/install" element={<InstallPage />} />
-          <Route path="/interview" element={<InterviewPage />} />
-          <Route path="/paths" element={<LearningPathsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/rooms" element={<RoomsPage />} />
-          <Route path="/rooms/:id" element={<LiveRoomPage />} />
-          <Route path="/teams" element={<TeamMatchingPage />} />
-          <Route path="/teams/:projectId/repo" element={<TeamProjectRepoPage />} />
-          <Route path="/analytics" element={<AnalyticsPage />} />
-          <Route path="/certificates" element={<CertificatesPage />} />
+
+          {/* Protected routes — any authenticated user */}
+          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/courses" element={<PrivateRoute><CoursesPage /></PrivateRoute>} />
+          <Route path="/courses/:id" element={<PrivateRoute><CourseDetail /></PrivateRoute>} />
+          <Route path="/coding" element={<PrivateRoute><CodingPage /></PrivateRoute>} />
+          <Route path="/mentors" element={<PrivateRoute><MentorsPage /></PrivateRoute>} />
+          <Route path="/mentor-session" element={<PrivateRoute><MentorSessionPage /></PrivateRoute>} />
+          <Route path="/leaderboard" element={<PrivateRoute><LeaderboardPage /></PrivateRoute>} />
+          <Route path="/internships" element={<PrivateRoute><InternshipsPage /></PrivateRoute>} />
+          <Route path="/portfolio" element={<PrivateRoute><PortfolioPage /></PrivateRoute>} />
+          <Route path="/talent" element={<PrivateRoute><TalentBrowsePage /></PrivateRoute>} />
+          <Route path="/messages" element={<PrivateRoute><MessagesPage /></PrivateRoute>} />
+          <Route path="/community" element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
+          <Route path="/interview" element={<PrivateRoute><InterviewPage /></PrivateRoute>} />
+          <Route path="/paths" element={<PrivateRoute><LearningPathsPage /></PrivateRoute>} />
+          <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
+          <Route path="/rooms" element={<PrivateRoute><RoomsPage /></PrivateRoute>} />
+          <Route path="/rooms/:id" element={<PrivateRoute><LiveRoomPage /></PrivateRoute>} />
+          <Route path="/teams" element={<PrivateRoute><TeamMatchingPage /></PrivateRoute>} />
+          <Route path="/teams/:projectId/repo" element={<PrivateRoute><TeamProjectRepoPage /></PrivateRoute>} />
+          <Route path="/analytics" element={<PrivateRoute><AnalyticsPage /></PrivateRoute>} />
+          <Route path="/certificates" element={<PrivateRoute><CertificatesPage /></PrivateRoute>} />
+
+          {/* Role-protected routes */}
+          <Route path="/admin" element={<PrivateRoute requiredRole="admin"><AdminPage /></PrivateRoute>} />
+          <Route path="/recruiter" element={<PrivateRoute requiredRole="recruiter"><RecruiterDashboard /></PrivateRoute>} />
+          <Route path="/mentor-dashboard" element={<PrivateRoute requiredRole="mentor"><MentorDashboardPage /></PrivateRoute>} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
