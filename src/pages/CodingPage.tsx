@@ -524,11 +524,22 @@ const CodingPage = () => {
             </Button>
           </div>
         </div>
-        <textarea
+        <MonacoEditor
+          height="220px"
+          language={language.id === "cpp" ? "cpp" : language.id === "csharp" ? "csharp" : language.id}
           value={code}
-          onChange={(e) => setCode(e.target.value)}
-          className="w-full h-44 sm:h-52 bg-transparent p-3 sm:p-4 font-mono text-xs text-foreground resize-none outline-none"
-          spellCheck={false}
+          onChange={(val) => setCode(val || "")}
+          theme={document.documentElement.classList.contains('dark') ? "vs-dark" : "light"}
+          options={{
+            minimap: { enabled: false },
+            fontSize: 13,
+            lineNumbers: "on",
+            scrollBeyondLastLine: false,
+            automaticLayout: true,
+            tabSize: 2,
+            wordWrap: "on",
+            padding: { top: 8 },
+          }}
         />
       </div>
 
