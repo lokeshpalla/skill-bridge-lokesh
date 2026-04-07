@@ -94,11 +94,19 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
     if (mode === "login") {
       const { error, roles: userRoles } = await signIn(email, password);
       if (error) {
+        const newAttempts = failedAttempts + 1;
+        setFailedAttempts(newAttempts);
+        if (newAttempts >= 5) {
+          setLockoutUntil(Date.now() + 30000);
+          setTimeout(() => { setLockoutUntil(null); setFailedAttempts(0); }, 30000);
+        }
         const msg = error.message.includes("Invalid login")
-          ? "Hmm, that doesn't match our records. Try again?"
+          ? `Hmm, that doesn't match our records. Try again?${newAttempts >= 3 ? ` (${5 - newAttempts} attempts left)` : ""}`
           : error.message;
         toast({ title: "Couldn't sign you in", description: msg, variant: "destructive" });
       } else {
+        setFailedAttempts(0);
+        setLockoutUntil(null);
         const redirectPath = getRedirectPath(userRoles);
         toast({ title: "Welcome back! 🎉" });
         navigate(redirectPath, { replace: true });
@@ -113,12 +121,8 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
       if (error) {
         toast({ title: "Registration hiccup", description: error.message, variant: "destructive" });
       } else {
-        toast({ title: "You're in! 🎊", description: "Welcome to the family. Setting things up for you..." });
-        const { error: signInError, roles: userRoles } = await signIn(email, password);
-        if (!signInError) {
-          const redirectPath = getRedirectPath(userRoles);
-          navigate(redirectPath, { replace: true });
-        }
+        setSignupSuccess(true);
+        toast({ title: "Almost there! 📬", description: "Check your email to verify your account." });
       }
     }
     setLoading(false);
