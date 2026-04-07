@@ -471,9 +471,7 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
 
               {mode === "register" && !forgotMode && (
                 <p className="text-[11px] text-muted-foreground/50 text-center leading-relaxed mt-2">
-                  By joining, you agree to our{" "}
-                  <span className="underline decoration-dotted cursor-pointer">Terms</span> and{" "}
-                  <span className="underline decoration-dotted cursor-pointer">Privacy Policy</span>.
+                  By joining, you agree to our terms of service and privacy policy.
                   We respect your data. Always.
                 </p>
               )}
