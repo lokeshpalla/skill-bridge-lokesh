@@ -272,19 +272,41 @@ const InterviewPage = () => {
   };
 
   const endInterview = async () => {
-    const endMsg: Msg = { role: "user", content: "End interview. Please provide my final score out of 100 and detailed feedback." };
+    const endMsg: Msg = { role: "user", content: "End interview. Please provide my final score and detailed feedback using the structured JSON scoring format." };
     const newMsgs = [...messages, endMsg];
     setMessages(newMsgs);
     await streamMessage(newMsgs);
 
     clearInterval(timerRef.current);
 
-    if (interviewId) {
-      await supabase.from("mock_interviews").update({
-        status: "completed",
-        completed_at: new Date().toISOString(),
-      }).eq("id", interviewId);
-    }
+    // Try to parse scores from the last assistant message
+    setMessages((prev) => {
+      const last = prev[prev.length - 1];
+      if (last?.role === "assistant" && interviewId) {
+        // Extract JSON scores
+        const jsonMatch = last.content.match(/```json\s*([\s\S]*?)```/);
+        if (jsonMatch) {
+          try {
+            const parsed = JSON.parse(jsonMatch[1]);
+            if (parsed.scores?.overall !== undefined) {
+              supabase.from("mock_interviews").update({
+                status: "completed",
+                completed_at: new Date().toISOString(),
+                score: parsed.scores.overall,
+                feedback: JSON.stringify(parsed.scores),
+              }).eq("id", interviewId).then(() => {});
+            }
+          } catch {}
+        } else {
+          // Fallback: just mark completed
+          supabase.from("mock_interviews").update({
+            status: "completed",
+            completed_at: new Date().toISOString(),
+          }).eq("id", interviewId).then(() => {});
+        }
+      }
+      return prev;
+    });
   };
 
   // Topic selection screen
