@@ -401,10 +401,23 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
                       {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
-                  {mode === "register" && (
-                    <p className="text-[11px] text-muted-foreground/50 mt-1.5 ml-1">
-                      At least 6 characters — mix it up for safety 🔒
-                    </p>
+              {mode === "register" && (
+                    <div className="mt-1.5 ml-1">
+                      <p className="text-[11px] text-muted-foreground/50">
+                        At least 8 characters with a number or special character 🔒
+                      </p>
+                      {password.length > 0 && (
+                        <div className="flex gap-1 mt-1.5">
+                          {[
+                            password.length >= 8,
+                            /[0-9]/.test(password),
+                            /[!@#$%^&*]/.test(password),
+                          ].map((met, i) => (
+                            <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${met ? "bg-green-500" : "bg-muted-foreground/20"}`} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
