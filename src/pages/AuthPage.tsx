@@ -202,45 +202,24 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
             </motion.p>
           </div>
 
-          {/* Testimonial-style social proof */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 max-w-sm border border-white/10"
-          >
-            <p className="text-white/90 text-sm italic leading-relaxed">
-              "This platform genuinely cares about my growth. The mentors, the community —
-              it feels like home."
-            </p>
-            <div className="flex items-center gap-3 mt-3">
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm">
-                🙂
-              </div>
-              <div>
-                <p className="text-white/90 text-xs font-medium">Priya Sharma</p>
-                <p className="text-white/50 text-[11px]">Full-Stack Developer</p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Stats with friendly icons */}
-          <div className="flex gap-6">
+          {/* Feature highlights */}
+          <div className="space-y-4">
             {[
-              { icon: Users, num: "10K+", label: "Happy Learners" },
-              { icon: BookOpen, num: "200+", label: "Free Courses" },
-              { icon: Trophy, num: "95%", label: "Love It" },
-            ].map((stat, i) => (
+              { icon: BookOpen, text: "Structured courses with certificates" },
+              { icon: Users, text: "1-on-1 mentorship from industry experts" },
+              { icon: Trophy, text: "Coding challenges & leaderboards" },
+            ].map((item, i) => (
               <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 + i * 0.1, duration: 0.4 }}
-                className="text-center"
+                key={item.text}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 + i * 0.1, duration: 0.4 }}
+                className="flex items-center gap-3"
               >
-                <stat.icon className="w-4 h-4 text-white/60 mx-auto mb-1" />
-                <div className="text-xl font-bold text-white">{stat.num}</div>
-                <div className="text-[10px] text-white/50 uppercase tracking-wider mt-0.5">{stat.label}</div>
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                  <item.icon className="w-4 h-4 text-white/70" />
+                </div>
+                <span className="text-sm text-white/80">{item.text}</span>
               </motion.div>
             ))}
           </div>
