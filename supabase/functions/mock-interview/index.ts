@@ -8,18 +8,43 @@ const corsHeaders = {
 
 function buildSystemPrompt(topic: string, skills: string[]): string {
   const stackInfo = skills.length > 0
-    ? `\n\nThe candidate's tech stack/skills: ${skills.join(", ")}. Tailor your questions to their specific technologies and experience level. Ask questions relevant to these technologies.`
+    ? `\n\nThe candidate's tech stack/skills: ${skills.join(", ")}. Tailor your questions to their specific technologies and experience level.`
     : "";
 
   const base: Record<string, string> = {
-    general: `You are a senior tech interviewer conducting a mock interview. Ask one question at a time. Topics: data structures, algorithms, system design, behavioral. After the candidate answers, give brief feedback (strengths, improvements) then ask the next question. Be encouraging but honest. When the user says "end interview", provide a final score out of 100 and detailed feedback on: Technical Knowledge, Problem Solving, Communication, and Areas to Improve.`,
-    frontend: `You are a senior frontend engineer interviewer. Focus on: React, TypeScript, CSS, browser APIs, performance optimization, accessibility. Ask one question at a time, give feedback after each answer. When told "end interview", score out of 100.`,
-    backend: `You are a senior backend engineer interviewer. Focus on: APIs, databases, system design, scalability, security, microservices. Ask one question at a time, give feedback. When told "end interview", score out of 100.`,
-    dsa: `You are a DSA interview expert. Present coding problems one at a time (Easy→Hard progression). Ask the candidate to explain their approach before coding. Evaluate: time/space complexity, edge cases, code quality. When told "end interview", score out of 100.`,
-    behavioral: `You are an HR interviewer focusing on behavioral questions using the STAR method. Ask about: teamwork, leadership, conflict resolution, problem-solving experiences. Give feedback on answer structure and impact. When told "end interview", score out of 100.`,
+    general: `You are a senior tech interviewer conducting a mock interview. Ask one question at a time. Topics: data structures, algorithms, system design, behavioral. After the candidate answers, give brief feedback (strengths, improvements) then ask the next question. Be encouraging but honest.`,
+    frontend: `You are a senior frontend engineer interviewer. Focus on: React, TypeScript, CSS, browser APIs, performance optimization, accessibility. Ask one question at a time, give feedback after each answer.`,
+    backend: `You are a senior backend engineer interviewer. Focus on: APIs, databases, system design, scalability, security, microservices. Ask one question at a time, give feedback.`,
+    dsa: `You are a DSA interview expert. Present coding problems one at a time (Easy→Hard progression). Ask the candidate to explain their approach before coding. Evaluate: time/space complexity, edge cases, code quality.`,
+    behavioral: `You are an HR interviewer focusing on behavioral questions using the STAR method. Ask about: teamwork, leadership, conflict resolution, problem-solving experiences. Give feedback on answer structure and impact.`,
   };
 
-  return (base[topic] || base.general) + stackInfo;
+  const scoringInstruction = `
+
+IMPORTANT: When the user says "end interview" or asks for final feedback, you MUST respond with a structured JSON scoring block wrapped in \`\`\`json code fence, followed by detailed text feedback.
+
+The JSON block MUST have this exact structure:
+\`\`\`json
+{
+  "scores": {
+    "technical_knowledge": <0-100>,
+    "problem_solving": <0-100>,
+    "communication": <0-100>,
+    "code_quality": <0-100>,
+    "overall": <0-100>
+  },
+  "summary": "<one-line summary>"
+}
+\`\`\`
+
+After the JSON block, provide detailed written feedback covering:
+1. **Strengths** — what the candidate did well
+2. **Areas to Improve** — specific actionable advice
+3. **Recommended Resources** — topics or skills to study next
+
+The "overall" score should be a weighted average: Technical (30%), Problem Solving (30%), Communication (20%), Code Quality (20%).`;
+
+  return (base[topic] || base.general) + stackInfo + scoringInstruction;
 }
 
 serve(async (req) => {

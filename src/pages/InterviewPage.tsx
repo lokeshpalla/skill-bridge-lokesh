@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from "recharts";
 
 // Extend Window for SpeechRecognition
 interface SpeechRecognitionEvent extends Event {
@@ -272,19 +273,41 @@ const InterviewPage = () => {
   };
 
   const endInterview = async () => {
-    const endMsg: Msg = { role: "user", content: "End interview. Please provide my final score out of 100 and detailed feedback." };
+    const endMsg: Msg = { role: "user", content: "End interview. Please provide my final score and detailed feedback using the structured JSON scoring format." };
     const newMsgs = [...messages, endMsg];
     setMessages(newMsgs);
     await streamMessage(newMsgs);
 
     clearInterval(timerRef.current);
 
-    if (interviewId) {
-      await supabase.from("mock_interviews").update({
-        status: "completed",
-        completed_at: new Date().toISOString(),
-      }).eq("id", interviewId);
-    }
+    // Try to parse scores from the last assistant message
+    setMessages((prev) => {
+      const last = prev[prev.length - 1];
+      if (last?.role === "assistant" && interviewId) {
+        // Extract JSON scores
+        const jsonMatch = last.content.match(/```json\s*([\s\S]*?)```/);
+        if (jsonMatch) {
+          try {
+            const parsed = JSON.parse(jsonMatch[1]);
+            if (parsed.scores?.overall !== undefined) {
+              supabase.from("mock_interviews").update({
+                status: "completed",
+                completed_at: new Date().toISOString(),
+                score: parsed.scores.overall,
+                feedback: JSON.stringify(parsed.scores),
+              }).eq("id", interviewId).then(() => {});
+            }
+          } catch {}
+        } else {
+          // Fallback: just mark completed
+          supabase.from("mock_interviews").update({
+            status: "completed",
+            completed_at: new Date().toISOString(),
+          }).eq("id", interviewId).then(() => {});
+        }
+      }
+      return prev;
+    });
   };
 
   // Topic selection screen
@@ -460,6 +483,29 @@ const InterviewPage = () => {
   );
 };
 
+// Score radar chart component
+const ScoreRadar = ({ scores }: { scores: Record<string, number> }) => {
+  const data = [
+    { subject: "Technical", value: scores.technical_knowledge || 0 },
+    { subject: "Problem Solving", value: scores.problem_solving || 0 },
+    { subject: "Communication", value: scores.communication || 0 },
+    { subject: "Code Quality", value: scores.code_quality || 0 },
+  ];
+
+  return (
+    <div className="w-full h-48">
+      <ResponsiveContainer width="100%" height="100%">
+        <RadarChart data={data}>
+          <PolarGrid stroke="hsl(var(--border))" />
+          <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+          <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9 }} />
+          <Radar name="Score" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.3} />
+        </RadarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
 // Past interviews component
 const PastInterviews = ({ userId }: { userId?: string }) => {
   const [interviews, setInterviews] = useState<any[]>([]);
@@ -486,21 +532,29 @@ const PastInterviews = ({ userId }: { userId?: string }) => {
         <Trophy className="w-4 h-4 text-warning" /> Past Interviews
       </h2>
       <div className="grid sm:grid-cols-2 gap-2">
-        {interviews.map((iv) => (
-          <div key={iv.id} className="rounded-xl border border-border/50 bg-card/60 p-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium capitalize">{iv.topic}</span>
-              {iv.score && (
-                <span className={`text-xs font-bold ${iv.score >= 70 ? "text-success" : iv.score >= 50 ? "text-warning" : "text-destructive"}`}>
-                  {iv.score}/100
-                </span>
-              )}
+        {interviews.map((iv) => {
+          let parsedScores: Record<string, number> | null = null;
+          try {
+            if (iv.feedback) parsedScores = JSON.parse(iv.feedback);
+          } catch {}
+
+          return (
+            <div key={iv.id} className="rounded-xl border border-border/50 bg-card/60 p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium capitalize">{iv.topic}</span>
+                {iv.score && (
+                  <span className={`text-xs font-bold ${iv.score >= 70 ? "text-success" : iv.score >= 50 ? "text-warning" : "text-destructive"}`}>
+                    {iv.score}/100
+                  </span>
+                )}
+              </div>
+              {parsedScores && <ScoreRadar scores={parsedScores} />}
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {new Date(iv.completed_at).toLocaleDateString()}
+              </p>
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">
-              {new Date(iv.completed_at).toLocaleDateString()}
-            </p>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
