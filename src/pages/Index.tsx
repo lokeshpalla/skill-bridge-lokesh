@@ -9,6 +9,10 @@ import {
 } from "lucide-react";
 import heroIllustration from "@/assets/hero-illustration.png";
 import grexilLogo from "@/assets/grexil-logo.png";
+import ProblemSolution from "@/components/landing/ProblemSolution";
+import InteractiveDemo from "@/components/landing/InteractiveDemo";
+import CompetitorComparison from "@/components/landing/CompetitorComparison";
+import Roadmap from "@/components/landing/Roadmap";
 
 const features = [
   { icon: Code2, title: "LeetCode-Style Coding", desc: "500+ problems with real-time execution, AI hints, and complexity analysis" },
@@ -17,12 +21,6 @@ const features = [
   { icon: Trophy, title: "Leaderboards & XP", desc: "Compete globally, earn XP, climb ranks, and unlock badges" },
   { icon: Briefcase, title: "AI Internship Matcher", desc: "ML-powered matching to top opportunities based on your skill profile" },
   { icon: FolderKanban, title: "Portfolio Builder", desc: "Showcase projects with a stunning, shareable portfolio page" },
-];
-
-const stats = [
-  { value: "10K+", label: "HAPPY LEARNERS", icon: Users },
-  { value: "200+", label: "FREE COURSES", icon: BookOpen },
-  { value: "95%", label: "LOVE IT", icon: Trophy },
 ];
 
 const fadeUp = {
@@ -37,10 +35,7 @@ const Index = () => {
     <div className="min-h-screen" role="document">
       {/* ─── HERO ─── */}
       <section className="relative min-h-[92vh] flex items-center bg-background overflow-hidden" aria-label="Hero">
-        {/* BlezeX-style subtle grid background */}
         <div className="absolute inset-0 bg-grid-subtle" />
-        
-        {/* Warm radial glow */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-primary/[0.04] rounded-full blur-[100px]" />
 
         <div className="container relative z-10">
@@ -48,18 +43,19 @@ const Index = () => {
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-sm font-medium mb-8">
                 <GxIcon className="w-4 h-4" />
-                AI-Powered Learning Platform
+                AI-Powered Builder's Academy
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
-                Master Skills.
+                Learn. Build.
                 <br />
-                <span className="text-gradient">Build Your Future.</span>
+                <span className="text-gradient">Launch Your Career.</span>
               </h1>
 
               <p className="text-lg text-muted-foreground mb-8 max-w-lg leading-relaxed">
-                The all-in-one platform where developers learn, practice, compete,
-                and land their dream roles — powered by AI.
+                The only platform where you learn real skills, build real projects,
+                and get matched to real opportunities — all powered by AI.
+                Not just courses. A career launchpad.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 mb-10">
@@ -98,27 +94,11 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ─── STATS ─── */}
-      <section className="py-16 bg-background relative" aria-label="Platform statistics">
-        <div className="absolute inset-0 bg-dot-grid opacity-40" />
-        <div className="container relative">
-          <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
-            {stats.map((stat, i) => {
-              const Icon = stat.icon;
-              return (
-                <motion.div key={stat.label} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.1 }} className="text-center">
-                  <Icon className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
-                  <div className="text-4xl md:text-5xl font-bold text-gradient mb-1">{stat.value}</div>
-                  <div className="text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      {/* ─── PROBLEM / SOLUTION ─── */}
+      <ProblemSolution />
 
       {/* ─── FEATURES ─── */}
-      <section className="py-24 bg-background" aria-label="Platform features">
+      <section className="py-24 bg-muted/30 border-y border-border/50" aria-label="Platform features">
         <div className="container">
           <motion.div {...fadeUp} className="text-center mb-16">
             <span className="text-xs text-primary uppercase tracking-widest font-medium">Platform</span>
@@ -152,6 +132,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* ─── INTERACTIVE DEMO ─── */}
+      <InteractiveDemo />
+
       {/* ─── HOW IT WORKS ─── */}
       <section className="py-24 bg-muted/30 border-y border-border/50 relative" aria-label="How it works">
         <div className="absolute inset-0 bg-grid-subtle" />
@@ -165,8 +148,8 @@ const Index = () => {
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {[
               { icon: Brain, step: "01", title: "Learn", desc: "Take expert courses, watch tutorials, and absorb industry knowledge" },
-              { icon: Target, step: "02", title: "Practice", desc: "Solve 500+ coding challenges, get AI feedback, build daily streaks" },
-              { icon: TrendingUp, step: "03", title: "Grow", desc: "Land internships, build your portfolio, and launch your career" },
+              { icon: Target, step: "02", title: "Build", desc: "Solve 500+ coding challenges, build team projects, and earn XP" },
+              { icon: TrendingUp, step: "03", title: "Launch", desc: "Get AI-matched to internships, build your portfolio, and start your career" },
             ].map((item, i) => {
               const Icon = item.icon;
               return (
@@ -184,6 +167,12 @@ const Index = () => {
         </div>
       </section>
 
+      {/* ─── COMPETITOR COMPARISON ─── */}
+      <CompetitorComparison />
+
+      {/* ─── ROADMAP & MARKET ─── */}
+      <Roadmap />
+
       {/* ─── CTA ─── */}
       <section className="py-24 bg-muted/20 relative overflow-hidden border-t border-border/50" aria-label="Call to action">
         <div className="absolute inset-0 bg-dot-grid opacity-30" />
@@ -191,10 +180,10 @@ const Index = () => {
         <div className="container relative z-10 text-center">
           <motion.div {...fadeUp}>
             <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              Ready to <span className="text-gradient">Bridge the Gap?</span>
+              Ready to <span className="text-gradient">Build Your Future?</span>
             </h2>
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Join thousands of developers who chose GreXil to accelerate their careers.
+              Join GreXil and go from learning to launching — for free.
             </p>
             <Link to="/auth">
               <Button size="lg" className="text-base px-10 h-12 bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-glow rounded-xl gap-2">
@@ -216,16 +205,12 @@ const Index = () => {
                 <span className="font-bold text-lg">GreXil</span>
               </Link>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                AI-powered learning platform for the next generation of developers.
+                AI-powered builder's academy for the next generation of developers.
               </p>
               <div className="flex items-center gap-3" role="list" aria-label="Social links">
-                {[
-                  { Icon: Mail, label: "Email", href: "mailto:support@grexil.com" },
-                ].map(({ Icon, label, href }) => (
-                  <a key={label} href={href} className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" aria-label={label} role="listitem">
-                    <Icon className="w-4 h-4" aria-hidden="true" />
-                  </a>
-                ))}
+                <a href="mailto:support@grexil.com" className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" aria-label="Email" role="listitem">
+                  <Mail className="w-4 h-4" aria-hidden="true" />
+                </a>
               </div>
             </div>
 
