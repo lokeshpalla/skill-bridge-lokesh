@@ -1,7 +1,15 @@
 import { motion } from "framer-motion";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, CheckCircle, Search, ChevronDown, RotateCcw, Timer, Lightbulb, Terminal, ChevronLeft, ChevronRight, ArrowLeft, List } from "lucide-react";
+import { Play, CheckCircle, Search, ChevronDown, RotateCcw, Timer, Lightbulb, Terminal, ChevronLeft, ChevronRight, ArrowLeft, List, Youtube, Languages } from "lucide-react";
+
+const TUTORIAL_LANGUAGES = [
+  { code: "en", label: "English", flag: "🇬🇧", q: "english" },
+  { code: "hi", label: "Hindi", flag: "🇮🇳", q: "hindi" },
+  { code: "te", label: "Telugu", flag: "🇮🇳", q: "telugu" },
+  { code: "ta", label: "Tamil", flag: "🇮🇳", q: "tamil" },
+  { code: "es", label: "Spanish", flag: "🇪🇸", q: "español" },
+];
 import MonacoEditor from "@monaco-editor/react";
 import { Input } from "@/components/ui/input";
 import { codingProblems, problemCategories, defaultHints, defaultDescriptions, CodingProblem } from "@/data/codingProblems";
