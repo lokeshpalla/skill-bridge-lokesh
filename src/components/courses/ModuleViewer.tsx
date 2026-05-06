@@ -2,7 +2,15 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import CourseNotes from "./CourseNotes";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, Code2, ChevronDown, Copy, Check, CheckCircle } from "lucide-react";
+import { ArrowLeft, Play, Code2, ChevronDown, Copy, Check, CheckCircle, Languages, ExternalLink } from "lucide-react";
+
+const VIDEO_LANGUAGES = [
+  { code: "en", label: "English", flag: "🇬🇧", ytLang: "english" },
+  { code: "hi", label: "Hindi", flag: "🇮🇳", ytLang: "hindi" },
+  { code: "te", label: "Telugu", flag: "🇮🇳", ytLang: "telugu" },
+  { code: "ta", label: "Tamil", flag: "🇮🇳", ytLang: "tamil" },
+  { code: "es", label: "Spanish", flag: "🇪🇸", ytLang: "español" },
+];
 
 interface ModuleViewerProps {
   moduleTitle: string;
