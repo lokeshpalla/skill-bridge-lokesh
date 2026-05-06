@@ -251,10 +251,13 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
   const [copied, setCopied] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [videoCompleted, setVideoCompleted] = useState(false);
+  const [videoLang, setVideoLang] = useState(VIDEO_LANGUAGES[0]);
   const playerRef = useRef<any>(null);
   const iframeRef = useRef<HTMLDivElement>(null);
 
   const videoId = getVideoForModule(moduleTitle);
+  const searchQuery = encodeURIComponent(`${moduleTitle} tutorial ${videoLang.ytLang}`);
+  const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
 
   // Load YouTube IFrame API and detect video end
   useEffect(() => {
