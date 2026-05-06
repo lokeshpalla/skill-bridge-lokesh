@@ -15,6 +15,7 @@ interface Profile {
   linkedin_url: string | null;
   portfolio_url: string | null;
 }
+// Note: email is intentionally never populated from public_profiles view (PII protection).
 
 interface Project {
   id: string;
@@ -39,14 +40,14 @@ const PublicPortfolioPage = () => {
 
     const fetchData = async () => {
       const [profileRes, projectsRes] = await Promise.all([
-        supabase.from("profiles").select("*").eq("user_id", userId).single(),
+        supabase.from("public_profiles" as any).select("*").eq("user_id", userId).single(),
         supabase.from("portfolio_projects").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
       ]);
 
       if (profileRes.error || !profileRes.data) {
         setNotFound(true);
       } else {
-        setProfile(profileRes.data as Profile);
+        setProfile(profileRes.data as unknown as Profile);
         setProjects(projectsRes.data || []);
       }
       setLoading(false);

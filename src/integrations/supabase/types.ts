@@ -1097,6 +1097,13 @@ export type Database = {
             referencedRelation: "mentor_profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "mentor_reviews_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "public_mentor_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       mock_interview_messages: {
@@ -1604,7 +1611,99 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_mentor_profiles: {
+        Row: {
+          availability_slots: string[] | null
+          available: boolean | null
+          bio: string | null
+          company: string | null
+          created_at: string | null
+          hourly_rate: number | null
+          id: string | null
+          rating: number | null
+          skills: string[] | null
+          title: string | null
+          total_sessions: number | null
+          user_id: string | null
+          weekly_pattern: string | null
+        }
+        Insert: {
+          availability_slots?: string[] | null
+          available?: boolean | null
+          bio?: string | null
+          company?: string | null
+          created_at?: string | null
+          hourly_rate?: number | null
+          id?: string | null
+          rating?: number | null
+          skills?: string[] | null
+          title?: string | null
+          total_sessions?: number | null
+          user_id?: string | null
+          weekly_pattern?: string | null
+        }
+        Update: {
+          availability_slots?: string[] | null
+          available?: boolean | null
+          bio?: string | null
+          company?: string | null
+          created_at?: string | null
+          hourly_rate?: number | null
+          id?: string | null
+          rating?: number | null
+          skills?: string[] | null
+          title?: string | null
+          total_sessions?: number | null
+          user_id?: string | null
+          weekly_pattern?: string | null
+        }
+        Relationships: []
+      }
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          github_url: string | null
+          last_active_date: string | null
+          linkedin_url: string | null
+          portfolio_url: string | null
+          skills: string[] | null
+          streak: number | null
+          user_id: string | null
+          xp: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          github_url?: string | null
+          last_active_date?: string | null
+          linkedin_url?: string | null
+          portfolio_url?: string | null
+          skills?: string[] | null
+          streak?: number | null
+          user_id?: string | null
+          xp?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          github_url?: string | null
+          last_active_date?: string | null
+          linkedin_url?: string | null
+          portfolio_url?: string | null
+          skills?: string[] | null
+          streak?: number | null
+          user_id?: string | null
+          xp?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       award_badge: {
