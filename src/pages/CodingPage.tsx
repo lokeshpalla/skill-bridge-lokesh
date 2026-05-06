@@ -55,6 +55,8 @@ const CodingPage = () => {
   const [activeTab, setActiveTab] = useState<"output" | "input">("output");
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const [tutorialLang, setTutorialLang] = useState(TUTORIAL_LANGUAGES[0]);
+
   // Mobile view: show problem list or editor
   const [mobileView, setMobileView] = useState<"list" | "editor">("list");
 
