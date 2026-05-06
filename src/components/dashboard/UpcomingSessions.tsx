@@ -48,11 +48,11 @@ export default function UpcomingSessions({ userId }: { userId: string }) {
       if (bookings && bookings.length > 0) {
         const mentorIds = [...new Set(bookings.map(b => b.mentor_id))];
         const { data: mentorProfiles } = await supabase
-          .from("mentor_profiles")
+          .from("public_mentor_profiles" as any)
           .select("user_id, title")
           .in("user_id", mentorIds);
         const { data: profiles } = await supabase
-          .from("profiles")
+          .from("public_profiles" as any)
           .select("user_id, display_name")
           .in("user_id", mentorIds);
 

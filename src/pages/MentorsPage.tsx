@@ -64,14 +64,14 @@ const MentorsPage = () => {
   const fetchMentors = async () => {
     setLoading(true);
     const { data } = await supabase
-      .from("mentor_profiles")
+      .from("public_mentor_profiles" as any)
       .select("*")
       .order("rating", { ascending: false });
 
     if (data && data.length > 0) {
       const userIds = data.map((m: any) => m.user_id);
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("public_profiles" as any)
         .select("user_id, display_name, avatar_url")
         .in("user_id", userIds);
 
