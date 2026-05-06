@@ -79,8 +79,8 @@ const MentorsPage = () => {
         ...m,
         skills: m.skills || [],
         availability_slots: m.availability_slots || [],
-        display_name: profiles?.find((p: any) => p.user_id === m.user_id)?.display_name || "Mentor",
-        avatar_url: profiles?.find((p: any) => p.user_id === m.user_id)?.avatar_url || null,
+        display_name: (profiles as any[])?.find((p: any) => p.user_id === m.user_id)?.display_name || "Mentor",
+        avatar_url: (profiles as any[])?.find((p: any) => p.user_id === m.user_id)?.avatar_url || null,
       })));
     } else {
       setMentors([]);

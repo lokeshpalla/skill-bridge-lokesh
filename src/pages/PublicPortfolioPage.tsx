@@ -47,7 +47,7 @@ const PublicPortfolioPage = () => {
       if (profileRes.error || !profileRes.data) {
         setNotFound(true);
       } else {
-        setProfile(profileRes.data as Profile);
+        setProfile(profileRes.data as unknown as Profile);
         setProjects(projectsRes.data || []);
       }
       setLoading(false);

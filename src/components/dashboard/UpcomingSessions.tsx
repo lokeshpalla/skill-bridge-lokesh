@@ -58,8 +58,8 @@ export default function UpcomingSessions({ userId }: { userId: string }) {
 
         setSessions(bookings.map(b => ({
           ...b,
-          mentor_name: profiles?.find(p => p.user_id === b.mentor_id)?.display_name || "Mentor",
-          mentor_title: mentorProfiles?.find(m => m.user_id === b.mentor_id)?.title || "",
+          mentor_name: (profiles as any[])?.find((p: any) => p.user_id === b.mentor_id)?.display_name || "Mentor",
+          mentor_title: (mentorProfiles as any[])?.find((m: any) => m.user_id === b.mentor_id)?.title || "",
         })));
       }
 
