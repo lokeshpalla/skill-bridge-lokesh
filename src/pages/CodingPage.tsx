@@ -1,7 +1,15 @@
 import { motion } from "framer-motion";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, CheckCircle, Search, ChevronDown, RotateCcw, Timer, Lightbulb, Terminal, ChevronLeft, ChevronRight, ArrowLeft, List } from "lucide-react";
+import { Play, CheckCircle, Search, ChevronDown, RotateCcw, Timer, Lightbulb, Terminal, ChevronLeft, ChevronRight, ArrowLeft, List, Youtube, Languages } from "lucide-react";
+
+const TUTORIAL_LANGUAGES = [
+  { code: "en", label: "English", flag: "🇬🇧", q: "english" },
+  { code: "hi", label: "Hindi", flag: "🇮🇳", q: "hindi" },
+  { code: "te", label: "Telugu", flag: "🇮🇳", q: "telugu" },
+  { code: "ta", label: "Tamil", flag: "🇮🇳", q: "tamil" },
+  { code: "es", label: "Spanish", flag: "🇪🇸", q: "español" },
+];
 import MonacoEditor from "@monaco-editor/react";
 import { Input } from "@/components/ui/input";
 import { codingProblems, problemCategories, defaultHints, defaultDescriptions, CodingProblem } from "@/data/codingProblems";
@@ -46,6 +54,8 @@ const CodingPage = () => {
   const [customInput, setCustomInput] = useState("");
   const [activeTab, setActiveTab] = useState<"output" | "input">("output");
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const [tutorialLang, setTutorialLang] = useState(TUTORIAL_LANGUAGES[0]);
 
   // Mobile view: show problem list or editor
   const [mobileView, setMobileView] = useState<"list" | "editor">("list");
@@ -472,6 +482,45 @@ const CodingPage = () => {
             {defaultHints[selected.id]}
           </motion.p>
         )}
+      </div>
+
+      {/* Video Tutorials in multiple languages */}
+      <div className="rounded-xl border border-border/50 bg-card/60 p-3 sm:p-4">
+        <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <Youtube className="w-4 h-4 text-destructive" />
+            <span className="text-sm font-semibold">Video Tutorial</span>
+          </div>
+          <div className="flex items-center gap-1 flex-wrap">
+            <Languages className="w-3 h-3 text-muted-foreground mr-1" />
+            {TUTORIAL_LANGUAGES.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => setTutorialLang(lang)}
+                className={`px-2 py-0.5 rounded-md text-[10px] font-medium transition-colors flex items-center gap-1 ${
+                  tutorialLang.code === lang.code
+                    ? "bg-primary/15 text-primary"
+                    : "bg-secondary/60 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span>{lang.flag}</span>
+                <span>{lang.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <p className="text-[11px] text-muted-foreground mb-2">
+          Watch a walkthrough of <span className="text-foreground font-medium">{selected.title}</span> in {tutorialLang.label}.
+        </p>
+        <a
+          href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${selected.title} ${selected.category} tutorial ${tutorialLang.q} ${language.label}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-medium hover:bg-destructive/20 transition-colors"
+        >
+          <Youtube className="w-3.5 h-3.5" />
+          Watch on YouTube ({tutorialLang.label})
+        </a>
       </div>
 
       {/* Editor with language picker */}
