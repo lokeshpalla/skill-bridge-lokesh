@@ -371,11 +371,8 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
           </div>
           <div className="flex items-center gap-1 flex-wrap">
             {VIDEO_LANGUAGES.map((lang) => (
-              <a
+              <button
                 key={lang.code}
-                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${moduleTitle} tutorial ${lang.ytLang}`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
                 onClick={() => setVideoLang(lang)}
                 className={`px-2 py-1 rounded-md text-[10px] font-medium transition-colors flex items-center gap-1 ${
                   videoLang.code === lang.code
@@ -385,18 +382,28 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
               >
                 <span>{lang.flag}</span>
                 <span>{lang.label}</span>
-                <ExternalLink className="w-2.5 h-2.5 opacity-60" />
-              </a>
+              </button>
             ))}
           </div>
         </div>
-        <div className="aspect-video w-full">
-          <div ref={iframeRef} className="w-full h-full" />
+        <div className="aspect-video w-full bg-black">
+          {videoLang.code === "en" ? (
+            <div ref={iframeRef} className="w-full h-full" />
+          ) : (
+            <iframe
+              key={videoLang.code}
+              className="w-full h-full"
+              src={`https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(`${moduleTitle} tutorial ${videoLang.ytLang}`)}`}
+              title={`${moduleTitle} - ${videoLang.label}`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          )}
         </div>
         {!videoCompleted && (
           <div className="px-4 py-2 border-t border-border/40 flex items-center gap-2 text-[11px] text-muted-foreground">
             <Play className="w-3 h-3" />
-            <span>Watch the full video to mark this module as complete — or pick your preferred language above</span>
+            <span>Watch the full video to mark this module as complete</span>
           </div>
         )}
       </div>

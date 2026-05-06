@@ -510,17 +510,18 @@ const CodingPage = () => {
           </div>
         </div>
         <p className="text-[11px] text-muted-foreground mb-2">
-          Watch a walkthrough of <span className="text-foreground font-medium">{selected.title}</span> in {tutorialLang.label}.
+          Walkthrough of <span className="text-foreground font-medium">{selected.title}</span> in {tutorialLang.label}.
         </p>
-        <a
-          href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${selected.title} ${selected.category} tutorial ${tutorialLang.q} ${language.label}`)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-medium hover:bg-destructive/20 transition-colors"
-        >
-          <Youtube className="w-3.5 h-3.5" />
-          Watch on YouTube ({tutorialLang.label})
-        </a>
+        <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
+          <iframe
+            key={`${selected.id}-${tutorialLang.code}-${language.id}`}
+            className="w-full h-full"
+            src={`https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(`${selected.title} ${language.label} tutorial ${tutorialLang.q}`)}`}
+            title={`${selected.title} - ${tutorialLang.label}`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
       </div>
 
       {/* Editor with language picker */}
