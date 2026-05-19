@@ -55,26 +55,32 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Rate limiting
+    // Require authentication
     const authHeader = req.headers.get("Authorization");
-    if (authHeader) {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-      const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-      const supabase = createClient(supabaseUrl, supabaseKey, {
-        global: { headers: { Authorization: authHeader } },
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const adminClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-        const { data: allowed } = await adminClient.rpc("check_ai_rate_limit", {
-          _user_id: user.id, _endpoint: "mock-interview", _max_requests: 20, _window_minutes: 60,
-        });
-        if (allowed === false) {
-          return new Response(JSON.stringify({ error: "Rate limit exceeded. Max 20 interview messages per hour." }), {
-            status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-      }
+    }
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const adminClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data: allowed } = await adminClient.rpc("check_ai_rate_limit", {
+      _user_id: user.id, _endpoint: "mock-interview", _max_requests: 20, _window_minutes: 60,
+    });
+    if (allowed === false) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded. Max 20 interview messages per hour." }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const systemPrompt = buildSystemPrompt(topic, skills);
