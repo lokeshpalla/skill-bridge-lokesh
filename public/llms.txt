@@ -1,0 +1,16 @@
+# GreXil
+
+> AI-powered learning platform for developers — courses, 500+ coding challenges, mentorship, mock interviews, internships, and portfolio building. 100% free.
+
+GreXil helps students learn to code, build projects, prepare for interviews, and land internships through AI-personalized learning paths, expert mentorship, and real hiring opportunities.
+
+## Pages
+
+- [Home](/): Platform overview, features, and how GreXil helps you learn, build, and launch.
+- [Landing](/landing): Detailed product tour, problem/solution, roadmap, and competitor comparison.
+- [Sign in / Sign up](/auth): Create an account or log in to start learning.
+- [Install the app](/install): Install GreXil as a PWA for offline access and push notifications.
+
+## Optional
+
+- [Public portfolio example](/portfolio/example): Developer portfolio page format (replace `example` with a real user ID).

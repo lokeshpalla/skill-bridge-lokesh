@@ -74,6 +74,32 @@ const CourseDetail = () => {
     fetchCourse();
   }, [id]);
 
+  // Inject Course JSON-LD structured data
+  useEffect(() => {
+    if (!course) return;
+    const existing = document.getElementById("course-json-ld");
+    if (existing) existing.remove();
+    const script = document.createElement("script");
+    script.id = "course-json-ld";
+    script.type = "application/ld+json";
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Course",
+      name: course.title,
+      description: course.description || `${course.title} — ${course.category} course on GreXil.`,
+      provider: { "@type": "Organization", name: "GreXil", sameAs: "https://grexil-lokesh01.lovable.app" },
+      educationalLevel: course.difficulty,
+      hasCourseInstance: course.modules.map((m, i) => ({
+        "@type": "CourseInstance",
+        name: m.title,
+        courseMode: "online",
+        position: i + 1,
+      })),
+    });
+    document.head.appendChild(script);
+    return () => { script.remove(); };
+  }, [course]);
+
   // Fetch enrollment & certificate
   useEffect(() => {
     if (!user || !id) return;
