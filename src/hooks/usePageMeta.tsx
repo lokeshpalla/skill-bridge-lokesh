@@ -56,7 +56,7 @@ export function usePageMeta() {
     const path = location.pathname;
     const meta = pageMeta[path] || {
       title: "GreXil — AI-Powered Learning Platform",
-      description: "Master coding, land internships, and build your career.",
+      description: "Master coding, land internships, and build your career with AI-powered courses, mentorship, and 500+ hands-on coding challenges.",
     };
 
     document.title = meta.title;
