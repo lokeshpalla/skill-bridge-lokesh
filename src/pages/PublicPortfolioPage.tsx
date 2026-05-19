@@ -56,6 +56,45 @@ const PublicPortfolioPage = () => {
     fetchData();
   }, [userId]);
 
+  // Inject ProfilePage / Person JSON-LD structured data
+  useEffect(() => {
+    if (!profile || !userId) return;
+    const existing = document.getElementById("portfolio-json-ld");
+    if (existing) existing.remove();
+    const script = document.createElement("script");
+    script.id = "portfolio-json-ld";
+    script.type = "application/ld+json";
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      mainEntity: {
+        "@type": "Person",
+        name: profile.display_name,
+        description: profile.bio || `${profile.display_name}'s developer portfolio on GreXil.`,
+        image: profile.avatar_url || undefined,
+        knowsAbout: profile.skills,
+        url: `https://grexil-lokesh01.lovable.app/portfolio/${userId}`,
+        sameAs: [profile.github_url, profile.linkedin_url, profile.portfolio_url].filter(Boolean),
+      },
+    });
+    document.head.appendChild(script);
+
+    // Per-route title + description
+    const pageTitle = `${profile.display_name} — Developer Portfolio | GreXil`;
+    const pageDesc = (profile.bio || `${profile.display_name}'s developer portfolio with projects and skills on GreXil.`).slice(0, 160);
+    document.title = pageTitle;
+    const setMeta = (attr: string, key: string, val: string) => {
+      let tag = document.querySelector(`meta[${attr}="${key}"]`);
+      if (!tag) { tag = document.createElement("meta"); tag.setAttribute(attr, key); document.head.appendChild(tag); }
+      tag.setAttribute("content", val);
+    };
+    setMeta("name", "description", pageDesc);
+    setMeta("property", "og:title", pageTitle);
+    setMeta("property", "og:description", pageDesc);
+
+    return () => { script.remove(); };
+  }, [profile, userId]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
