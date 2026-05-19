@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://grexil-lokesh01.lovable.app/sitemap.xml
