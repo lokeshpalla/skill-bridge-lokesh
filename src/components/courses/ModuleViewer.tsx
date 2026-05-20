@@ -224,8 +224,8 @@ const getVideoForModule = (moduleTitle: string): string => {
   }
   if (bestMatch) return videoByModuleTitle[bestMatch];
 
-  // Fallback — generic programming tutorial
-  return "PkZNo7MFNFg";
+  // Fallback — generic but relevant programming intro
+  return "PkZNo7MFNFg"; // freeCodeCamp — Programming for Beginners
 };
 
 const starterCode: Record<string, string> = {
