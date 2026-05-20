@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Layout from "@/components/layout/Layout";
-import SplashScreen from "./pages/SplashScreen";
+const SplashScreen = lazy(() => import("./pages/SplashScreen"));
 import { PageLoadingFallback } from "@/components/ui/loading-skeletons";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import PrivateRoute from "@/components/PrivateRoute";
