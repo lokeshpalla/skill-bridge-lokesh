@@ -387,19 +387,21 @@ const ModuleViewer = ({ moduleTitle, moduleIndex, courseId, onBack, onComplete }
           </div>
         </div>
         <div className="aspect-video w-full bg-black">
-          {videoLang.code === "en" ? (
-            <div ref={iframeRef} className="w-full h-full" />
-          ) : (
-            <iframe
-              key={videoLang.code}
-              className="w-full h-full"
-              src={`https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(`${moduleTitle} tutorial ${videoLang.ytLang}`)}`}
-              title={`${moduleTitle} - ${videoLang.label}`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          )}
+          <div ref={iframeRef} className="w-full h-full" />
         </div>
+        {videoLang.code !== "en" && (
+          <div className="px-4 py-2 border-t border-border/40 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+            <span>Prefer this topic in {videoLang.label}?</span>
+            <a
+              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${moduleTitle} tutorial ${videoLang.ytLang}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
+            >
+              Search on YouTube <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        )}
         {!videoCompleted && (
           <div className="px-4 py-2 border-t border-border/40 flex items-center gap-2 text-[11px] text-muted-foreground">
             <Play className="w-3 h-3" />
