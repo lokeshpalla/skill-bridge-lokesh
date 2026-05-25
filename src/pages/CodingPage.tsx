@@ -613,17 +613,55 @@ const CodingPage = () => {
         <p className="text-[11px] text-muted-foreground mb-2">
           Walkthrough of <span className="text-foreground font-medium">{selected.title}</span> in {tutorialLang.label}.
         </p>
-        <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
-          <iframe
-            key={`${selected.id}-${tutorialLang.code}-${language.id}`}
-            className="w-full h-full"
-            src={`https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(`${selected.title} ${language.label} tutorial ${tutorialLang.q}`)}`}
-            title={`${selected.title} - ${tutorialLang.label}`}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      </div>
+        {(() => {
+          const videoId = getSolutionVideoId(selected.title);
+          const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${selected.title} ${language.label} solution ${tutorialLang.q}`)}`;
+          const canEmbed = videoId && tutorialLang.code === "en";
+          return (
+            <>
+              <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
+                {canEmbed ? (
+                  <iframe
+                    key={`${selected.id}-${tutorialLang.code}`}
+                    className="w-full h-full"
+                    src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
+                    title={`${selected.title} solution`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <a
+                    href={searchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full h-full flex flex-col items-center justify-center gap-2 text-center p-4 hover:bg-black/80 transition-colors"
+                  >
+                    <Youtube className="w-10 h-10 text-destructive" />
+                    <span className="text-sm font-medium text-white">Watch {selected.title} solutions in {tutorialLang.label}</span>
+                    <span className="inline-flex items-center gap-1 text-xs text-primary">
+                      Open on YouTube <ExternalLink className="w-3 h-3" />
+                    </span>
+                  </a>
+                )}
+              </div>
+              <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-muted-foreground flex-wrap">
+                <span>
+                  {canEmbed
+                    ? "Curated walkthrough. Prefer another language? Use the search link."
+                    : `No curated ${tutorialLang.label} video — search YouTube instead.`}
+                </span>
+                <a
+                  href={searchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
+                >
+                  Search on YouTube <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </>
+          );
+        })()}
 
       {/* Editor with language picker */}
       <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden">
