@@ -33,6 +33,16 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error("ErrorBoundary caught:", error, info);
+    // Auto-reload once on stale chunk errors (common after deploys/HMR)
+    if (this.state.errorInfo === "chunk") {
+      const KEY = "__chunk_reload_attempted__";
+      if (!sessionStorage.getItem(KEY)) {
+        sessionStorage.setItem(KEY, "1");
+        setTimeout(() => window.location.reload(), 50);
+      }
+    } else {
+      sessionStorage.removeItem("__chunk_reload_attempted__");
+    }
   }
 
   handleReset = () => {
