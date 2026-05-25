@@ -662,6 +662,8 @@ const CodingPage = () => {
             </>
           );
         })()}
+      </div>
+
 
       {/* Editor with language picker */}
       <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden">
