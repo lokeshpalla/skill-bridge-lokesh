@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, CheckCircle, Search, ChevronDown, RotateCcw, Timer, Lightbulb, Terminal, ChevronLeft, ChevronRight, ArrowLeft, List, Youtube, Languages } from "lucide-react";
+import { Play, CheckCircle, Search, ChevronDown, RotateCcw, Timer, Lightbulb, Terminal, ChevronLeft, ChevronRight, ArrowLeft, List, Youtube, Languages, ExternalLink } from "lucide-react";
 
 const TUTORIAL_LANGUAGES = [
   { code: "en", label: "English", flag: "🇬🇧", q: "english" },
@@ -10,6 +10,107 @@ const TUTORIAL_LANGUAGES = [
   { code: "ta", label: "Tamil", flag: "🇮🇳", q: "tamil" },
   { code: "es", label: "Spanish", flag: "🇪🇸", q: "español" },
 ];
+
+// Curated YouTube solution videos mapped by problem title (lowercased).
+// English embeds play inline; other languages link out to a YouTube search.
+const solutionVideoByTitle: Record<string, string> = {
+  "two sum": "KLlXCFG5TnA",
+  "best time to buy and sell stock": "1pkOgXD63yU",
+  "contains duplicate": "3OamzN90kPg",
+  "product of array except self": "bNvIQI2wAjk",
+  "maximum subarray": "5WZl3MMT0Eg",
+  "maximum product subarray": "lXVy6YWFcRM",
+  "find minimum in rotated sorted array": "nIVW4P8b1VA",
+  "search in rotated sorted array": "U8XENwh8Oy8",
+  "container with most water": "UuiTKBwPgAo",
+  "three sum": "jzZsG8n2R9A",
+  "move zeroes": "aayNRwUN3Do",
+  "rotate array": "BHr381Guz3Y",
+  "merge sorted array": "P1Ic85RarKY",
+  "remove duplicates from sorted array": "DEJAZBq0FDA",
+  "single number": "qMPX1AOa83k",
+  "missing number": "WnPLSRLSANE",
+  "majority element": "7pnhv842keE",
+  "subarray sum equals k": "fFVZt-6sgyo",
+  "first missing positive": "8g78yfzMlao",
+  "trapping rain water": "ZI2z5pq0TqA",
+  "spiral matrix": "BJnMZNwUk1M",
+  "set matrix zeroes": "T41rL0L3Pnw",
+  "jump game": "Yan0cv2cLy8",
+  "jump game ii": "dJ7sWiOoK7g",
+  "merge intervals": "44H3cEC2fFM",
+  "insert interval": "A8NUOmlwOlM",
+  "non-overlapping intervals": "nONCGxWoUfM",
+  "sort colors": "4xbWSRZHqac",
+  "kth largest element": "XEmy13g1Qxc",
+  "top k frequent elements": "YPTqKIgVk-k",
+  "sliding window maximum": "DfljaUwZsOk",
+  "longest consecutive sequence": "P6RZZMu_maU",
+  "valid anagram": "9UtInBqnCgA",
+  "valid palindrome": "jJXJ16kPFWg",
+  "longest palindromic substring": "XYQecbcd6_c",
+  "longest common prefix": "0sWShKIJoo4",
+  "group anagrams": "vzdNOK2oB2E",
+  "longest substring without repeating characters": "wiGpQwVHdE0",
+  "minimum window substring": "jSto0O4AJbM",
+  "string to integer (atoi)": "YA0LYrKI1CQ",
+  "reverse string": "_d0T_2Lk2qA",
+  "reverse words in a string": "kCw3xrt0z2Y",
+  "encode and decode strings": "B1k_sxOSgv8",
+  "letter combinations of a phone number": "0snEunUacZY",
+  "generate parentheses": "s9fokUqJ76A",
+  "regular expression matching": "l3hda49XcDE",
+  "edit distance": "XYi2-LPrwm4",
+  "word break": "Sx9NNgInc3A",
+  "word search": "pfiQ_PS1g8E",
+  "longest repeating character replacement": "gqXU1UyA8pk",
+  "reverse linked list": "G0_I-ZF0S38",
+  "merge two sorted lists": "XIdigk956u0",
+  "linked list cycle": "gBTe7lFR3vc",
+  "remove nth node from end of list": "XVuQxVej6y8",
+  "reorder list": "S5bfdUTrKLM",
+  "merge k sorted lists": "q5a5OiGbT6Q",
+  "maximum depth of binary tree": "hTM3phVI6YQ",
+  "same tree": "vRbbcKXCxOw",
+  "invert binary tree": "OnSn2XEQ4MY",
+  "binary tree level order traversal": "6ZnyEApgFYg",
+  "validate binary search tree": "s6ATEkipzow",
+  "lowest common ancestor of a binary search tree": "gs2LMfuOR9k",
+  "kth smallest element in a bst": "5LUXSvjmGCw",
+  "serialize and deserialize binary tree": "u4JAi2JJhI8",
+  "climbing stairs": "Y0lT9Fck7qI",
+  "coin change": "H9bfqozjoqs",
+  "longest increasing subsequence": "cjWnW0hdF1Y",
+  "house robber": "73r3KWiEvyk",
+  "house robber ii": "rWAJCfYYOvM",
+  "unique paths": "IlEsdxuD4lY",
+  "longest common subsequence": "Ua0GhsJSlWM",
+  "partition equal subset sum": "IsvocB5BJhw",
+  "number of islands": "pV2kpPD66nE",
+  "clone graph": "mQeF6bN8hMk",
+  "course schedule": "EgI5nU9etnU",
+  "pacific atlantic water flow": "s-VkcjHqkGI",
+  "valid parentheses": "WTzjTskDFMg",
+  "min stack": "qkLl7nAwDPo",
+  "evaluate reverse polish notation": "iu0082c4HDE",
+  "daily temperatures": "cTBiBSnjO3c",
+  "largest rectangle in histogram": "zx5Sw9130L0",
+  "binary search": "s4DPM8ct1pI",
+  "search a 2d matrix": "Ber2pi2C0j0",
+  "koko eating bananas": "U2SozAs9RzA",
+  "find median from data stream": "itmhHWaHupI",
+  "lru cache": "7ABFKPK2hD4",
+  "implement trie (prefix tree)": "oobqoCJlHA0",
+};
+
+const getSolutionVideoId = (title: string): string | null => {
+  const t = title.toLowerCase().trim();
+  if (solutionVideoByTitle[t]) return solutionVideoByTitle[t];
+  for (const key of Object.keys(solutionVideoByTitle)) {
+    if (t.includes(key) || key.includes(t)) return solutionVideoByTitle[key];
+  }
+  return null;
+};
 import MonacoEditor from "@monaco-editor/react";
 import { Input } from "@/components/ui/input";
 import { codingProblems, problemCategories, defaultHints, defaultDescriptions, CodingProblem } from "@/data/codingProblems";
