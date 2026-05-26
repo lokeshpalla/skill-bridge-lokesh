@@ -14,6 +14,7 @@ const hideNavbarRoutes = ["/auth", "/reset-password", "/"];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
+  const { user } = useAuth();
   const isPublic = publicRoutes.includes(location.pathname) || location.pathname === "*";
   const hideNavbar = hideNavbarRoutes.includes(location.pathname);
   const is404 = !publicRoutes.includes(location.pathname) && ![
