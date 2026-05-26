@@ -7,12 +7,14 @@ import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const publicRoutes = ["/", "/auth", "/reset-password", "/landing"];
 const hideNavbarRoutes = ["/auth", "/reset-password", "/"];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
+  const { user } = useAuth();
   const isPublic = publicRoutes.includes(location.pathname) || location.pathname === "*";
   const hideNavbar = hideNavbarRoutes.includes(location.pathname);
   const is404 = !publicRoutes.includes(location.pathname) && ![
@@ -43,7 +45,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             {children}
           </motion.main>
         </AnimatePresence>
-        <AIAssistant />
+        {user && <AIAssistant />}
       </div>
     );
   }
@@ -89,7 +91,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </AnimatePresence>
         </div>
       </div>
-      <AIAssistant />
+      {user && <AIAssistant />}
     </SidebarProvider>
   );
 };
