@@ -87,7 +87,12 @@ const Index = () => {
               <img
                 src={heroIllustration}
                 alt="GreXil platform dashboard preview"
+                width={1024}
+                height={1024}
+                fetchPriority="high"
+                decoding="async"
                 className="w-full max-w-lg mx-auto animate-float drop-shadow-2xl"
+                style={{ aspectRatio: "1 / 1" }}
               />
             </motion.div>
           </div>
