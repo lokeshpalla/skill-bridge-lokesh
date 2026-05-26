@@ -7,6 +7,7 @@ import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const publicRoutes = ["/", "/auth", "/reset-password", "/landing"];
 const hideNavbarRoutes = ["/auth", "/reset-password", "/"];
