@@ -91,7 +91,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </AnimatePresence>
         </div>
       </div>
-      <AIAssistant />
+      {user && <AIAssistant />}
     </SidebarProvider>
   );
 };
