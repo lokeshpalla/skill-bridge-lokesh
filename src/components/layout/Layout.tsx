@@ -45,7 +45,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             {children}
           </motion.main>
         </AnimatePresence>
-        <AIAssistant />
+        {user && <AIAssistant />}
       </div>
     );
   }
