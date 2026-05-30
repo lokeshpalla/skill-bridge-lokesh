@@ -11,11 +11,11 @@ const SplashScreen = lazy(() => import("./pages/SplashScreen"));
 import { PageLoadingFallback } from "@/components/ui/loading-skeletons";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import PrivateRoute from "@/components/PrivateRoute";
+import Dashboard from "./pages/Dashboard";
 
 // Lazy-loaded pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CoursesPage = lazy(() => import("./pages/CoursesPage"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
 const CodingPage = lazy(() => import("./pages/CodingPage"));
