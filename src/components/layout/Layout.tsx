@@ -1,13 +1,15 @@
+import { lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import { AppSidebar } from "./AppSidebar";
-import AIAssistant from "@/components/ai/AIAssistant";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+
+const AIAssistant = lazy(() => import("@/components/ai/AIAssistant"));
 
 const publicRoutes = ["/", "/auth", "/reset-password", "/landing"];
 const hideNavbarRoutes = ["/auth", "/reset-password", "/"];
@@ -45,7 +47,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             {children}
           </motion.main>
         </AnimatePresence>
-        {user && <AIAssistant />}
+        {user && <Suspense fallback={null}><AIAssistant /></Suspense>}
       </div>
     );
   }
@@ -91,7 +93,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </AnimatePresence>
         </div>
       </div>
-      {user && <AIAssistant />}
+      {user && <Suspense fallback={null}><AIAssistant /></Suspense>}
     </SidebarProvider>
   );
 };
