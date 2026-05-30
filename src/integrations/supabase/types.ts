@@ -1291,6 +1291,33 @@ export type Database = {
         }
         Relationships: []
       }
+      problem_solves: {
+        Row: {
+          difficulty: string
+          id: string
+          problem_ref: string
+          solved_at: string
+          user_id: string
+          xp_awarded: number
+        }
+        Insert: {
+          difficulty?: string
+          id?: string
+          problem_ref: string
+          solved_at?: string
+          user_id: string
+          xp_awarded?: number
+        }
+        Update: {
+          difficulty?: string
+          id?: string
+          problem_ref?: string
+          solved_at?: string
+          user_id?: string
+          xp_awarded?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1709,6 +1736,14 @@ export type Database = {
       award_badge: {
         Args: { p_badge_id: string; p_user_id: string }
         Returns: undefined
+      }
+      award_problem_xp: {
+        Args: {
+          _difficulty: string
+          _minutes_spent?: number
+          _problem_ref: string
+        }
+        Returns: Json
       }
       check_ai_rate_limit: {
         Args: {
