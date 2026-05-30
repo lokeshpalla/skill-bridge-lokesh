@@ -355,8 +355,6 @@ const CodingPage = () => {
         }
 
         if (user && !String(execResult?.result).startsWith('❌')) {
-          const diffXp: Record<string, number> = { Easy: 20, Medium: 40, Hard: 80 };
-          const baseXp = diffXp[selected.difficulty] ?? 30;
           const minutesSpent = Math.floor(timer / 60);
 
           const solvedKey = `solved_problems_${user.id}`;
@@ -366,15 +364,17 @@ const CodingPage = () => {
             localStorage.setItem(solvedKey, JSON.stringify(solved));
           }
 
-          supabase.rpc("record_activity", {
-            _user_id: user.id,
-            _xp_amount: baseXp,
+          supabase.rpc("award_problem_xp", {
+            _problem_ref: String(selected.id),
+            _difficulty: selected.difficulty,
             _minutes_spent: minutesSpent,
           }).then(({ data }) => {
-            const result = data as { xp_earned: number; new_streak: number; streak_increased: boolean } | null;
-            if (result) {
+            const result = data as { xp_earned: number; new_streak: number; streak_increased: boolean; already_solved: boolean } | null;
+            if (result && !result.already_solved) {
               const streakMsg = result.streak_increased ? ` | 🔥 Streak: ${result.new_streak}` : "";
               toast({ title: "🎉 Problem Solved!", description: `+${result.xp_earned} XP${streakMsg}` });
+            } else if (result?.already_solved) {
+              toast({ title: "✅ Already Solved", description: "No additional XP awarded." });
             }
           });
         }
