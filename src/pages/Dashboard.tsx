@@ -65,8 +65,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
+
     const fetchData = async () => {
       setLoading(true);
+      try {
 
       // Fetch solved count from DB + localStorage
       const { count: dbSolved } = await supabase
@@ -165,12 +168,20 @@ const Dashboard = () => {
         const idx = day === 0 ? 6 : day - 1; // Mon=0 ... Sun=6
         xpByDay[idx] += s.xp_earned ?? 0;
       });
-      setWeeklyXp(xpByDay);
-
-      setLoading(false);
+        if (!cancelled) setWeeklyXp(xpByDay);
+      } catch (error) {
+        console.error("Dashboard data failed to load", error);
+        toast.error("Dashboard data took too long to load", { description: "Showing your dashboard with available data." });
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     };
 
     fetchData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user, xp]);
 
   const maxXp = Math.max(...weeklyXp, 1);
