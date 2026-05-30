@@ -47,7 +47,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             {children}
           </motion.main>
         </AnimatePresence>
-        {user && <AIAssistant />}
+        {user && <Suspense fallback={null}><AIAssistant /></Suspense>}
       </div>
     );
   }
@@ -93,7 +93,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </AnimatePresence>
         </div>
       </div>
-      {user && <AIAssistant />}
+      {user && <Suspense fallback={null}><AIAssistant /></Suspense>}
     </SidebarProvider>
   );
 };
