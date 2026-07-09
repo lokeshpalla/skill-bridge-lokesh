@@ -112,7 +112,7 @@ At the very end of your response, on a new line, add a language tag in the forma
     });
   } catch (e) {
     console.error("chat error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+    console.error("chat error:", e); return new Response(JSON.stringify({ error: "An internal error occurred" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

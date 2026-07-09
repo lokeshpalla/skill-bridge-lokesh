@@ -116,7 +116,7 @@ Return ONLY valid JSON, no markdown.`;
     });
   } catch (e) {
     console.error("recommend error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+    console.error("recommend error:", e); return new Response(JSON.stringify({ error: "An internal error occurred" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

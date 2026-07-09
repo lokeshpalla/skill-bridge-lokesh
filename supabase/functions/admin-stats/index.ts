@@ -173,7 +173,7 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("admin-stats error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+    console.error("admin-stats error:", e); return new Response(JSON.stringify({ error: "An internal error occurred" }), {
       status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
