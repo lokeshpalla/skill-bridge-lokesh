@@ -4,7 +4,7 @@ import { Star, Calendar, Search, Clock, IndianRupee, VideoIcon, Plus, MessageCir
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -140,11 +140,20 @@ const MentorsPage = () => {
     setSelectedSlot(null);
   };
 
-  const filtered = mentors.filter(m =>
-    m.display_name?.toLowerCase().includes(search.toLowerCase()) ||
-    m.title.toLowerCase().includes(search.toLowerCase()) ||
-    m.skills.some(s => s.toLowerCase().includes(search.toLowerCase()))
+  const mentorsWithSlots = useMemo(
+    () => mentors.map(m => ({ ...m, _slots: stringsToSlots(m.availability_slots) })),
+    [mentors]
   );
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    if (!q) return mentorsWithSlots;
+    return mentorsWithSlots.filter(m =>
+      m.display_name?.toLowerCase().includes(q) ||
+      m.title.toLowerCase().includes(q) ||
+      m.skills.some(s => s.toLowerCase().includes(q))
+    );
+  }, [mentorsWithSlots, search]);
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
@@ -255,19 +264,19 @@ const MentorsPage = () => {
                 )}
               </div>
 
-              {stringsToSlots(mentor.availability_slots).length > 0 && (
+              {mentor._slots.length > 0 && (
                 <div className="mb-4 p-2.5 rounded-lg bg-secondary/40 border border-border/30">
                   <p className="text-[10px] font-medium text-muted-foreground flex items-center gap-1 mb-1.5">
                     <Clock className="w-3 h-3" /> Available Slots
                   </p>
                   <div className="flex flex-wrap gap-1">
-                    {stringsToSlots(mentor.availability_slots).slice(0, 6).map(slot => (
+                    {mentor._slots.slice(0, 6).map(slot => (
                       <span key={`${slot.date}-${slot.time}`} className="text-[10px] px-2 py-0.5 rounded-md bg-background/80 border border-border/40 text-foreground">
                         {format(new Date(slot.date + "T00:00:00"), "MMM d")} · {slot.time}
                       </span>
                     ))}
-                    {stringsToSlots(mentor.availability_slots).length > 6 && (
-                      <span className="text-[10px] px-2 py-0.5 text-muted-foreground">+{stringsToSlots(mentor.availability_slots).length - 6} more</span>
+                    {mentor._slots.length > 6 && (
+                      <span className="text-[10px] px-2 py-0.5 text-muted-foreground">+{mentor._slots.length - 6} more</span>
                     )}
                   </div>
                 </div>
