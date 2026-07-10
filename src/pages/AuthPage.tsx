@@ -525,6 +525,7 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
                 </p>
               )}
             </form>
+            </>
           )}
 
           {/* Bottom links */}
