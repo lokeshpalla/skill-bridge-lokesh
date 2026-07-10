@@ -47,6 +47,28 @@ const AuthPage = forwardRef<HTMLDivElement>((_, ref) => {
   const { signIn, signUp, getRedirectPath } = useAuth();
   const navigate = useNavigate();
 
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        toast({ title: "Google sign-in failed", description: result.error.message || "Please try again.", variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+      if (result.redirected) return; // Full-page redirect
+      // Popup flow: session set, navigate
+      toast({ title: "Welcome! 🎉" });
+      navigate("/dashboard", { replace: true });
+    } catch (err: any) {
+      toast({ title: "Google sign-in failed", description: err?.message || "Please try again.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
