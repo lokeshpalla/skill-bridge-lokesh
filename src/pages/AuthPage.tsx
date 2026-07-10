@@ -6,6 +6,7 @@ import { Mail, Lock, User, Eye, EyeOff, Loader2, Phone, GraduationCap, ArrowRigh
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { toast } from "@/hooks/use-toast";
 
 const greetings = [
