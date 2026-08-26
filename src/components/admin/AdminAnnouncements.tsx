@@ -37,7 +37,7 @@ export default function AdminAnnouncements() {
 
   const fetchAnnouncements = async () => {
     setLoading(true);
-    const { data } = await supabase.from("announcements").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase.from("announcements").select("*").order("created_at", { ascending: false }).limit(100);
     setAnnouncements((data as Announcement[]) || []);
     setLoading(false);
   };

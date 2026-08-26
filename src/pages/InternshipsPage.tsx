@@ -64,7 +64,8 @@ const InternshipsPage = () => {
     const { data } = await supabase
       .from("internships")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(100);
     if (data) {
       setInternships(data.map((i: any) => ({
         ...i,

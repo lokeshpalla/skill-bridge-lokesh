@@ -14,57 +14,18 @@ export default function AdminAnalytics() {
   useEffect(() => { fetchAnalytics(); }, []);
 
   const fetchAnalytics = async () => {
-    const [
-      { data: profiles },
-      { data: enrollments },
-      { data: submissions },
-      { data: bookings },
-      { data: posts },
-      { data: payments },
-    ] = await Promise.all([
-      supabase.from("profiles").select("created_at, xp").order("created_at"),
-      supabase.from("course_enrollments").select("enrolled_at").order("enrolled_at"),
-      supabase.from("coding_submissions").select("submitted_at, status"),
-      supabase.from("mentor_bookings").select("created_at, status"),
-      supabase.from("forum_posts").select("created_at"),
-      supabase.from("mentor_payments").select("amount, status, created_at"),
-    ]);
-
-    // Group by month
-    const monthlyUsers = groupByMonth(profiles || [], "created_at");
-    const monthlyEnrollments = groupByMonth(enrollments || [], "enrolled_at");
-    const monthlySubmissions = groupByMonth(submissions || [], "submitted_at");
-    const monthlyPosts = groupByMonth(posts || [], "created_at");
-
-    // Submission status distribution
-    const statusCounts: Record<string, number> = {};
-    (submissions || []).forEach(s => { statusCounts[s.status] = (statusCounts[s.status] || 0) + 1; });
-    const statusData = Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
-
-    // Booking status distribution
-    const bookingCounts: Record<string, number> = {};
-    (bookings || []).forEach(b => { bookingCounts[b.status] = (bookingCounts[b.status] || 0) + 1; });
-    const bookingData = Object.entries(bookingCounts).map(([name, value]) => ({ name, value }));
-
-    // Revenue over time
-    const monthlyRevenue = groupByMonthSum(payments || [], "created_at", "amount");
-
-    // XP distribution
-    const xpRanges = [
-      { name: "0-100", min: 0, max: 100 },
-      { name: "100-500", min: 100, max: 500 },
-      { name: "500-1K", min: 500, max: 1000 },
-      { name: "1K-5K", min: 1000, max: 5000 },
-      { name: "5K+", min: 5000, max: Infinity },
-    ];
-    const xpDist = xpRanges.map(r => ({
-      name: r.name,
-      value: (profiles || []).filter(p => p.xp >= r.min && p.xp < r.max).length,
-    }));
-
-    setData({ monthlyUsers, monthlyEnrollments, monthlySubmissions, monthlyPosts, statusData, bookingData, monthlyRevenue, xpDist });
-    setLoading(false);
+    try {
+      // Aggregated server-side — scales to millions of rows without downloading them
+      const { data: result, error } = await supabase.rpc("admin_platform_analytics" as any);
+      if (error) throw error;
+      setData(result);
+    } catch {
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   if (loading) return <p className="text-sm text-muted-foreground py-8 text-center">Loading analytics...</p>;
   if (!data) return null;
@@ -126,24 +87,4 @@ export default function AdminAnalytics() {
       </div>
     </div>
   );
-}
-
-function groupByMonth(items: any[], dateField: string) {
-  const map: Record<string, number> = {};
-  items.forEach(item => {
-    const d = new Date(item[dateField]);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    map[key] = (map[key] || 0) + 1;
-  });
-  return Object.entries(map).sort().slice(-12).map(([month, count]) => ({ month, count }));
-}
-
-function groupByMonthSum(items: any[], dateField: string, valueField: string) {
-  const map: Record<string, number> = {};
-  items.forEach(item => {
-    const d = new Date(item[dateField]);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    map[key] = (map[key] || 0) + Number(item[valueField] || 0);
-  });
-  return Object.entries(map).sort().slice(-12).map(([month, total]) => ({ month, total }));
 }

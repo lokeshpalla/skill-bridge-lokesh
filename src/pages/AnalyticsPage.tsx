@@ -45,26 +45,48 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
-    fetchAnalytics();
+    fetchAnalytics().catch(() => setLoading(false));
   }, [user]);
 
   const fetchAnalytics = async () => {
     if (!user) return;
 
-    // Parallel fetches
+    const yearAgo = new Date();
+    yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+
+    // Parallel fetches — narrow columns, bounded window, capped rows
     const [
       { data: submissions },
       { data: enrollments },
       { count: badgeCount },
       { data: problems },
     ] = await Promise.all([
-      supabase.from("coding_submissions").select("*").eq("user_id", user.id).order("submitted_at", { ascending: true }),
-      supabase.from("course_enrollments").select("*, courses(title, category)").eq("user_id", user.id),
+      supabase
+        .from("coding_submissions")
+        .select("problem_id, status, xp_earned, submitted_at")
+        .eq("user_id", user.id)
+        .gte("submitted_at", yearAgo.toISOString())
+        .order("submitted_at", { ascending: true })
+        .limit(2000),
+      supabase
+        .from("course_enrollments")
+        .select("course_id, progress, enrolled_at, completed_at, courses(title, category)")
+        .eq("user_id", user.id)
+        .limit(200),
       supabase.from("user_badges").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-      supabase.from("coding_problems").select("id, difficulty, category"),
+      supabase.from("coding_problems").select("id, difficulty, category").limit(1000),
     ]);
 
     const acceptedSubs = (submissions || []).filter((s) => s.status === "accepted");
+
+    // O(1) lookups instead of nested scans — keeps the page fast with large histories
+    const problemMap = new Map((problems || []).map((p) => [p.id, p]));
+    const dailyCounts = new Map<string, number>();
+    (submissions || []).forEach((s) => {
+      const day = String(s.submitted_at).slice(0, 10);
+      dailyCounts.set(day, (dailyCounts.get(day) || 0) + 1);
+    });
+
 
     // Stats
     const totalXp = profile?.xp || 0;
@@ -129,7 +151,7 @@ export default function AnalyticsPage() {
     // Skill radar from problem categories solved
     const categoryMap = new Map<string, number>();
     acceptedSubs.forEach((s) => {
-      const problem = (problems || []).find((p) => p.id === s.problem_id);
+      const problem = problemMap.get(s.problem_id);
       if (problem) {
         const cat = problem.category || "General";
         categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1);
@@ -148,7 +170,7 @@ export default function AnalyticsPage() {
     // Difficulty breakdown
     const diffMap = new Map<string, number>();
     acceptedSubs.forEach((s) => {
-      const problem = (problems || []).find((p) => p.id === s.problem_id);
+      const problem = problemMap.get(s.problem_id);
       if (problem) {
         const diff = problem.difficulty || "Easy";
         diffMap.set(diff, (diffMap.get(diff) || 0) + 1);
@@ -168,7 +190,7 @@ export default function AnalyticsPage() {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split("T")[0];
-      const count = (submissions || []).filter((s) => s.submitted_at.startsWith(dateStr)).length;
+      const count = dailyCounts.get(dateStr) || 0;
       const startOfYear = new Date(d.getFullYear(), 0, 1);
       const weekNum = Math.floor(((d.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay()) / 7);
       heatmap.push({ date: dateStr, count, dayOfWeek: d.getDay(), week: Math.floor(i / 7) });

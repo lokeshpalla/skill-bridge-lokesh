@@ -66,7 +66,8 @@ const MentorsPage = () => {
     const { data } = await supabase
       .from("public_mentor_profiles" as any)
       .select("*")
-      .order("rating", { ascending: false });
+      .order("rating", { ascending: false })
+      .limit(100);
 
     if (data && data.length > 0) {
       const userIds = data.map((m: any) => m.user_id);
