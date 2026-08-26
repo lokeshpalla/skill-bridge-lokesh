@@ -45,7 +45,7 @@ export default function AdminMentorManagement() {
   const fetchAll = async () => {
     setLoading(true);
     const [{ data: mData }, { data: bData }] = await Promise.all([
-      supabase.from("mentor_profiles").select("*").order("created_at", { ascending: false }),
+      supabase.from("mentor_profiles").select("*").order("created_at", { ascending: false }).limit(200),
       supabase.from("mentor_bookings").select("*").order("scheduled_at", { ascending: false }).limit(50),
     ]);
 

@@ -48,7 +48,7 @@ const LearningPathsPage = () => {
   }, [user]);
 
   const fetchPaths = async () => {
-    const { data } = await supabase.from("learning_paths").select("*").order("difficulty");
+    const { data } = await supabase.from("learning_paths").select("*").order("difficulty").limit(100);
     if (data) setPaths(data as LearningPath[]);
   };
 
