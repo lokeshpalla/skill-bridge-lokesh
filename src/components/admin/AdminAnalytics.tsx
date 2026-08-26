@@ -88,23 +88,3 @@ export default function AdminAnalytics() {
     </div>
   );
 }
-
-function groupByMonth(items: any[], dateField: string) {
-  const map: Record<string, number> = {};
-  items.forEach(item => {
-    const d = new Date(item[dateField]);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    map[key] = (map[key] || 0) + 1;
-  });
-  return Object.entries(map).sort().slice(-12).map(([month, count]) => ({ month, count }));
-}
-
-function groupByMonthSum(items: any[], dateField: string, valueField: string) {
-  const map: Record<string, number> = {};
-  items.forEach(item => {
-    const d = new Date(item[dateField]);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    map[key] = (map[key] || 0) + Number(item[valueField] || 0);
-  });
-  return Object.entries(map).sort().slice(-12).map(([month, total]) => ({ month, total }));
-}

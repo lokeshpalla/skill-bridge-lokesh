@@ -45,7 +45,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
-    fetchAnalytics();
+    fetchAnalytics().catch(() => setLoading(false));
   }, [user]);
 
   const fetchAnalytics = async () => {
