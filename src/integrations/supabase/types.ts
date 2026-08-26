@@ -1733,6 +1733,7 @@ export type Database = {
       }
     }
     Functions: {
+      admin_platform_analytics: { Args: never; Returns: Json }
       award_badge: {
         Args: { p_badge_id: string; p_user_id: string }
         Returns: undefined
