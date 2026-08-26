@@ -369,8 +369,10 @@ const CodingPage = () => {
             _difficulty: selected.difficulty,
             _minutes_spent: minutesSpent,
           }).then(({ data }) => {
-            const result = data as { xp_earned: number; new_streak: number; streak_increased: boolean; already_solved: boolean } | null;
-            if (result && !result.already_solved) {
+            const result = data as { xp_earned: number; new_streak: number; streak_increased: boolean; already_solved: boolean; rate_limited?: boolean } | null;
+            if (result?.rate_limited) {
+              toast({ title: "Daily XP limit reached", description: "Come back tomorrow to earn more XP." });
+            } else if (result && !result.already_solved) {
               const streakMsg = result.streak_increased ? ` | 🔥 Streak: ${result.new_streak}` : "";
               toast({ title: "🎉 Problem Solved!", description: `+${result.xp_earned} XP${streakMsg}` });
             } else if (result?.already_solved) {
