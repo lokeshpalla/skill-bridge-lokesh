@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -76,11 +76,12 @@ At the very end of your response, on a new line, add a language tag in the forma
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Lovable-API-Key": LOVABLE_API_KEY,
+        "X-Lovable-AIG-SDK": "fetch",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-3.7-flash",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
@@ -90,20 +91,16 @@ At the very end of your response, on a new line, add a language tag in the forma
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded, please try again shortly." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI service unavailable" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      const gatewayError = await response.json().catch(() => ({ message: "AI service unavailable" }));
+      const message = typeof gatewayError?.message === "string"
+        ? gatewayError.message
+        : typeof gatewayError?.error?.message === "string"
+          ? gatewayError.error.message
+          : "AI service unavailable";
+      console.error("AI gateway error:", response.status, message);
+      return new Response(JSON.stringify({ error: message }), {
+        status: response.status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -112,7 +109,7 @@ At the very end of your response, on a new line, add a language tag in the forma
     });
   } catch (e) {
     console.error("chat error:", e);
-    console.error("chat error:", e); return new Response(JSON.stringify({ error: "An internal error occurred" }), {
+    return new Response(JSON.stringify({ error: "An internal error occurred" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

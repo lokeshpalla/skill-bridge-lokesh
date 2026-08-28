@@ -30,12 +30,18 @@ const SplashScreen = () => {
   useEffect(() => {
     if (animationDone && !loading && !rolesLoading) {
       setPhase("exit");
-      const t = setTimeout(() => {
-        navigate(user ? getRedirectPath() : "/auth", { replace: true });
-      }, 600);
-      return () => clearTimeout(t);
     }
-  }, [animationDone, loading, rolesLoading, user, navigate, getRedirectPath]);
+  }, [animationDone, loading, rolesLoading]);
+
+  // Keep navigation in a separate effect. Previously, changing phase caused the
+  // first effect to clean up its own timer, leaving the app on a blank exit frame.
+  useEffect(() => {
+    if (phase !== "exit") return;
+    const timer = window.setTimeout(() => {
+      navigate(user ? getRedirectPath() : "/auth", { replace: true });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [phase, user, navigate, getRedirectPath]);
 
   return (
     <AnimatePresence>
@@ -173,9 +179,11 @@ const SplashScreen = () => {
           key="exit"
           initial={{ opacity: 1 }}
           animate={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-[100] bg-background"
-        />
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 z-[100] bg-background flex items-center justify-center"
+        >
+          <img src={grexilLogo} alt="" className="w-16 h-16 rounded-2xl object-cover" />
+        </motion.div>
       )}
     </AnimatePresence>
   );
