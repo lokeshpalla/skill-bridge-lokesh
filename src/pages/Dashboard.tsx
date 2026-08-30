@@ -62,7 +62,18 @@ const Dashboard = () => {
 
   const storedXp = profile?.xp ?? 0;
   const xp = hasCompletedActivity ? storedXp : 0;
-  const streak = hasCompletedActivity ? (profile?.streak ?? 0) : 0;
+
+  // Streak is only alive if the user was active today or yesterday — missing a day breaks it.
+  const isStreakAlive = (() => {
+    if (!profile?.last_active_date) return false;
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+    return profile.last_active_date === todayStr || profile.last_active_date === yesterdayStr;
+  })();
+  const streak = hasCompletedActivity && isStreakAlive ? (profile?.streak ?? 0) : 0;
   const displayName = profile?.display_name || "there";
 
   useEffect(() => {

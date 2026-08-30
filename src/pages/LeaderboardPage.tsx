@@ -40,6 +40,15 @@ const rankStyle = (rank: number) => {
   return "text-foreground";
 };
 
+// A streak only counts if the user was active today or yesterday — a missed day breaks it.
+const isStreakAlive = (lastActive: string | null): boolean => {
+  if (!lastActive) return false;
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  return lastActive === today.toISOString().slice(0, 10) || lastActive === yesterday.toISOString().slice(0, 10);
+};
+
 const LeaderboardPage = () => {
   const { user } = useAuth();
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
@@ -49,7 +58,7 @@ const LeaderboardPage = () => {
     const fetchLeaderboard = async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("user_id, display_name, xp, streak, avatar_url")
+        .select("user_id, display_name, xp, streak, avatar_url, last_active_date")
         .order("xp", { ascending: false })
         .limit(50);
 
@@ -58,7 +67,7 @@ const LeaderboardPage = () => {
           rank: i + 1,
           name: p.display_name || "Anonymous",
           xp: p.xp ?? 0,
-          streak: p.streak ?? 0,
+          streak: isStreakAlive(p.last_active_date ?? null) ? (p.streak ?? 0) : 0,
           level: getLevel(p.xp ?? 0),
           avatar: getAvatar(i + 1),
           avatar_url: p.avatar_url ?? null,
