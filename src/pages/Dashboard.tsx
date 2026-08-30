@@ -42,6 +42,7 @@ const Dashboard = () => {
   const [recentActivity, setRecentActivity] = useState<RecentItem[]>([]);
   const [weeklyXp, setWeeklyXp] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
   const [loading, setLoading] = useState(true);
+  const [hasCompletedActivity, setHasCompletedActivity] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [restoringStreak, setRestoringStreak] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -59,8 +60,9 @@ const Dashboard = () => {
     }
   }, [profile]);
 
-  const xp = profile?.xp ?? 0;
-  const streak = profile?.streak ?? 0;
+  const storedXp = profile?.xp ?? 0;
+  const xp = hasCompletedActivity ? storedXp : 0;
+  const streak = hasCompletedActivity ? (profile?.streak ?? 0) : 0;
   const displayName = profile?.display_name || "there";
 
   useEffect(() => {
@@ -71,28 +73,61 @@ const Dashboard = () => {
       setLoading(true);
       try {
 
-      // Fetch solved count from DB + localStorage
-      const { count: dbSolved } = await supabase
-        .from("coding_submissions")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .eq("status", "accepted");
+      // Only completed learning activity should contribute to dashboard stats.
+      // Keep the activity check tied to persisted completion records, not profile defaults.
+      const [
+        { count: dbSolved },
+        { count: persistedSolves },
+        { data: activityEnrollments },
+        { count: completedChallenges },
+      ] = await Promise.all([
+        supabase
+          .from("coding_submissions")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("status", "accepted"),
+        supabase
+          .from("problem_solves")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id),
+        supabase
+          .from("course_enrollments")
+          .select("progress, completed_modules, course_id")
+          .eq("user_id", user.id)
+          .limit(3),
+        supabase
+          .from("challenge_participation")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("completed", true),
+      ]);
       const localSolved: number[] = JSON.parse(localStorage.getItem(`solved_problems_${user.id}`) || "[]");
       setSolvedCount((dbSolved ?? 0) + localSolved.length);
 
-      // Fetch rank (count profiles with more XP + 1)
-      const { count: above } = await supabase
-        .from("profiles")
-        .select("*", { count: "exact", head: true })
-        .gt("xp", xp);
-      setRank((above ?? 0) + 1);
+      const completedModules = (activityEnrollments ?? []).reduce((total, enrollment) => {
+        return total + (Array.isArray(enrollment.completed_modules) ? enrollment.completed_modules.length : 0);
+      }, 0);
+      const hasActivity =
+        (dbSolved ?? 0) > 0 ||
+        (persistedSolves ?? 0) > 0 ||
+        localSolved.length > 0 ||
+        completedModules > 0 ||
+        (completedChallenges ?? 0) > 0;
+      setHasCompletedActivity(hasActivity);
+
+      // Users without completed activity do not have a leaderboard rank.
+      if (hasActivity) {
+        const { count: above } = await supabase
+          .from("profiles")
+          .select("*", { count: "exact", head: true })
+          .gt("xp", storedXp);
+        setRank((above ?? 0) + 1);
+      } else {
+        setRank(0);
+      }
 
       // Fetch enrolled courses with course details
-      const { data: enrollments } = await supabase
-        .from("course_enrollments")
-        .select("progress, completed_modules, course_id")
-        .eq("user_id", user.id)
-        .limit(3);
+      const enrollments = activityEnrollments;
 
       if (enrollments && enrollments.length > 0) {
         const courseIds = enrollments.map((e) => e.course_id);
@@ -182,7 +217,7 @@ const Dashboard = () => {
     return () => {
       cancelled = true;
     };
-  }, [user, xp]);
+  }, [user, storedXp]);
 
   const maxXp = Math.max(...weeklyXp, 1);
   const todayIdx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
@@ -220,7 +255,7 @@ const Dashboard = () => {
     { icon: Zap, label: "Total XP", value: xp.toLocaleString(), change: xp > 0 ? `${xp}` : "—", up: xp > 0, accent: "text-primary" },
     { icon: Flame, label: "Day Streak", value: String(streak), change: streak > 0 ? `${streak}d` : "—", up: streak > 0, accent: "text-warning" },
     { icon: Code2, label: "Solved", value: String(solvedCount), change: solvedCount > 0 ? `${solvedCount}` : "—", up: solvedCount > 0, accent: "text-success" },
-    { icon: Award, label: "Rank", value: `#${rank}`, change: rank > 0 ? `#${rank}` : "—", up: rank > 0, accent: "text-accent" },
+    { icon: Award, label: "Rank", value: rank > 0 ? `#${rank}` : "—", change: rank > 0 ? `#${rank}` : "—", up: rank > 0, accent: "text-accent" },
   ];
 
   if (showOnboarding) {
