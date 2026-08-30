@@ -255,7 +255,7 @@ const Dashboard = () => {
     { icon: Zap, label: "Total XP", value: xp.toLocaleString(), change: xp > 0 ? `${xp}` : "—", up: xp > 0, accent: "text-primary" },
     { icon: Flame, label: "Day Streak", value: String(streak), change: streak > 0 ? `${streak}d` : "—", up: streak > 0, accent: "text-warning" },
     { icon: Code2, label: "Solved", value: String(solvedCount), change: solvedCount > 0 ? `${solvedCount}` : "—", up: solvedCount > 0, accent: "text-success" },
-    { icon: Award, label: "Rank", value: rank > 0 ? `#${rank}` : "—", change: rank > 0 ? `#${rank}` : "—", up: rank > 0, accent: "text-accent" },
+    { icon: Award, label: "Rank", value: rank > 0 ? `#${rank}` : "0", change: rank > 0 ? `#${rank}` : "—", up: rank > 0, accent: "text-accent" },
   ];
 
   if (showOnboarding) {
