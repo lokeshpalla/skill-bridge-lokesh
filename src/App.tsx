@@ -15,7 +15,6 @@ import Dashboard from "./pages/Dashboard";
 
 // Lazy-loaded pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
-const Academy3D = lazy(() => import("./pages/Academy3D"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const CoursesPage = lazy(() => import("./pages/CoursesPage"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
@@ -65,8 +64,7 @@ function AppRoutes() {
       <Suspense fallback={<PageLoadingFallback />}>
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<Academy3D />} />
-          <Route path="/splash" element={<SplashScreen />} />
+          <Route path="/" element={<SplashScreen />} />
           <Route path="/landing" element={<Index />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
