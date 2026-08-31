@@ -74,7 +74,8 @@ export default function AnalyticsPage() {
         .eq("user_id", user.id)
         .limit(200),
       supabase.from("user_badges").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-      supabase.from("coding_problems").select("id, difficulty, category").limit(1000),
+      // Read the solution-free public view (base table is admin-only)
+      (supabase as any).from("coding_problems_public").select("id, difficulty, category").limit(1000),
     ]);
 
     const acceptedSubs = (submissions || []).filter((s) => s.status === "accepted");

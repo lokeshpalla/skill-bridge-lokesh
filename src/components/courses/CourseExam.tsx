@@ -278,6 +278,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
       handleRunCode();
       return;
     }
+    answersRef.current[currentQ] = { code: userCode };
     goToNext(codePassed);
   };
 
