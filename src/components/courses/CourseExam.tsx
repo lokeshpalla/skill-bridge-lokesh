@@ -158,6 +158,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
   const [saving, setSaving] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const answersRef = useRef<Record<number, { selectedIndex?: number; code?: string }>>({});
   const [proctoringReady, setProctoringReady] = useState(false);
 
   // Coding question state
@@ -178,16 +179,12 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
 
   const finishExam = useCallback((finalScores: (boolean | null)[]) => {
     if (timerRef.current) clearInterval(timerRef.current);
-    const score = finalScores.filter(s => s === true).length;
-    const pct = Math.round((score / questions.length) * 100);
-    const grade = getGrade(pct);
-    setResult({ score, total: questions.length, pct, grade });
-    setShowResult(true);
-    saveResult(score, questions.length, pct, grade.grade, pct >= 50);
     // Stop proctoring
     proctoring.stopCamera();
     proctoring.exitFullscreen();
-    proctoring.logEvent("exam_finished", { score, total: questions.length, pct, tabSwitches: proctoring.state.tabSwitchCount, copyPasteAttempts: proctoring.state.copyPasteAttempts });
+    proctoring.logEvent("exam_finished", { tabSwitches: proctoring.state.tabSwitchCount, copyPasteAttempts: proctoring.state.copyPasteAttempts });
+    // Authoritative score comes from the server-side grader
+    submitForGrading();
   }, [questions, proctoring]);
 
   useEffect(() => {
@@ -238,6 +235,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
     setShowResult(false);
     setResult(null);
     setTimeLeft(EXAM_DURATION);
+    answersRef.current = {};
     resetCodingState();
     // Set starter code if first question is coding
     const firstQ = questions[0];
@@ -264,6 +262,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
   const handleMCQNext = () => {
     if (selectedOption === null) return;
     const q = questions[currentQ] as MCQQuestion;
+    answersRef.current[currentQ] = { selectedIndex: selectedOption };
     goToNext(selectedOption === q.correctIndex);
   };
 
