@@ -81,7 +81,7 @@ export default function AnalyticsPage() {
     const acceptedSubs = (submissions || []).filter((s) => s.status === "accepted");
 
     // O(1) lookups instead of nested scans — keeps the page fast with large histories
-    const problemMap = new Map((problems || []).map((p) => [p.id, p]));
+    const problemMap = new Map(((problems || []) as { id: string; difficulty: string; category: string }[]).map((p) => [p.id, p]));
     const dailyCounts = new Map<string, number>();
     (submissions || []).forEach((s) => {
       const day = String(s.submitted_at).slice(0, 10);
