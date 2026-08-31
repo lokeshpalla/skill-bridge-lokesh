@@ -158,6 +158,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
   const [saving, setSaving] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const answersRef = useRef<Record<number, { selectedIndex?: number; code?: string }>>({});
   const [proctoringReady, setProctoringReady] = useState(false);
 
   // Coding question state
@@ -178,16 +179,12 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
 
   const finishExam = useCallback((finalScores: (boolean | null)[]) => {
     if (timerRef.current) clearInterval(timerRef.current);
-    const score = finalScores.filter(s => s === true).length;
-    const pct = Math.round((score / questions.length) * 100);
-    const grade = getGrade(pct);
-    setResult({ score, total: questions.length, pct, grade });
-    setShowResult(true);
-    saveResult(score, questions.length, pct, grade.grade, pct >= 50);
     // Stop proctoring
     proctoring.stopCamera();
     proctoring.exitFullscreen();
-    proctoring.logEvent("exam_finished", { score, total: questions.length, pct, tabSwitches: proctoring.state.tabSwitchCount, copyPasteAttempts: proctoring.state.copyPasteAttempts });
+    proctoring.logEvent("exam_finished", { tabSwitches: proctoring.state.tabSwitchCount, copyPasteAttempts: proctoring.state.copyPasteAttempts });
+    // Authoritative score comes from the server-side grader
+    submitForGrading();
   }, [questions, proctoring]);
 
   useEffect(() => {
@@ -238,6 +235,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
     setShowResult(false);
     setResult(null);
     setTimeLeft(EXAM_DURATION);
+    answersRef.current = {};
     resetCodingState();
     // Set starter code if first question is coding
     const firstQ = questions[0];
@@ -264,6 +262,7 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
   const handleMCQNext = () => {
     if (selectedOption === null) return;
     const q = questions[currentQ] as MCQQuestion;
+    answersRef.current[currentQ] = { selectedIndex: selectedOption };
     goToNext(selectedOption === q.correctIndex);
   };
 
@@ -279,22 +278,41 @@ const CourseExam = ({ courseId, courseTitle, onCertificateEarned }: CourseExamPr
       handleRunCode();
       return;
     }
+    answersRef.current[currentQ] = { code: userCode };
     goToNext(codePassed);
   };
 
-  const saveResult = async (score: number, total: number, pct: number, grade: string, passed: boolean) => {
+  // Grading happens exclusively server-side: raw answers are sent to the
+  // grade-course-exam edge function, which holds the answer keys, computes the
+  // score, and is the only writer of course_exam_results.
+  const submitForGrading = async () => {
     if (!user) return;
     setSaving(true);
-    await supabase.from("course_exam_results").upsert({
-      user_id: user.id, course_id: courseId,
-      score, total_questions: total, percentage: pct, grade, passed, answers: [],
-    }, { onConflict: "user_id,course_id" });
+    try {
+      const answers = questions.map((q, i) =>
+        q.type === "mcq"
+          ? { selectedIndex: answersRef.current[i]?.selectedIndex ?? -1 }
+          : { code: answersRef.current[i]?.code ?? "" }
+      );
+      const { data, error } = await supabase.functions.invoke("grade-course-exam", {
+        body: { courseId, answers },
+      });
+      if (error || !data) throw error || new Error("No grading result");
 
-    if (passed) {
-      await supabase.rpc("issue_certificate", { p_course_id: courseId });
-      onCertificateEarned();
+      const grade = getGrade(data.pct);
+      setResult({ score: data.score, total: data.total, pct: data.pct, grade });
+      setShowResult(true);
+
+      if (data.passed) {
+        await supabase.rpc("issue_certificate", { p_course_id: courseId });
+        onCertificateEarned();
+      }
+    } catch (e) {
+      console.error("Exam grading failed:", e);
+      toast.error("Could not submit your exam for grading. Please retake it.");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   // ----- Start screen -----

@@ -74,13 +74,14 @@ export default function AnalyticsPage() {
         .eq("user_id", user.id)
         .limit(200),
       supabase.from("user_badges").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-      supabase.from("coding_problems").select("id, difficulty, category").limit(1000),
+      // Read the solution-free public view (base table is admin-only)
+      (supabase as any).from("coding_problems_public").select("id, difficulty, category").limit(1000),
     ]);
 
     const acceptedSubs = (submissions || []).filter((s) => s.status === "accepted");
 
     // O(1) lookups instead of nested scans — keeps the page fast with large histories
-    const problemMap = new Map((problems || []).map((p) => [p.id, p]));
+    const problemMap = new Map(((problems || []) as { id: string; difficulty: string; category: string }[]).map((p) => [p.id, p]));
     const dailyCounts = new Map<string, number>();
     (submissions || []).forEach((s) => {
       const day = String(s.submitted_at).slice(0, 10);

@@ -174,8 +174,9 @@ const Dashboard = () => {
 
       if (recentSubs && recentSubs.length > 0) {
         const problemIds = recentSubs.map((s) => s.problem_id);
-        const { data: problems } = await supabase
-          .from("coding_problems")
+        // Read the solution-free public view (base table is admin-only)
+        const { data: problems } = await (supabase as any)
+          .from("coding_problems_public")
           .select("id, title, difficulty")
           .in("id", problemIds);
 

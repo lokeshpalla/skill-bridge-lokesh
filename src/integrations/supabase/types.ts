@@ -282,6 +282,13 @@ export type Database = {
             referencedRelation: "coding_problems"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "coding_submissions_problem_id_fkey"
+            columns: ["problem_id"]
+            isOneToOne: false
+            referencedRelation: "coding_problems_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       collaboration_rooms: {
@@ -1638,6 +1645,42 @@ export type Database = {
       }
     }
     Views: {
+      coding_problems_public: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          difficulty: string | null
+          id: string | null
+          starter_code: string | null
+          test_cases: Json | null
+          title: string | null
+          xp_reward: number | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          id?: string | null
+          starter_code?: string | null
+          test_cases?: Json | null
+          title?: string | null
+          xp_reward?: number | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          id?: string | null
+          starter_code?: string | null
+          test_cases?: Json | null
+          title?: string | null
+          xp_reward?: number | null
+        }
+        Relationships: []
+      }
       public_mentor_profiles: {
         Row: {
           availability_slots: string[] | null
@@ -1762,6 +1805,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_room_participant: {
+        Args: { _room_id: string; _user_id: string }
+        Returns: boolean
+      }
       issue_certificate: { Args: { p_course_id: number }; Returns: string }
       record_activity: {
         Args: { _minutes_spent?: number; _user_id: string; _xp_amount: number }
@@ -1769,6 +1816,7 @@ export type Database = {
       }
       register_as_mentor: { Args: { _user_id: string }; Returns: boolean }
       restore_streak: { Args: { _user_id: string }; Returns: Json }
+      room_participant_count: { Args: { _room_id: string }; Returns: number }
     }
     Enums: {
       app_role: "student" | "mentor" | "recruiter" | "admin"

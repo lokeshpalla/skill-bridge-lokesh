@@ -56,12 +56,10 @@ export default function RoomsPage() {
     if (roomsData) {
       const roomsWithCounts = await Promise.all(
         (roomsData as Room[]).map(async (room) => {
-          const { count } = await supabase
-            .from("room_participants")
-            .select("*", { count: "exact", head: true })
-            .eq("room_id", room.id)
-            .is("left_at", null);
-          return { ...room, participant_count: count || 0 };
+          // Presence lists are member-only now; the lobby uses a count-only RPC
+          const { data: count } = await (supabase as any)
+            .rpc("room_participant_count", { _room_id: room.id });
+          return { ...room, participant_count: (count as number) || 0 };
         })
       );
       setRooms(roomsWithCounts);
