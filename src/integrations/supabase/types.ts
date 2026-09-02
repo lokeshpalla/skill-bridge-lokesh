@@ -1472,6 +1472,7 @@ export type Database = {
           is_screen_sharing: boolean
           is_video_on: boolean
           joined_at: string
+          last_seen_at: string
           left_at: string | null
           room_id: string
           user_id: string
@@ -1483,6 +1484,7 @@ export type Database = {
           is_screen_sharing?: boolean
           is_video_on?: boolean
           joined_at?: string
+          last_seen_at?: string
           left_at?: string | null
           room_id: string
           user_id: string
@@ -1494,6 +1496,7 @@ export type Database = {
           is_screen_sharing?: boolean
           is_video_on?: boolean
           joined_at?: string
+          last_seen_at?: string
           left_at?: string | null
           room_id?: string
           user_id?: string
