@@ -1789,6 +1789,7 @@ export type Database = {
         }
         Returns: Json
       }
+      can_join_room: { Args: { _room_id: string }; Returns: boolean }
       check_ai_rate_limit: {
         Args: {
           _endpoint: string
