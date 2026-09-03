@@ -63,6 +63,8 @@ export default function LiveRoomPage() {
   const [lobbyAudioOn, setLobbyAudioOn] = useState(true);
   const [lobbyVideoOn, setLobbyVideoOn] = useState(true);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [connectionState, setConnectionState] = useState("Connecting");
+  const [roomEnded, setRoomEnded] = useState(false);
   const lobbyVideoRef = useRef<HTMLVideoElement>(null);
   const lobbyStreamRef = useRef<MediaStream | null>(null);
 
@@ -74,6 +76,12 @@ export default function LiveRoomPage() {
   const participantIdRef = useRef<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const signalingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const participantChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const messagesChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const roomChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const joiningRef = useRef(false);
+  const mountedRef = useRef(true);
 
   // Fetch room data
   useEffect(() => {
@@ -81,45 +89,100 @@ export default function LiveRoomPage() {
     if (!roomId) return;
 
     const fetchRoom = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("collaboration_rooms")
         .select("*")
         .eq("id", roomId)
         .single();
-      if (!data) { navigate("/rooms"); return; }
+      if (error || !data) { navigate("/rooms"); return; }
       setRoom(data as RoomData);
     };
     fetchRoom();
-  }, [roomId, user]);
+  }, [roomId, user, navigate]);
+
+  const refreshParticipants = useCallback(async () => {
+    if (!roomId || !mountedRef.current) return;
+    const { data } = await supabase
+      .from("room_participants")
+      .select("*")
+      .eq("room_id", roomId)
+      .is("left_at", null);
+    if (data && mountedRef.current) setParticipants(data as Participant[]);
+  }, [roomId]);
+
+  const sendHeartbeat = useCallback(async () => {
+    const participantId = participantIdRef.current;
+    if (!participantId) return;
+    await supabase
+      .from("room_participants")
+      .update({ last_seen_at: new Date().toISOString() })
+      .eq("id", participantId);
+  }, []);
 
   // Join room
   const joinRoom = useCallback(async () => {
-    if (!user || !roomId || !profile) return;
+    if (!user || !roomId || !profile || !room?.is_active || joiningRef.current) return;
+    joiningRef.current = true;
 
     try {
       // Get local media
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      stream.getAudioTracks().forEach((track) => { track.enabled = lobbyAudioOn; });
+      stream.getVideoTracks().forEach((track) => { track.enabled = lobbyVideoOn; });
       localStreamRef.current = stream;
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
       }
 
-      // Insert participant record
-      const { data: participant, error } = await supabase
+      // Reuse an active row from a previous interrupted session when possible.
+      const { data: currentParticipant } = await supabase
         .from("room_participants")
-        .insert({
-          room_id: roomId,
-          user_id: user.id,
-          display_name: profile.display_name || "User",
-          is_audio_on: true,
-          is_video_on: true,
-        })
-        .select()
-        .single();
+        .select("*")
+        .eq("room_id", roomId)
+        .eq("user_id", user.id)
+        .is("left_at", null)
+        .maybeSingle();
+
+      let participant = currentParticipant;
+      let error = null;
+      if (participant) {
+        const result = await supabase
+          .from("room_participants")
+          .update({
+            display_name: profile.display_name || "User",
+            is_audio_on: lobbyAudioOn,
+            is_video_on: lobbyVideoOn,
+            last_seen_at: new Date().toISOString(),
+          })
+          .eq("id", participant.id)
+          .select()
+          .single();
+        participant = result.data;
+        error = result.error;
+      } else {
+        const result = await supabase
+          .from("room_participants")
+          .insert({
+            room_id: roomId,
+            user_id: user.id,
+            display_name: profile.display_name || "User",
+            is_audio_on: lobbyAudioOn,
+            is_video_on: lobbyVideoOn,
+            last_seen_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
+        participant = result.data;
+        error = result.error;
+      }
 
       if (error) throw error;
+      if (!participant) throw new Error("Could not create your participant session");
       participantIdRef.current = participant.id;
       setJoined(true);
+      setConnectionState("Connecting");
+
+      heartbeatRef.current = setInterval(() => { void sendHeartbeat(); }, 30_000);
 
       // Fetch existing participants and messages
       const [{ data: existingParticipants }, { data: existingMessages }] = await Promise.all([
@@ -148,23 +211,37 @@ export default function LiveRoomPage() {
           if (payload.target !== user.id) return;
           await handleIceCandidate(payload.from, payload.candidate);
         })
-        .subscribe();
+        .subscribe((status) => {
+          if (!mountedRef.current) return;
+          if (status === "SUBSCRIBED") setConnectionState("Connected");
+          if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") setConnectionState("Reconnecting");
+        });
 
       signalingChannelRef.current = channel;
 
       // Subscribe to realtime participant and message changes
-      supabase
+      participantChannelRef.current = supabase
         .channel(`room-participants-${roomId}`)
-        .on("postgres_changes", { event: "*", schema: "public", table: "room_participants", filter: `room_id=eq.${roomId}` }, async () => {
-          const { data } = await supabase.from("room_participants").select("*").eq("room_id", roomId).is("left_at", null);
-          if (data) setParticipants(data as Participant[]);
+        .on("postgres_changes", { event: "*", schema: "public", table: "room_participants", filter: `room_id=eq.${roomId}` }, () => { void refreshParticipants(); })
+        .subscribe();
+
+      messagesChannelRef.current = supabase
+        .channel(`room-messages-${roomId}`)
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "room_messages", filter: `room_id=eq.${roomId}` }, (payload) => {
+          const message = payload.new as ChatMessage;
+          setMessages((prev) => prev.some((item) => item.id === message.id) ? prev : [...prev, message]);
         })
         .subscribe();
 
-      supabase
-        .channel(`room-messages-${roomId}`)
-        .on("postgres_changes", { event: "INSERT", schema: "public", table: "room_messages", filter: `room_id=eq.${roomId}` }, (payload) => {
-          setMessages((prev) => [...prev, payload.new as ChatMessage]);
+      roomChannelRef.current = supabase
+        .channel(`room-status-${roomId}`)
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "collaboration_rooms", filter: `id=eq.${roomId}` }, (payload) => {
+          const updatedRoom = payload.new as RoomData;
+          setRoom(updatedRoom);
+          if (!updatedRoom.is_active) {
+            setRoomEnded(true);
+            toast({ title: "Room ended", description: "The host has closed this meeting." });
+          }
         })
         .subscribe();
 
@@ -180,21 +257,24 @@ export default function LiveRoomPage() {
       toast({ title: "Joined room", description: `You're now in ${room?.name}` });
     } catch (err: any) {
       console.error("Join error:", err);
+      localStreamRef.current?.getTracks().forEach((track) => track.stop());
+      localStreamRef.current = null;
       toast({ title: "Error", description: err.message || "Failed to join room. Check camera/mic permissions.", variant: "destructive" });
+    } finally {
+      joiningRef.current = false;
     }
-  }, [user, roomId, profile, room]);
+  }, [user, roomId, profile, room, lobbyAudioOn, lobbyVideoOn, refreshParticipants, sendHeartbeat, toast]);
 
   const createPeerConnection = async (remoteUserId: string, initiator: boolean) => {
-    if (peerConnectionsRef.current.has(remoteUserId)) return;
+    if (!user || peerConnectionsRef.current.has(remoteUserId)) return;
 
     const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
     peerConnectionsRef.current.set(remoteUserId, pc);
 
     // Add local tracks
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => {
-        pc.addTrack(track, localStreamRef.current!);
-      });
+    const localStream = localStreamRef.current;
+    if (localStream) {
+      localStream.getTracks().forEach((track) => { pc.addTrack(track, localStream); });
     }
 
     // Handle remote tracks
@@ -211,9 +291,16 @@ export default function LiveRoomPage() {
         signalingChannelRef.current.send({
           type: "broadcast",
           event: "ice-candidate",
-          payload: { from: user!.id, target: remoteUserId, candidate: event.candidate.toJSON() },
+          payload: { from: user.id, target: remoteUserId, candidate: event.candidate.toJSON() },
         });
       }
+    };
+
+    pc.onconnectionstatechange = () => {
+      if (pc.connectionState === "failed" || pc.connectionState === "closed") {
+        peerConnectionsRef.current.delete(remoteUserId);
+      }
+      if (pc.connectionState === "connected") setConnectionState("Connected");
     };
 
     if (initiator) {
@@ -222,46 +309,53 @@ export default function LiveRoomPage() {
       signalingChannelRef.current?.send({
         type: "broadcast",
         event: "offer",
-        payload: { from: user!.id, target: remoteUserId, offer: pc.localDescription?.toJSON() },
+        payload: { from: user.id, target: remoteUserId, offer: pc.localDescription?.toJSON() },
       });
     }
   };
 
   const handleOffer = async (fromUserId: string, offer: RTCSessionDescriptionInit) => {
-    await createPeerConnection(fromUserId, false);
-    const pc = peerConnectionsRef.current.get(fromUserId);
-    if (!pc) return;
+    try {
+      await createPeerConnection(fromUserId, false);
+      const pc = peerConnectionsRef.current.get(fromUserId);
+      if (!pc || pc.signalingState !== "stable") return;
 
-    await pc.setRemoteDescription(new RTCSessionDescription(offer));
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
+      await pc.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
 
-    signalingChannelRef.current?.send({
-      type: "broadcast",
-      event: "answer",
-      payload: { from: user!.id, target: fromUserId, answer: pc.localDescription?.toJSON() },
-    });
+      if (user) {
+        signalingChannelRef.current?.send({
+          type: "broadcast",
+          event: "answer",
+          payload: { from: user.id, target: fromUserId, answer: pc.localDescription?.toJSON() },
+        });
+      }
+    } catch (error) {
+      console.error("Offer handling error:", error);
+    }
   };
 
   const handleAnswer = async (fromUserId: string, answer: RTCSessionDescriptionInit) => {
     const pc = peerConnectionsRef.current.get(fromUserId);
-    if (!pc) return;
-    await pc.setRemoteDescription(new RTCSessionDescription(answer));
+    if (!pc || pc.signalingState !== "have-local-offer") return;
+    try { await pc.setRemoteDescription(new RTCSessionDescription(answer)); } catch (error) { console.error("Answer handling error:", error); }
   };
 
   const handleIceCandidate = async (fromUserId: string, candidate: RTCIceCandidateInit) => {
     const pc = peerConnectionsRef.current.get(fromUserId);
     if (!pc) return;
-    await pc.addIceCandidate(new RTCIceCandidate(candidate));
+    try { await pc.addIceCandidate(new RTCIceCandidate(candidate)); } catch (error) { console.error("ICE candidate error:", error); }
   };
 
   // Toggle audio
   const toggleAudio = () => {
     if (localStreamRef.current) {
-      localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = !t.enabled));
-      setIsAudioOn((v) => !v);
+      const nextValue = !isAudioOn;
+      localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = nextValue));
+      setIsAudioOn(nextValue);
       if (participantIdRef.current) {
-        supabase.from("room_participants").update({ is_audio_on: !isAudioOn }).eq("id", participantIdRef.current);
+        void supabase.from("room_participants").update({ is_audio_on: nextValue, last_seen_at: new Date().toISOString() }).eq("id", participantIdRef.current);
       }
     }
   };
@@ -269,10 +363,11 @@ export default function LiveRoomPage() {
   // Toggle video
   const toggleVideo = () => {
     if (localStreamRef.current) {
-      localStreamRef.current.getVideoTracks().forEach((t) => (t.enabled = !t.enabled));
-      setIsVideoOn((v) => !v);
+      const nextValue = !isVideoOn;
+      localStreamRef.current.getVideoTracks().forEach((t) => (t.enabled = nextValue));
+      setIsVideoOn(nextValue);
       if (participantIdRef.current) {
-        supabase.from("room_participants").update({ is_video_on: !isVideoOn }).eq("id", participantIdRef.current);
+        void supabase.from("room_participants").update({ is_video_on: nextValue, last_seen_at: new Date().toISOString() }).eq("id", participantIdRef.current);
       }
     }
   };
@@ -316,7 +411,7 @@ export default function LiveRoomPage() {
       }
     }
     if (participantIdRef.current) {
-      supabase.from("room_participants").update({ is_screen_sharing: !isScreenSharing }).eq("id", participantIdRef.current);
+      void supabase.from("room_participants").update({ is_screen_sharing: !isScreenSharing, last_seen_at: new Date().toISOString() }).eq("id", participantIdRef.current);
     }
   };
 
@@ -327,11 +422,15 @@ export default function LiveRoomPage() {
     peerConnectionsRef.current.forEach((pc) => pc.close());
     peerConnectionsRef.current.clear();
 
+    if (heartbeatRef.current) clearInterval(heartbeatRef.current);
+    heartbeatRef.current = null;
     if (participantIdRef.current) {
-      await supabase.from("room_participants").update({ left_at: new Date().toISOString() }).eq("id", participantIdRef.current);
+      await supabase.from("room_participants").update({ left_at: new Date().toISOString(), last_seen_at: new Date().toISOString() }).eq("id", participantIdRef.current);
     }
-
-    supabase.removeAllChannels();
+    participantIdRef.current = null;
+    [signalingChannelRef, participantChannelRef, messagesChannelRef, roomChannelRef].forEach((channelRef) => {
+      if (channelRef.current) { void supabase.removeChannel(channelRef.current); channelRef.current = null; }
+    });
     navigate("/rooms");
   };
 
@@ -352,16 +451,26 @@ export default function LiveRoomPage() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") void sendHeartbeat();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [sendHeartbeat]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       localStreamRef.current?.getTracks().forEach((t) => t.stop());
       screenStreamRef.current?.getTracks().forEach((t) => t.stop());
       peerConnectionsRef.current.forEach((pc) => pc.close());
-      supabase.removeAllChannels();
-      if (participantIdRef.current) {
-        supabase.from("room_participants").update({ left_at: new Date().toISOString() }).eq("id", participantIdRef.current);
-      }
+      mountedRef.current = false;
+      if (heartbeatRef.current) clearInterval(heartbeatRef.current);
+      [signalingChannelRef, participantChannelRef, messagesChannelRef, roomChannelRef].forEach((channelRef) => {
+        if (channelRef.current) { void supabase.removeChannel(channelRef.current); channelRef.current = null; }
+      });
+      if (participantIdRef.current) void supabase.from("room_participants").update({ left_at: new Date().toISOString(), last_seen_at: new Date().toISOString() }).eq("id", participantIdRef.current);
     };
   }, []);
 
@@ -369,22 +478,25 @@ export default function LiveRoomPage() {
 
   // Lobby: start camera preview
   useEffect(() => {
-    if (joined) return;
-    if (lobbyVideoOn) {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: lobbyAudioOn }).then((stream) => {
+    if (joined || lobbyStreamRef.current) return;
+    if (navigator.mediaDevices?.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
         lobbyStreamRef.current = stream;
+        stream.getAudioTracks().forEach((track) => { track.enabled = lobbyAudioOn; });
+        stream.getVideoTracks().forEach((track) => { track.enabled = lobbyVideoOn; });
         if (lobbyVideoRef.current) lobbyVideoRef.current.srcObject = stream;
       }).catch(() => {});
-    } else {
-      lobbyStreamRef.current?.getTracks().forEach((t) => t.stop());
-      if (lobbyVideoRef.current) lobbyVideoRef.current.srcObject = null;
     }
-    return () => { if (!joined) lobbyStreamRef.current?.getTracks().forEach((t) => t.stop()); };
-  }, [lobbyVideoOn, joined]);
+    return () => {};
+  }, [joined, lobbyAudioOn, lobbyVideoOn]);
 
   useEffect(() => {
     lobbyStreamRef.current?.getAudioTracks().forEach((t) => (t.enabled = lobbyAudioOn));
   }, [lobbyAudioOn]);
+
+  useEffect(() => {
+    lobbyStreamRef.current?.getVideoTracks().forEach((t) => (t.enabled = lobbyVideoOn));
+  }, [lobbyVideoOn]);
 
   const copyMeetingLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -400,6 +512,12 @@ export default function LiveRoomPage() {
     setIsVideoOn(lobbyVideoOn);
     joinRoom();
   };
+
+  useEffect(() => {
+    if (!roomEnded) return;
+    const timeout = window.setTimeout(() => { void leaveRoom(); }, 1500);
+    return () => window.clearTimeout(timeout);
+  }, [roomEnded]);
 
   // Pre-join lobby — Google Meet style
   if (!joined) {
