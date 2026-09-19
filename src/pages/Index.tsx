@@ -8,7 +8,7 @@ import {
   Mail, Shield, Globe, Clock
 } from "lucide-react";
 import heroIllustration from "@/assets/hero-illustration.png";
-import grexilLogo from "@/assets/grexil-logo.png";
+import skillBridgeLogo from "@/assets/skill-bridge-logo.png";
 import ProblemSolution from "@/components/landing/ProblemSolution";
 import InteractiveDemo from "@/components/landing/InteractiveDemo";
 import CompetitorComparison from "@/components/landing/CompetitorComparison";
@@ -206,7 +206,7 @@ const Index = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
             <div className="col-span-2 md:col-span-1">
               <Link to="/" className="flex items-center gap-2 mb-4">
-                <img src={grexilLogo} alt="Skill Bridge" className="w-8 h-8 rounded-lg object-cover" />
+                <img src={skillBridgeLogo} alt="Skill Bridge" className="w-8 h-8 rounded-lg object-cover" />
                 <span className="font-bold text-lg">Skill Bridge</span>
               </Link>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
