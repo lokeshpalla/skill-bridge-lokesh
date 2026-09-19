@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "pwa-192x192.png", "pwa-512x512.png"],
+      includeAssets: ["skill-bridge-favicon.png", "skill-bridge-icon-192.png", "skill-bridge-icon-512.png"],
       workbox: {
         navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
@@ -35,9 +35,9 @@ export default defineConfig(({ mode }) => ({
         start_url: "/dashboard",
         scope: "/",
         icons: [
-          { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
-          { src: "pwa-512x512.png", sizes: "512x512", type: "image/png" },
-          { src: "pwa-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+          { src: "skill-bridge-icon-192.png", sizes: "192x192", type: "image/png" },
+          { src: "skill-bridge-icon-512.png", sizes: "512x512", type: "image/png" },
+          { src: "skill-bridge-icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },
     }),
