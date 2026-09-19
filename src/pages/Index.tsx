@@ -86,7 +86,7 @@ const Index = () => {
             >
               <img
                 src={heroIllustration}
-                alt="GreXil platform dashboard preview"
+                alt="Skill Bridge platform dashboard preview"
                 width={1024}
                 height={1024}
                 fetchPriority="high"
@@ -188,7 +188,7 @@ const Index = () => {
               Ready to <span className="text-gradient">Build Your Future?</span>
             </h2>
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Join GreXil and go from learning to launching — for free.
+              Join Skill Bridge and go from learning to launching — for free.
             </p>
             <Link to="/auth">
               <Button size="lg" className="text-base px-10 h-12 bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-glow rounded-xl gap-2">
@@ -206,8 +206,8 @@ const Index = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
             <div className="col-span-2 md:col-span-1">
               <Link to="/" className="flex items-center gap-2 mb-4">
-                <img src={grexilLogo} alt="GreXil" className="w-8 h-8 rounded-lg object-cover" />
-                <span className="font-bold text-lg">GreXil</span>
+                <img src={grexilLogo} alt="Skill Bridge" className="w-8 h-8 rounded-lg object-cover" />
+                <span className="font-bold text-lg">Skill Bridge</span>
               </Link>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 AI-powered builder's academy for the next generation of developers.
@@ -247,7 +247,7 @@ const Index = () => {
           </div>
 
           <div className="border-t border-border/50 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-muted-foreground">© 2026 GreXil Technologies, Inc. All rights reserved.</p>
+            <p className="text-xs text-muted-foreground">© 2026 Skill Bridge Technologies, Inc. All rights reserved.</p>
             <p className="text-xs text-muted-foreground">Built with ❤️ for developers worldwide</p>
           </div>
         </div>

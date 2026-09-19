@@ -2,49 +2,49 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 const pageMeta: Record<string, { title: string; description: string; jsonLd?: object }> = {
-  "/": { title: "GreXil — AI-Powered Learning Platform", description: "Master coding, land internships, and build your career with AI-powered courses, mentorship, and 500+ coding challenges." },
-  "/auth": { title: "Sign In | GreXil", description: "Sign in or create your GreXil account to start learning." },
-  "/dashboard": { title: "Dashboard | GreXil", description: "Track your learning progress, streaks, and XP on your personalized dashboard." },
+  "/": { title: "Skill Bridge — AI-Powered Learning Platform", description: "Master coding, land internships, and build your career with AI-powered courses, mentorship, and 500+ coding challenges." },
+  "/auth": { title: "Sign In | Skill Bridge", description: "Sign in or create your Skill Bridge account to start learning." },
+  "/dashboard": { title: "Dashboard | Skill Bridge", description: "Track your learning progress, streaks, and XP on your personalized dashboard." },
   "/courses": {
-    title: "Courses | GreXil",
+    title: "Courses | Skill Bridge",
     description: "Browse expert-led courses in web development, AI/ML, system design, and more.",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "ItemList",
-      name: "GreXil Courses",
+      name: "Skill Bridge Courses",
       description: "Expert-led courses in web development, AI/ML, system design, and more.",
       url: "https://grexil-lokesh01.lovable.app/courses",
     },
   },
-  "/coding": { title: "Coding Challenges | GreXil", description: "Practice 500+ coding problems with real-time execution and AI hints." },
+  "/coding": { title: "Coding Challenges | Skill Bridge", description: "Practice 500+ coding problems with real-time execution and AI hints." },
   "/mentors": {
-    title: "Mentors | GreXil",
+    title: "Mentors | Skill Bridge",
     description: "Book 1:1 sessions with senior engineers from top tech companies.",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "Service",
-      name: "GreXil Mentorship",
+      name: "Skill Bridge Mentorship",
       description: "Book 1:1 sessions with senior engineers from top tech companies.",
-      provider: { "@type": "Organization", name: "GreXil" },
+      provider: { "@type": "Organization", name: "Skill Bridge" },
     },
   },
-  "/leaderboard": { title: "Leaderboard | GreXil", description: "See where you rank among 50,000+ developers on GreXil." },
-  "/internships": { title: "Internships | GreXil", description: "Discover AI-matched internship opportunities from top companies." },
-  "/portfolio": { title: "Portfolio | GreXil", description: "Build and showcase your developer portfolio with projects and achievements." },
-  "/achievements": { title: "Achievements | GreXil", description: "View your earned badges, XP milestones, and seasonal challenges." },
-  "/community": { title: "Community | GreXil", description: "Join discussions, share solutions, and collaborate with fellow developers." },
-  "/interview": { title: "Mock Interviews | GreXil", description: "Practice AI-powered mock interviews with real-time feedback." },
-  "/paths": { title: "Learning Paths | GreXil", description: "Follow curated learning paths to master full-stack, data science, or cloud." },
-  "/rooms": { title: "Collaboration Rooms | GreXil", description: "Join live rooms for video calls, screen sharing, and collaborative coding." },
-  "/analytics": { title: "Analytics | GreXil", description: "Visualize your coding activity, skill growth, and learning trends." },
-  "/settings": { title: "Settings | GreXil", description: "Manage your GreXil account, profile, and preferences." },
-  "/install": { title: "Install App | GreXil", description: "Install GreXil as a PWA for offline access and push notifications." },
-  "/admin": { title: "Admin | GreXil", description: "Manage courses, users, and platform analytics." },
-  "/certificates": { title: "Certificates | GreXil", description: "View and download your earned course certificates." },
-  "/messages": { title: "Messages | GreXil", description: "Chat with mentors, teammates, and fellow developers." },
-  "/teams": { title: "Find a Team | GreXil", description: "Match with developers and build projects together." },
-  "/recruiter": { title: "Recruiter Dashboard | GreXil", description: "Manage job postings, track candidates, and hire top talent." },
-  "/talent": { title: "Browse Talent | GreXil", description: "Discover skilled developers ready for internships and jobs." },
+  "/leaderboard": { title: "Leaderboard | Skill Bridge", description: "See where you rank among 50,000+ developers on Skill Bridge." },
+  "/internships": { title: "Internships | Skill Bridge", description: "Discover AI-matched internship opportunities from top companies." },
+  "/portfolio": { title: "Portfolio | Skill Bridge", description: "Build and showcase your developer portfolio with projects and achievements." },
+  "/achievements": { title: "Achievements | Skill Bridge", description: "View your earned badges, XP milestones, and seasonal challenges." },
+  "/community": { title: "Community | Skill Bridge", description: "Join discussions, share solutions, and collaborate with fellow developers." },
+  "/interview": { title: "Mock Interviews | Skill Bridge", description: "Practice AI-powered mock interviews with real-time feedback." },
+  "/paths": { title: "Learning Paths | Skill Bridge", description: "Follow curated learning paths to master full-stack, data science, or cloud." },
+  "/rooms": { title: "Collaboration Rooms | Skill Bridge", description: "Join live rooms for video calls, screen sharing, and collaborative coding." },
+  "/analytics": { title: "Analytics | Skill Bridge", description: "Visualize your coding activity, skill growth, and learning trends." },
+  "/settings": { title: "Settings | Skill Bridge", description: "Manage your Skill Bridge account, profile, and preferences." },
+  "/install": { title: "Install App | Skill Bridge", description: "Install Skill Bridge as a PWA for offline access and push notifications." },
+  "/admin": { title: "Admin | Skill Bridge", description: "Manage courses, users, and platform analytics." },
+  "/certificates": { title: "Certificates | Skill Bridge", description: "View and download your earned course certificates." },
+  "/messages": { title: "Messages | Skill Bridge", description: "Chat with mentors, teammates, and fellow developers." },
+  "/teams": { title: "Find a Team | Skill Bridge", description: "Match with developers and build projects together." },
+  "/recruiter": { title: "Recruiter Dashboard | Skill Bridge", description: "Manage job postings, track candidates, and hire top talent." },
+  "/talent": { title: "Browse Talent | Skill Bridge", description: "Discover skilled developers ready for internships and jobs." },
 };
 
 const BASE_URL = "https://grexil-lokesh01.lovable.app";
@@ -55,7 +55,7 @@ export function usePageMeta() {
   useEffect(() => {
     const path = location.pathname;
     const meta = pageMeta[path] || {
-      title: "GreXil — AI-Powered Learning Platform",
+      title: "Skill Bridge — AI-Powered Learning Platform",
       description: "Master coding, land internships, and build your career with AI-powered courses, mentorship, and 500+ hands-on coding challenges.",
     };
 

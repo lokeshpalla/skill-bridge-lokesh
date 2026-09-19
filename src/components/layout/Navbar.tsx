@@ -38,10 +38,10 @@ const Navbar = () => {
       aria-label="Main navigation"
     >
       <div className="container flex items-center justify-between h-16">
-        <Link to="/" className="flex items-center gap-2 group" aria-label="GreXil home">
-          <img src={grexilLogo} alt="GreXil" className="w-8 h-8 rounded-lg object-cover" aria-hidden="true" />
+        <Link to="/" className="flex items-center gap-2 group" aria-label="Skill Bridge home">
+          <img src={grexilLogo} alt="Skill Bridge" className="w-8 h-8 rounded-lg object-cover" aria-hidden="true" />
           <span className="text-lg font-bold text-foreground group-hover:text-gradient transition-colors">
-            GreXil
+            Skill Bridge
           </span>
         </Link>
 

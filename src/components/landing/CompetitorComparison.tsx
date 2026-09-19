@@ -36,7 +36,7 @@ export default function CompetitorComparison() {
         <motion.div {...fadeUp} className="text-center mb-12">
           <span className="text-xs text-primary uppercase tracking-widest font-medium">Comparison</span>
           <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-4">
-            Why GreXil <span className="text-gradient">Stands Apart</span>
+            Why Skill Bridge <span className="text-gradient">Stands Apart</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             We're not just another course platform. We're the full skill-to-career pipeline.
@@ -48,7 +48,7 @@ export default function CompetitorComparison() {
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left py-3 pr-4 font-medium text-muted-foreground">Feature</th>
-                <th className="py-3 px-4 text-center font-bold text-primary">GreXil</th>
+                <th className="py-3 px-4 text-center font-bold text-primary">Skill Bridge</th>
                 <th className="py-3 px-4 text-center font-medium text-muted-foreground">Coursera</th>
                 <th className="py-3 px-4 text-center font-medium text-muted-foreground">Udemy</th>
                 <th className="py-3 px-4 text-center font-medium text-muted-foreground">NxtWave</th>

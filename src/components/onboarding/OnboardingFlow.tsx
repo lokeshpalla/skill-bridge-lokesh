@@ -77,7 +77,7 @@ const OnboardingFlow = forwardRef<HTMLDivElement, OnboardingProps>(function Onbo
         <GxIcon className="w-9 h-9 text-primary-foreground" aria-hidden="true" />
       </div>
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Welcome to GreXil! 🎉</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Welcome to Skill Bridge! 🎉</h2>
         <p className="text-muted-foreground mt-2 max-w-md mx-auto">
           Let's personalize your learning journey. This takes less than a minute.
         </p>

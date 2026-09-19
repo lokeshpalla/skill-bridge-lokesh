@@ -136,7 +136,7 @@ const CertificateCard = ({ displayName, courseTitle, grade, percentage, certific
             </div>
             <div style={{ textAlign: "center" }}>
               <p style={{ fontSize: "10px", color: "#475569", margin: 0 }}>Issued by</p>
-              <p style={{ fontSize: "13px", fontWeight: 600, color, margin: 0 }}>GreXil</p>
+              <p style={{ fontSize: "13px", fontWeight: 600, color, margin: 0 }}>Skill Bridge</p>
             </div>
             <div style={{ textAlign: "right" }}>
               <p style={{ fontSize: "10px", color: "#475569", margin: 0 }}>Date Issued</p>

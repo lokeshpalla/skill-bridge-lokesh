@@ -58,9 +58,9 @@ const InstallPage = () => {
     <div className="p-6 lg:p-8 max-w-3xl mx-auto space-y-8">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
         <div className="w-20 h-20 mx-auto mb-4 rounded-2xl overflow-hidden shadow-lg">
-          <img src="/pwa-192x192.png" alt="GreXil" className="w-full h-full object-cover" />
+          <img src="/pwa-192x192.png" alt="Skill Bridge" className="w-full h-full object-cover" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Install GreXil</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Install Skill Bridge</h1>
         <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
           Get the full app experience — fast, offline-ready, and always at your fingertips.
         </p>
@@ -122,12 +122,12 @@ const InstallPage = () => {
           <h2 className="text-sm font-semibold">Scan to Install</h2>
         </div>
         <p className="text-xs text-muted-foreground mb-4">
-          Scan this QR code from any device to open and install GreXil
+          Scan this QR code from any device to open and install Skill Bridge
         </p>
         <div className="bg-white rounded-2xl p-4 inline-block shadow-md border border-border/30">
           <img
             src="/qr-install.png"
-            alt="QR Code to install GreXil"
+            alt="QR Code to install Skill Bridge"
             className="w-[200px] h-[200px] rounded-lg"
           />
         </div>

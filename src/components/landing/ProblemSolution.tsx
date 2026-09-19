@@ -22,11 +22,11 @@ const fadeUp = {
 
 export default function ProblemSolution() {
   return (
-    <section className="py-24 bg-background relative" aria-label="Why GreXil">
+    <section className="py-24 bg-background relative" aria-label="Why Skill Bridge">
       <div className="absolute inset-0 bg-grid-subtle" />
       <div className="container relative">
         <motion.div {...fadeUp} className="text-center mb-16">
-          <span className="text-xs text-primary uppercase tracking-widest font-medium">Why GreXil?</span>
+          <span className="text-xs text-primary uppercase tracking-widest font-medium">Why Skill Bridge?</span>
           <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-4">
             The Problem with <span className="text-gradient">Today's EdTech</span>
           </h2>
@@ -62,7 +62,7 @@ export default function ProblemSolution() {
             <div className="rounded-2xl border border-primary/20 bg-primary/[0.03] p-6 h-full">
               <div className="flex items-center gap-2 mb-5">
                 <CheckCircle2 className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold text-lg">The GreXil Way</h3>
+                <h3 className="font-semibold text-lg">The Skill Bridge Way</h3>
               </div>
               <ul className="space-y-4">
                 {solutions.map((s, i) => (
@@ -81,7 +81,7 @@ export default function ProblemSolution() {
 
         <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.3 }} className="text-center mt-10">
           <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
-            GreXil is the <strong className="text-foreground">AI-powered builder's academy</strong> — Learn <ArrowRight className="w-3 h-3 inline" /> Build <ArrowRight className="w-3 h-3 inline" /> Launch
+            Skill Bridge is the <strong className="text-foreground">AI-powered builder's academy</strong> — Learn <ArrowRight className="w-3 h-3 inline" /> Build <ArrowRight className="w-3 h-3 inline" /> Launch
           </p>
         </motion.div>
       </div>

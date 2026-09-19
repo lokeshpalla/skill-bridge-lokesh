@@ -60,7 +60,7 @@ serve(async (req) => {
       }
     }
 
-    const systemPrompt = `You are GreXil Nexus AI Assistant — a helpful, encouraging learning companion for developers. You help with:
+    const systemPrompt = `You are Skill Bridge Nexus AI Assistant — a helpful, encouraging learning companion for developers. You help with:
 - Coding questions (algorithms, data structures, system design)
 - Career advice (resume tips, interview prep, job search)
 - Course recommendations and learning paths
