@@ -29,8 +29,8 @@ export function usePushNotifications() {
         navigator.serviceWorker.ready.then((reg) => {
           const notifOptions: NotificationOptions & Record<string, unknown> = {
             body: options?.body || "",
-            icon: options?.icon || "/pwa-192x192.png",
-            badge: "/pwa-192x192.png",
+            icon: options?.icon || "/skill-bridge-icon-192.png",
+            badge: "/skill-bridge-icon-192.png",
             tag: options?.tag || "grexil-notification",
             data: options?.data,
             requireInteraction: false,
@@ -42,7 +42,7 @@ export function usePushNotifications() {
         // Fallback to basic Notification API
         const notification = new Notification(title, {
           body: options?.body || "",
-          icon: options?.icon || "/pwa-192x192.png",
+          icon: options?.icon || "/skill-bridge-icon-192.png",
           tag: options?.tag || "grexil-notification",
         });
         if (options?.data?.url) {
