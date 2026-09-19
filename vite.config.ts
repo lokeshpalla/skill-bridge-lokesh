@@ -25,8 +25,8 @@ export default defineConfig(({ mode }) => ({
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       manifest: {
-        name: "GreXil — AI-Powered Learning",
-        short_name: "GreXil",
+        name: "Skill Bridge — AI-Powered Learning",
+        short_name: "Skill Bridge",
         description: "Master coding, land internships, build your career",
         theme_color: "#1a5296",
         background_color: "#0d1520",

@@ -6,7 +6,7 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import grexilLogo from "@/assets/grexil-logo.png";
+import skillBridgeLogo from "@/assets/skill-bridge-logo.png";
 
 import {
   Sidebar,
@@ -92,10 +92,10 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border/40 bg-sidebar" aria-label="Sidebar navigation">
       <SidebarHeader className="p-4">
         <Link to="/" className="flex items-center gap-2.5">
-          <img src={grexilLogo} alt="GreXil" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
+          <img src={skillBridgeLogo} alt="Skill Bridge" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
           {!collapsed && (
             <span className="text-base font-bold text-foreground tracking-tight">
-              GreXil
+              Skill Bridge
             </span>
           )}
         </Link>

@@ -34,7 +34,7 @@ serve(async (req) => {
 
     // Fetch profile
     const profileRes = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`, {
-      headers: { "Accept": "application/vnd.github.v3+json", "User-Agent": "GreXil" },
+      headers: { "Accept": "application/vnd.github.v3+json", "User-Agent": "Skill Bridge" },
     });
     if (!profileRes.ok) {
       if (profileRes.status === 404) throw new Error("GitHub user not found");
@@ -45,7 +45,7 @@ serve(async (req) => {
     // Fetch repos (sorted by stars)
     const reposRes = await fetch(
       `https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=stars&per_page=20&type=owner`,
-      { headers: { "Accept": "application/vnd.github.v3+json", "User-Agent": "GreXil" } }
+      { headers: { "Accept": "application/vnd.github.v3+json", "User-Agent": "Skill Bridge" } }
     );
     const repos = reposRes.ok ? await reposRes.json() : [];
 

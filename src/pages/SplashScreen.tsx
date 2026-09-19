@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import grexilLogo from "@/assets/grexil-logo.png";
+import skillBridgeLogo from "@/assets/skill-bridge-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 
 const particles = Array.from({ length: 20 }, (_, i) => ({
@@ -102,7 +102,7 @@ const SplashScreen = () => {
             }
             className="relative w-24 h-24 rounded-3xl overflow-hidden shadow-2xl shadow-primary/40 z-10"
           >
-            <img src={grexilLogo} alt="GreXil" className="w-full h-full object-cover" />
+            <img src={skillBridgeLogo} alt="Skill Bridge" className="w-full h-full object-cover" />
 
             {/* Ring pulse */}
             <motion.div
@@ -119,7 +119,7 @@ const SplashScreen = () => {
 
           {/* Title — letter by letter */}
           <motion.div className="mt-8 flex overflow-hidden z-10">
-            {"GreXil".split("").map((char, i) => (
+            {"Skill Bridge".split("").map((char, i) => (
               <motion.span
                 key={i}
                 initial={{ y: 40, opacity: 0, rotateX: -90 }}
@@ -182,7 +182,7 @@ const SplashScreen = () => {
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-[100] bg-background flex items-center justify-center"
         >
-          <img src={grexilLogo} alt="" className="w-16 h-16 rounded-2xl object-cover" />
+          <img src={skillBridgeLogo} alt="" className="w-16 h-16 rounded-2xl object-cover" />
         </motion.div>
       )}
     </AnimatePresence>

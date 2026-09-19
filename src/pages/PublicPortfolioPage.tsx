@@ -70,7 +70,7 @@ const PublicPortfolioPage = () => {
       mainEntity: {
         "@type": "Person",
         name: profile.display_name,
-        description: profile.bio || `${profile.display_name}'s developer portfolio on GreXil.`,
+        description: profile.bio || `${profile.display_name}'s developer portfolio on Skill Bridge.`,
         image: profile.avatar_url || undefined,
         knowsAbout: profile.skills,
         url: `https://grexil-lokesh01.lovable.app/portfolio/${userId}`,
@@ -80,8 +80,8 @@ const PublicPortfolioPage = () => {
     document.head.appendChild(script);
 
     // Per-route title + description
-    const pageTitle = `${profile.display_name} — Developer Portfolio | GreXil`;
-    const pageDesc = (profile.bio || `${profile.display_name}'s developer portfolio with projects and skills on GreXil.`).slice(0, 160);
+    const pageTitle = `${profile.display_name} — Developer Portfolio | Skill Bridge`;
+    const pageDesc = (profile.bio || `${profile.display_name}'s developer portfolio with projects and skills on Skill Bridge.`).slice(0, 160);
     document.title = pageTitle;
     const setMeta = (attr: string, key: string, val: string) => {
       let tag = document.querySelector(`meta[${attr}="${key}"]`);

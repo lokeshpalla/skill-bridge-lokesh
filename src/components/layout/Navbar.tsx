@@ -8,7 +8,7 @@ import {
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import grexilLogo from "@/assets/grexil-logo.png";
+import skillBridgeLogo from "@/assets/skill-bridge-logo.png";
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -38,10 +38,10 @@ const Navbar = () => {
       aria-label="Main navigation"
     >
       <div className="container flex items-center justify-between h-16">
-        <Link to="/" className="flex items-center gap-2 group" aria-label="GreXil home">
-          <img src={grexilLogo} alt="GreXil" className="w-8 h-8 rounded-lg object-cover" aria-hidden="true" />
+        <Link to="/" className="flex items-center gap-2 group" aria-label="Skill Bridge home">
+          <img src={skillBridgeLogo} alt="Skill Bridge" className="w-8 h-8 rounded-lg object-cover" aria-hidden="true" />
           <span className="text-lg font-bold text-foreground group-hover:text-gradient transition-colors">
-            GreXil
+            Skill Bridge
           </span>
         </Link>
 

@@ -86,8 +86,8 @@ const CourseDetail = () => {
       "@context": "https://schema.org",
       "@type": "Course",
       name: course.title,
-      description: course.description || `${course.title} — ${course.category} course on GreXil.`,
-      provider: { "@type": "Organization", name: "GreXil", sameAs: "https://grexil-lokesh01.lovable.app" },
+      description: course.description || `${course.title} — ${course.category} course on Skill Bridge.`,
+      provider: { "@type": "Organization", name: "Skill Bridge", sameAs: "https://grexil-lokesh01.lovable.app" },
       educationalLevel: course.difficulty,
       hasCourseInstance: course.modules.map((m, i) => ({
         "@type": "CourseInstance",
