@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Video, Users, Plus, Search, Wifi, XCircle, Keyboard, Link2, Clock, ArrowRight } from "lucide-react";
+import { Video, Users, Plus, Search, Wifi, Keyboard, Link2, Clock, ArrowRight, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 
@@ -22,6 +22,7 @@ interface Room {
   is_active: boolean;
   created_by: string;
   created_at: string;
+  meeting_code: string | null;
   participant_count?: number;
 }
 
@@ -33,6 +34,7 @@ export default function RoomsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [meetingCode, setMeetingCode] = useState("");
+  const [copiedRoomId, setCopiedRoomId] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [newRoom, setNewRoom] = useState({ name: "", description: "", topic: "general", max_participants: 6 });
 
@@ -112,11 +114,35 @@ export default function RoomsPage() {
   };
 
   const joinWithCode = () => {
-    const code = meetingCode.trim();
+    const code = meetingCode.trim().toUpperCase();
     if (!code) return;
-    // Support full URLs or just the ID
-    const id = code.includes("/") ? code.split("/").pop() : code;
-    if (id) navigate(`/rooms/${id}`);
+    const urlMatch = code.match(/\/rooms\/([^/?#]+)/i);
+    const lookup = urlMatch?.[1] || code;
+
+    void supabase
+      .from("collaboration_rooms")
+      .select("id")
+      .or(`meeting_code.ilike.${lookup},id.eq.${lookup}`)
+      .eq("is_active", true)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (error || !data) {
+          toast({ title: "Meeting not found", description: "Check the code and try again.", variant: "destructive" });
+          return;
+        }
+        setMeetingCode("");
+        navigate(`/rooms/${data.id}`);
+      });
+  };
+
+  const copyRoomCode = async (room: Room, event: React.MouseEvent) => {
+    event.stopPropagation();
+    const code = room.meeting_code;
+    if (!code) return;
+    await navigator.clipboard.writeText(code);
+    setCopiedRoomId(room.id);
+    toast({ title: "Meeting code copied", description: code });
+    window.setTimeout(() => setCopiedRoomId(null), 2000);
   };
 
   const endRoom = async (roomId: string, e: React.MouseEvent) => {
@@ -318,6 +344,16 @@ export default function RoomsPage() {
                 {room.description && (
                   <p className="text-[11px] text-muted-foreground line-clamp-1 mb-3">{room.description}</p>
                 )}
+
+                <div className="flex items-center justify-between mb-3 text-[11px]">
+                  <span className="text-muted-foreground">Code <span className="font-mono text-foreground">{room.meeting_code || "—"}</span></span>
+                  {room.meeting_code && (
+                    <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px]" onClick={(event) => copyRoomCode(room, event)}>
+                      {copiedRoomId === room.id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                      {copiedRoomId === room.id ? "Copied" : "Copy"}
+                    </Button>
+                  )}
+                </div>
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
