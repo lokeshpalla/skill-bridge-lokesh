@@ -300,6 +300,7 @@ export type Database = {
           id: string
           is_active: boolean
           max_participants: number
+          meeting_code: string | null
           name: string
           topic: string | null
         }
@@ -311,6 +312,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_participants?: number
+          meeting_code?: string | null
           name: string
           topic?: string | null
         }
@@ -322,6 +324,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_participants?: number
+          meeting_code?: string | null
           name?: string
           topic?: string | null
         }
