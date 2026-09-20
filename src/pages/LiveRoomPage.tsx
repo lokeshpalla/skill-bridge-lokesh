@@ -37,6 +37,7 @@ interface RoomData {
   max_participants: number;
   is_active: boolean;
   created_by: string;
+  meeting_code: string | null;
 }
 
 const ICE_SERVERS = [
@@ -73,6 +74,7 @@ export default function LiveRoomPage() {
   const screenStreamRef = useRef<MediaStream | null>(null);
   const peerConnectionsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
   const remoteVideosRef = useRef<Map<string, HTMLVideoElement>>(new Map());
+  const remoteStreamsRef = useRef<Map<string, MediaStream>>(new Map());
   const participantIdRef = useRef<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const signalingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
@@ -123,13 +125,17 @@ export default function LiveRoomPage() {
   const joinRoom = useCallback(async () => {
     if (!user || !roomId || !profile || !room?.is_active || joiningRef.current) return;
     joiningRef.current = true;
+    let streamWasCreatedForJoin = false;
 
     try {
       // Get local media
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      const previewStream = lobbyStreamRef.current;
+      const stream = previewStream || await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      streamWasCreatedForJoin = !previewStream;
       stream.getAudioTracks().forEach((track) => { track.enabled = lobbyAudioOn; });
       stream.getVideoTracks().forEach((track) => { track.enabled = lobbyVideoOn; });
       localStreamRef.current = stream;
+      lobbyStreamRef.current = null;
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
       }
@@ -199,6 +205,11 @@ export default function LiveRoomPage() {
       });
 
       channel
+        .on("broadcast", { event: "participant-joined" }, async ({ payload }) => {
+          if (payload.from && payload.from !== user.id && user.id < payload.from) {
+            await createPeerConnection(payload.from, true);
+          }
+        })
         .on("broadcast", { event: "offer" }, async ({ payload }) => {
           if (payload.target !== user.id) return;
           await handleOffer(payload.from, payload.offer);
@@ -213,7 +224,10 @@ export default function LiveRoomPage() {
         })
         .subscribe((status) => {
           if (!mountedRef.current) return;
-          if (status === "SUBSCRIBED") setConnectionState("Connected");
+           if (status === "SUBSCRIBED") {
+             setConnectionState("Connected");
+             void channel.send({ type: "broadcast", event: "participant-joined", payload: { from: user.id } });
+           }
           if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") setConnectionState("Reconnecting");
         });
 
@@ -248,7 +262,7 @@ export default function LiveRoomPage() {
       // Create peer connections with existing participants
       if (existingParticipants) {
         for (const p of existingParticipants as Participant[]) {
-          if (p.user_id !== user.id) {
+          if (p.user_id !== user.id && user.id < p.user_id) {
             await createPeerConnection(p.user_id, true);
           }
         }
@@ -257,7 +271,7 @@ export default function LiveRoomPage() {
       toast({ title: "Joined room", description: `You're now in ${room?.name}` });
     } catch (err: any) {
       console.error("Join error:", err);
-      localStreamRef.current?.getTracks().forEach((track) => track.stop());
+      if (streamWasCreatedForJoin) localStreamRef.current?.getTracks().forEach((track) => track.stop());
       localStreamRef.current = null;
       toast({ title: "Error", description: err.message || "Failed to join room. Check camera/mic permissions.", variant: "destructive" });
     } finally {
@@ -281,6 +295,7 @@ export default function LiveRoomPage() {
     pc.ontrack = (event) => {
       const videoEl = remoteVideosRef.current.get(remoteUserId);
       if (videoEl && event.streams[0]) {
+        remoteStreamsRef.current.set(remoteUserId, event.streams[0]);
         videoEl.srcObject = event.streams[0];
       }
     };
@@ -506,8 +521,6 @@ export default function LiveRoomPage() {
   };
 
   const handleJoin = () => {
-    // Stop lobby stream before joining (joinRoom will get its own stream)
-    lobbyStreamRef.current?.getTracks().forEach((t) => t.stop());
     setIsAudioOn(lobbyAudioOn);
     setIsVideoOn(lobbyVideoOn);
     joinRoom();
@@ -526,7 +539,7 @@ export default function LiveRoomPage() {
         <div className="grid lg:grid-cols-5 gap-8 max-w-5xl w-full items-center">
           {/* Left: Camera preview */}
           <div className="lg:col-span-3 space-y-4">
-            <div className="relative w-full aspect-video bg-secondary/30 rounded-2xl border border-border/30 overflow-hidden">
+          <div className="relative w-full aspect-video bg-secondary/30 rounded-2xl border border-border/30 overflow-hidden">
               {lobbyVideoOn ? (
                 <video ref={lobbyVideoRef} autoPlay muted playsInline className="w-full h-full object-cover scale-x-[-1] rounded-2xl" />
               ) : (
@@ -539,28 +552,26 @@ export default function LiveRoomPage() {
 
               {/* Overlay controls */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
-                <button
+                <Button
+                  type="button"
+                  variant={lobbyAudioOn ? "secondary" : "destructive"}
+                  size="icon"
+                  className="w-12 h-12 rounded-full"
                   onClick={() => setLobbyAudioOn(!lobbyAudioOn)}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                    lobbyAudioOn
-                      ? "bg-secondary/90 text-foreground hover:bg-secondary"
-                      : "bg-destructive text-destructive-foreground"
-                  }`}
                   title={lobbyAudioOn ? "Mute microphone" : "Unmute microphone"}
                 >
                   {lobbyAudioOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
-                </button>
-                <button
+                </Button>
+                <Button
+                  type="button"
+                  variant={lobbyVideoOn ? "secondary" : "destructive"}
+                  size="icon"
+                  className="w-12 h-12 rounded-full"
                   onClick={() => setLobbyVideoOn(!lobbyVideoOn)}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                    lobbyVideoOn
-                      ? "bg-secondary/90 text-foreground hover:bg-secondary"
-                      : "bg-destructive text-destructive-foreground"
-                  }`}
                   title={lobbyVideoOn ? "Turn off camera" : "Turn on camera"}
                 >
                   {lobbyVideoOn ? <VideoIcon className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
-                </button>
+                </Button>
               </div>
 
               {/* Status indicators */}
@@ -588,6 +599,9 @@ export default function LiveRoomPage() {
               )}
               {room?.topic && (
                 <Badge variant="outline" className="text-xs">{room.topic}</Badge>
+              )}
+              {room?.meeting_code && (
+                <p className="text-xs text-muted-foreground">Meeting code <span className="font-mono text-foreground">{room.meeting_code}</span></p>
               )}
             </div>
 
@@ -632,6 +646,7 @@ export default function LiveRoomPage() {
           <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
           <span className="font-medium text-sm text-foreground">{room?.name}</span>
           <Badge variant="outline" className="text-[10px]">{room?.topic}</Badge>
+          {room?.meeting_code && <span className="hidden sm:inline text-xs text-muted-foreground font-mono">{room.meeting_code}</span>}
         </div>
         <div className="flex items-center gap-2">
           <Button
