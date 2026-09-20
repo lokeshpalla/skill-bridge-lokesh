@@ -125,12 +125,13 @@ export default function LiveRoomPage() {
   const joinRoom = useCallback(async () => {
     if (!user || !roomId || !profile || !room?.is_active || joiningRef.current) return;
     joiningRef.current = true;
+    let streamWasCreatedForJoin = false;
 
     try {
       // Get local media
       const previewStream = lobbyStreamRef.current;
       const stream = previewStream || await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      const streamWasCreatedForJoin = !previewStream;
+      streamWasCreatedForJoin = !previewStream;
       stream.getAudioTracks().forEach((track) => { track.enabled = lobbyAudioOn; });
       stream.getVideoTracks().forEach((track) => { track.enabled = lobbyVideoOn; });
       localStreamRef.current = stream;
@@ -271,7 +272,6 @@ export default function LiveRoomPage() {
     } catch (err: any) {
       console.error("Join error:", err);
       if (streamWasCreatedForJoin) localStreamRef.current?.getTracks().forEach((track) => track.stop());
-      localStreamRef.current = null;
       localStreamRef.current = null;
       toast({ title: "Error", description: err.message || "Failed to join room. Check camera/mic permissions.", variant: "destructive" });
     } finally {

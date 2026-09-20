@@ -119,19 +119,32 @@ export default function RoomsPage() {
     const urlMatch = code.match(/\/rooms\/([^/?#]+)/i);
     const lookup = urlMatch?.[1] || code;
 
-    void supabase
+    const query = supabase
       .from("collaboration_rooms")
       .select("id")
-      .or(`meeting_code.ilike.${lookup},id.eq.${lookup}`)
+      .ilike("meeting_code", lookup)
       .eq("is_active", true)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (error || !data) {
+      .maybeSingle();
+
+    void query.then(async ({ data, error }) => {
+        let room = data;
+        let lookupError = error;
+        if (!room && !lookupError && /^[0-9a-f-]{36}$/i.test(lookup)) {
+          const fallback = await supabase
+            .from("collaboration_rooms")
+            .select("id")
+            .eq("id", lookup)
+            .eq("is_active", true)
+            .maybeSingle();
+          room = fallback.data;
+          lookupError = fallback.error;
+        }
+        if (lookupError || !room) {
           toast({ title: "Meeting not found", description: "Check the code and try again.", variant: "destructive" });
           return;
         }
         setMeetingCode("");
-        navigate(`/rooms/${data.id}`);
+        navigate(`/rooms/${room.id}`);
       });
   };
 
