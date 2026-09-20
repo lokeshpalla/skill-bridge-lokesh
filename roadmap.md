@@ -1,0 +1,4 @@
+- [ ] Add secure human-readable meeting codes and code lookup
+- [ ] Harden pre-join media preview and permission states
+- [ ] Stabilize peer signaling, participant presence, and responsive meeting controls
+- [ ] Verify room creation, code join, media controls, and meeting state in the running app
