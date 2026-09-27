@@ -128,16 +128,33 @@ export default function LiveRoomPage() {
     let streamWasCreatedForJoin = false;
 
     try {
-      // Get local media
+      // Get local media — fall back gracefully when devices are missing
       const previewStream = lobbyStreamRef.current;
-      const stream = previewStream || await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      let stream: MediaStream | null = previewStream;
       streamWasCreatedForJoin = !previewStream;
-      stream.getAudioTracks().forEach((track) => { track.enabled = lobbyAudioOn; });
-      stream.getVideoTracks().forEach((track) => { track.enabled = lobbyVideoOn; });
-      localStreamRef.current = stream;
-      lobbyStreamRef.current = null;
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
+      if (!stream && navigator.mediaDevices?.getUserMedia) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        } catch {
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          } catch {
+            stream = null; // No devices available — join without media
+          }
+        }
+      }
+      if (stream) {
+        stream.getAudioTracks().forEach((track) => { track.enabled = lobbyAudioOn; });
+        stream.getVideoTracks().forEach((track) => { track.enabled = lobbyVideoOn; });
+        localStreamRef.current = stream;
+        lobbyStreamRef.current = null;
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+        }
+      } else {
+        localStreamRef.current = null;
+        lobbyStreamRef.current = null;
+        toast({ title: "No camera/mic found", description: "You joined without audio/video. Others can still see you in the participant list." });
       }
 
       // Reuse an active row from a previous interrupted session when possible.
