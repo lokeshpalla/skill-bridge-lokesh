@@ -532,6 +532,14 @@ export default function LiveRoomPage() {
     lobbyStreamRef.current?.getVideoTracks().forEach((t) => (t.enabled = lobbyVideoOn));
   }, [lobbyVideoOn]);
 
+  // Attach local stream once the in-meeting video element is mounted
+  useEffect(() => {
+    if (joined && localVideoRef.current && localStreamRef.current) {
+      localVideoRef.current.srcObject = localStreamRef.current;
+      localVideoRef.current.play().catch(() => {});
+    }
+  }, [joined]);
+
   const copyMeetingLink = () => {
     navigator.clipboard.writeText(window.location.href);
     setLinkCopied(true);
