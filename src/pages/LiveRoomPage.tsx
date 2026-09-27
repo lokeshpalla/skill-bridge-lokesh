@@ -532,6 +532,14 @@ export default function LiveRoomPage() {
     lobbyStreamRef.current?.getVideoTracks().forEach((t) => (t.enabled = lobbyVideoOn));
   }, [lobbyVideoOn]);
 
+  // Attach local stream once the in-meeting video element is mounted
+  useEffect(() => {
+    if (joined && localVideoRef.current && localStreamRef.current) {
+      localVideoRef.current.srcObject = localStreamRef.current;
+      localVideoRef.current.play().catch(() => {});
+    }
+  }, [joined]);
+
   const copyMeetingLink = () => {
     navigator.clipboard.writeText(window.location.href);
     setLinkCopied(true);
@@ -702,6 +710,13 @@ export default function LiveRoomPage() {
                 autoPlay muted playsInline
                 className="w-full h-full object-cover scale-x-[-1]"
               />
+              {(!isVideoOn || !localStreamRef.current?.getVideoTracks().length) && (
+                <div className="absolute inset-0 flex items-center justify-center bg-card">
+                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-2xl font-bold text-primary">
+                    {(profile?.display_name || "Y").charAt(0).toUpperCase()}
+                  </div>
+                </div>
+              )}
               <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
                 <span className="text-xs bg-background/70 text-foreground px-2 py-0.5 rounded-full">
                   You {isScreenSharing && "📺"}
