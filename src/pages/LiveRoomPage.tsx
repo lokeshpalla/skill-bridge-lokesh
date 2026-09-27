@@ -512,12 +512,14 @@ export default function LiveRoomPage() {
   useEffect(() => {
     if (joined || lobbyStreamRef.current) return;
     if (navigator.mediaDevices?.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-        lobbyStreamRef.current = stream;
-        stream.getAudioTracks().forEach((track) => { track.enabled = lobbyAudioOn; });
-        stream.getVideoTracks().forEach((track) => { track.enabled = lobbyVideoOn; });
-        if (lobbyVideoRef.current) lobbyVideoRef.current.srcObject = stream;
-      }).catch(() => {});
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .catch(() => navigator.mediaDevices.getUserMedia({ audio: true }))
+        .then((stream) => {
+          lobbyStreamRef.current = stream;
+          stream.getAudioTracks().forEach((track) => { track.enabled = lobbyAudioOn; });
+          stream.getVideoTracks().forEach((track) => { track.enabled = lobbyVideoOn; });
+          if (lobbyVideoRef.current) lobbyVideoRef.current.srcObject = stream;
+        }).catch(() => {});
     }
     return () => {};
   }, [joined, lobbyAudioOn, lobbyVideoOn]);
