@@ -23,6 +23,7 @@ interface Room {
   created_by: string;
   created_at: string;
   meeting_code: string | null;
+  ended_at: string | null;
   participant_count?: number;
 }
 
