@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Video, Users, Plus, Search, Wifi, Keyboard, Link2, Clock, ArrowRight, Copy, Check } from "lucide-react";
+import { Video, Users, Plus, Search, Wifi, Keyboard, Link2, Clock, ArrowRight, Copy, Check, Trash2, History } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 
@@ -23,6 +23,7 @@ interface Room {
   created_by: string;
   created_at: string;
   meeting_code: string | null;
+  ended_at: string | null;
   participant_count?: number;
 }
 
@@ -31,6 +32,7 @@ export default function RoomsPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [history, setHistory] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [meetingCode, setMeetingCode] = useState("");
@@ -67,6 +69,33 @@ export default function RoomsPage() {
       setRooms(roomsWithCounts);
     }
     setLoading(false);
+    fetchHistory();
+  };
+
+  const fetchHistory = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("collaboration_rooms")
+      .select("*")
+      .eq("is_active", false)
+      .eq("created_by", user.id)
+      .order("ended_at", { ascending: false })
+      .limit(20);
+    if (data) setHistory(data as Room[]);
+  };
+
+  const deleteHistoryRoom = async (roomId: string) => {
+    const { error } = await supabase
+      .from("collaboration_rooms")
+      .delete()
+      .eq("id", roomId)
+      .eq("created_by", user!.id);
+    if (error) {
+      toast({ title: "Error", description: "Failed to delete meeting", variant: "destructive" });
+      return;
+    }
+    setHistory((prev) => prev.filter((r) => r.id !== roomId));
+    toast({ title: "Meeting deleted", description: "Removed from your history." });
   };
 
   const createInstantMeeting = async () => {
@@ -394,6 +423,40 @@ export default function RoomsPage() {
           </div>
         )}
       </div>
+
+      {/* Meeting History */}
+      {history.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <History className="w-4 h-4 text-muted-foreground" /> Meeting History
+            <Badge variant="secondary" className="text-[10px]">{history.length}</Badge>
+          </h2>
+          <div className="space-y-2">
+            {history.map((room) => (
+              <div
+                key={room.id}
+                className="rounded-xl border border-border/50 bg-card/40 px-4 py-3 flex items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{room.name}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {room.meeting_code && <span className="font-mono mr-2">{room.meeting_code}</span>}
+                    Ended {timeAgo(room.ended_at || room.created_at)}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 text-destructive hover:text-destructive"
+                  onClick={() => deleteHistoryRoom(room.id)}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
