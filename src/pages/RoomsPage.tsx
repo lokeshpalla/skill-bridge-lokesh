@@ -68,6 +68,33 @@ export default function RoomsPage() {
       setRooms(roomsWithCounts);
     }
     setLoading(false);
+    fetchHistory();
+  };
+
+  const fetchHistory = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("collaboration_rooms")
+      .select("*")
+      .eq("is_active", false)
+      .eq("created_by", user.id)
+      .order("ended_at", { ascending: false })
+      .limit(20);
+    if (data) setHistory(data as Room[]);
+  };
+
+  const deleteHistoryRoom = async (roomId: string) => {
+    const { error } = await supabase
+      .from("collaboration_rooms")
+      .delete()
+      .eq("id", roomId)
+      .eq("created_by", user!.id);
+    if (error) {
+      toast({ title: "Error", description: "Failed to delete meeting", variant: "destructive" });
+      return;
+    }
+    setHistory((prev) => prev.filter((r) => r.id !== roomId));
+    toast({ title: "Meeting deleted", description: "Removed from your history." });
   };
 
   const createInstantMeeting = async () => {
