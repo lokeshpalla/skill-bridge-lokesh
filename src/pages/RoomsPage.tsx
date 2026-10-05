@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Video, Users, Plus, Search, Wifi, Keyboard, Link2, Clock, ArrowRight, Copy, Check } from "lucide-react";
+import { Video, Users, Plus, Search, Wifi, Keyboard, Link2, Clock, ArrowRight, Copy, Check, Trash2, History } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 
