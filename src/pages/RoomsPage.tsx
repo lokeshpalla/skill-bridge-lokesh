@@ -422,6 +422,40 @@ export default function RoomsPage() {
           </div>
         )}
       </div>
+
+      {/* Meeting History */}
+      {history.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <History className="w-4 h-4 text-muted-foreground" /> Meeting History
+            <Badge variant="secondary" className="text-[10px]">{history.length}</Badge>
+          </h2>
+          <div className="space-y-2">
+            {history.map((room) => (
+              <div
+                key={room.id}
+                className="rounded-xl border border-border/50 bg-card/40 px-4 py-3 flex items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{room.name}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {room.meeting_code && <span className="font-mono mr-2">{room.meeting_code}</span>}
+                    Ended {timeAgo(room.ended_at || room.created_at)}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 text-destructive hover:text-destructive"
+                  onClick={() => deleteHistoryRoom(room.id)}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
