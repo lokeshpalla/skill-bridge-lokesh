@@ -120,14 +120,25 @@ import { toast } from "@/hooks/use-toast";
 
 const languages = [
   { id: "javascript", label: "JavaScript", icon: "JS", color: "text-warning", supported: true },
-  { id: "python", label: "Python", icon: "PY", color: "text-success", supported: false },
-  { id: "java", label: "Java", icon: "JV", color: "text-destructive", supported: false },
-  { id: "cpp", label: "C++", icon: "C+", color: "text-primary", supported: false },
-  { id: "typescript", label: "TypeScript", icon: "TS", color: "text-accent", supported: false },
-  { id: "go", label: "Go", icon: "GO", color: "text-primary", supported: false },
-  { id: "rust", label: "Rust", icon: "RS", color: "text-warning", supported: false },
-  { id: "csharp", label: "C#", icon: "C#", color: "text-accent", supported: false },
+  { id: "python", label: "Python", icon: "PY", color: "text-success", supported: true },
+  { id: "java", label: "Java", icon: "JV", color: "text-destructive", supported: true },
+  { id: "cpp", label: "C++", icon: "C+", color: "text-primary", supported: true },
+  { id: "typescript", label: "TypeScript", icon: "TS", color: "text-accent", supported: true },
+  { id: "go", label: "Go", icon: "GO", color: "text-primary", supported: true },
+  { id: "rust", label: "Rust", icon: "RS", color: "text-warning", supported: true },
+  { id: "csharp", label: "C#", icon: "C#", color: "text-accent", supported: true },
 ];
+
+const starterTemplates: Record<string, string> = {
+  javascript: `// Write your solution here\nfunction solution() {\n  \n}`,
+  typescript: `// Write your solution here\nfunction solution(): void {\n  \n}`,
+  python: `# Write your solution here\ndef solution():\n    pass\n`,
+  java: `// Write your solution here\nclass Solution {\n    public void solution() {\n        \n    }\n}`,
+  cpp: `// Write your solution here\n#include <bits/stdc++.h>\nusing namespace std;\n\nvoid solution() {\n    \n}`,
+  go: `// Write your solution here\npackage main\n\nfunc solution() {\n\t\n}`,
+  rust: `// Write your solution here\nfn solution() {\n    \n}`,
+  csharp: `// Write your solution here\nclass Solution {\n    public void Solve() {\n        \n    }\n}`,
+};
 
 const diffColor: Record<string, string> = {
   Easy: "text-success",
