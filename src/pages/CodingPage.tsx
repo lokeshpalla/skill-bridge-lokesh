@@ -206,11 +206,12 @@ const CodingPage = () => {
     setLanguage(lang);
     setShowLangPicker(false);
     setOutput(null);
+    setCode(starterTemplates[lang.id] || starterTemplates.javascript);
   };
 
   const switchProblem = (p: CodingProblem) => {
     setSelected(p);
-    setCode(`// Problem ${p.id}: ${p.title}\n// ${p.description}\n\nfunction solution() {\n  // Write your ${language.label} solution here\n  \n}`);
+    setCode(starterTemplates[language.id] || starterTemplates.javascript);
     setOutput(null);
     setShowHint(false);
     setTimer(0);
@@ -221,11 +222,16 @@ const CodingPage = () => {
   };
 
   const resetCode = () => {
-    setCode(`// Problem ${selected.id}: ${selected.title}\n\nfunction solution() {\n  // Write your solution here\n  \n}`);
+    setCode(starterTemplates[language.id] || starterTemplates.javascript);
     setOutput(null);
   };
 
   const runCode = () => {
+    if (language.id !== "javascript") {
+      setActiveTab("output");
+      setOutput(`ℹ️ ${language.label} is unlocked for editing with full syntax highlighting.\n\nLive in-browser execution currently runs JavaScript only — switch to JavaScript to run and test your code against the examples.`);
+      return;
+    }
     setRunning(true);
     setActiveTab("output");
     setOutput("⏳ Running...");
