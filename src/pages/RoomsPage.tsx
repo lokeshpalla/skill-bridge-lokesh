@@ -31,6 +31,7 @@ export default function RoomsPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [history, setHistory] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [meetingCode, setMeetingCode] = useState("");
