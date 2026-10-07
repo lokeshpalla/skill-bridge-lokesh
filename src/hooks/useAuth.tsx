@@ -83,6 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let initialSessionHandled = false;
+    let isMounted = true;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
@@ -104,17 +105,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const timeout = window.setTimeout(() => {
       initialSessionHandled = true;
+      if (isMounted) setLoading(false);
+    }, 5000);
+
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      window.clearTimeout(timeout);
+      if (!isMounted) return;
+      initialSessionHandled = true;
+      if (error) {
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
         loadUserData(session.user.id);
       }
       setLoading(false);
+    }).catch(() => {
+      window.clearTimeout(timeout);
+      if (!isMounted) return;
+      initialSessionHandled = true;
+      setSession(null);
+      setUser(null);
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      window.clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, [loadUserData]);
 
   const signUp = async (email: string, password: string, displayName: string, phone?: string) => {
