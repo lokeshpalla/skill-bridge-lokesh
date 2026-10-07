@@ -171,25 +171,24 @@ const CourseDetail = () => {
     if (activeModule === null || !course) return;
 
     const updated = [...new Set([...completedModules, activeModule])];
-    setCompletedModules(updated);
-    const newProgress = Math.round((updated.length / modules.length) * 100);
 
-    // Update DB enrollment
     if (user && id) {
-      await supabase
-        .from("course_enrollments")
-        .update({ completed_modules: updated, progress: newProgress, completed_at: newProgress === 100 ? new Date().toISOString() : null })
-        .eq("user_id", user.id)
-        .eq("course_id", id);
-
-      const durationStr = modules[activeModule]?.duration || "30min";
-      const minutesSpent = parseInt(durationStr) || 30;
-      const { data } = await supabase.rpc("record_activity", { _user_id: user.id, _xp_amount: 50, _minutes_spent: minutesSpent });
+      const { data, error } = await supabase.rpc("complete_course_module", {
+        p_course_id: id,
+        p_module_index: activeModule,
+      });
+      if (error) {
+        toast({ title: "Could not save module completion", description: "Please try again.", variant: "destructive" });
+        return;
+      }
       const result = data as { xp_earned: number; new_streak: number; streak_increased: boolean } | null;
-      const xpEarned = result?.xp_earned ?? 50;
+      const completedOnServer = (result as any)?.completed_modules;
+      setCompletedModules(Array.isArray(completedOnServer) ? completedOnServer as number[] : updated);
+      const xpEarned = result?.xp_earned ?? 0;
       const streakMsg = result?.streak_increased ? ` 🔥 Streak: ${result.new_streak} days!` : "";
       toast({ title: "✅ Module Completed!", description: `"${modules[activeModule].title}" — +${xpEarned} XP${streakMsg}` });
     } else {
+      setCompletedModules(updated);
       toast({ title: "✅ Module Completed!", description: `"${modules[activeModule].title}" marked as complete.` });
     }
     setActiveModule(null);

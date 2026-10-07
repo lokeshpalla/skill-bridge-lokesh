@@ -1805,6 +1805,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      complete_course_module: {
+        Args: { p_course_id: string; p_module_index: number }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
