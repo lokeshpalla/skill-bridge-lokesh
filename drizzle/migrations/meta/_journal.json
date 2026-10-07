@@ -29,6 +29,13 @@
       "when": 1791369121115,
       "tag": "0003_verify_course_module_xp_rewards",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791369527446,
+      "tag": "0004_require_mentor_approval",
+      "breakpoints": true
     }
   ]
 }
