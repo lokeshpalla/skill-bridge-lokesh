@@ -35,7 +35,7 @@ interface Booking {
 }
 
 export default function AdminMentorManagement() {
-  const [tab, setTab] = useState<"mentors" | "bookings">("mentors");
+  const [tab, setTab] = useState<"mentors" | "approvals" | "bookings">("mentors");
   const [mentors, setMentors] = useState<MentorProfile[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,10 +73,24 @@ export default function AdminMentorManagement() {
     setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
   };
 
+  const reviewApplication = async (userId: string, approve: boolean) => {
+    const { error } = await supabase.rpc("admin_review_mentor", {
+      _user_id: userId,
+      _approve: approve,
+    });
+    if (error) {
+      toast.error("Could not update mentor application");
+      return;
+    }
+    toast.success(approve ? "Mentor application approved" : "Mentor application declined");
+    await fetchAll();
+  };
+
   const totalMentors = mentors.length;
   const activeMentors = mentors.filter(m => m.available).length;
   const totalBookings = bookings.length;
   const pendingBookings = bookings.filter(b => b.status === "pending").length;
+  const pendingApplications = mentors.filter(m => m.approval_status === "pending");
 
   if (loading) return <p className="text-sm text-muted-foreground py-8 text-center">Loading...</p>;
 
@@ -105,13 +119,46 @@ export default function AdminMentorManagement() {
       </div>
 
       <div className="flex gap-2">
-        {(["mentors", "bookings"] as const).map(t => (
+        {(["mentors", "approvals", "bookings"] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors capitalize ${
               tab === t ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground"
-            }`}>{t === "mentors" ? `👨‍🏫 Mentors (${totalMentors})` : `📅 Bookings (${totalBookings})`}</button>
+            }`}>{t === "mentors" ? `👨‍🏫 Mentors (${totalMentors})` : t === "approvals" ? `Applications (${pendingApplications.length})` : `📅 Bookings (${totalBookings})`}</button>
         ))}
       </div>
+
+      {tab === "approvals" && (
+        <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Applicant</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Skills</TableHead>
+                <TableHead>Submitted</TableHead>
+                <TableHead>Decision</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pendingApplications.map(m => (
+                <TableRow key={m.id}>
+                  <TableCell className="font-medium text-sm">{m.display_name}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{m.title}{m.company ? ` @ ${m.company}` : ""}</TableCell>
+                  <TableCell className="text-xs">{(m.skills || []).slice(0, 5).join(", ") || "—"}</TableCell>
+                  <TableCell className="text-xs">{new Date(m.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell className="flex gap-2">
+                    <Button size="sm" className="h-7" onClick={() => reviewApplication(m.user_id, true)}>Approve</Button>
+                    <Button size="sm" variant="outline" className="h-7" onClick={() => reviewApplication(m.user_id, false)}>Decline</Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {pendingApplications.length === 0 && (
+                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8 text-sm">No applications awaiting review</TableCell></TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       {tab === "mentors" && (
         <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden">
@@ -138,7 +185,7 @@ export default function AdminMentorManagement() {
                   <TableCell className="text-xs font-medium">₹{(m.total_earnings || 0).toLocaleString("en-IN")}</TableCell>
                   <TableCell>
                     <Badge variant={m.available ? "default" : "secondary"} className="text-[10px]">
-                      {m.available ? "🟢 Active" : "⚪ Inactive"}
+                      {m.approval_status === "pending" ? "Pending review" : m.approval_status === "rejected" ? "Not approved" : m.available ? "🟢 Active" : "⚪ Inactive"}
                     </Badge>
                   </TableCell>
                 </TableRow>
