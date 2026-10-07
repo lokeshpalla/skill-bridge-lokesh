@@ -169,13 +169,19 @@ const InterviewPage = () => {
     let assistantSoFar = "";
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast.error("Please sign in again to continue the interview");
+        setIsLoading(false);
+        return;
+      }
       const resp = await fetch(INTERVIEW_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ messages: msgs, topic, skills: userSkills }),
+        body: JSON.stringify({ messages: msgs, topic }),
       });
 
       if (!resp.ok) {
