@@ -178,7 +178,7 @@ const CourseDetail = () => {
         p_module_index: activeModule,
       });
       if (error) {
-        toast.error("Could not save module completion. Please try again.");
+        toast({ title: "Could not save module completion", description: "Please try again.", variant: "destructive" });
         return;
       }
       const result = data as { xp_earned: number; new_streak: number; streak_increased: boolean } | null;
