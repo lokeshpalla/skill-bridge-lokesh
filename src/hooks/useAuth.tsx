@@ -46,14 +46,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchRoles = useCallback(async (userId: string): Promise<string[]> => {
     setRolesLoading(true);
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
-    const fetchedRoles = data ? data.map((r) => r.role) : [];
-    setRoles(fetchedRoles);
-    setRolesLoading(false);
-    return fetchedRoles;
+    let timeoutId: number | undefined;
+    try {
+      const roleRequest = supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      const timeout = new Promise<null>((resolve) => {
+        timeoutId = window.setTimeout(() => resolve(null), 5000);
+      });
+      const result = await Promise.race([roleRequest, timeout]);
+      const fetchedRoles = result?.data ? result.data.map((r) => r.role) : [];
+      setRoles(fetchedRoles);
+      return fetchedRoles;
+    } catch {
+      setRoles([]);
+      return [];
+    } finally {
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      setRolesLoading(false);
+    }
   }, []);
 
   const getRedirectPath = useCallback((loadedRoles?: string[]) => {
