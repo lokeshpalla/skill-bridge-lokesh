@@ -15,6 +15,13 @@
       "when": 1791364585036,
       "tag": "0001_scope_selected_rls_read_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791367427297,
+      "tag": "0002_scope_selected_security_policies",
+      "breakpoints": true
     }
   ]
 }

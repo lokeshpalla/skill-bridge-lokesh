@@ -1824,6 +1824,10 @@ export type Database = {
       register_as_mentor: { Args: { _user_id: string }; Returns: boolean }
       restore_streak: { Args: { _user_id: string }; Returns: Json }
       room_participant_count: { Args: { _room_id: string }; Returns: number }
+      user_can_access_group_project: {
+        Args: { _project_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "student" | "mentor" | "recruiter" | "admin"
