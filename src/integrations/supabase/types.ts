@@ -1015,6 +1015,7 @@ export type Database = {
       }
       mentor_profiles: {
         Row: {
+          approval_status: string
           availability_slots: string[] | null
           available: boolean | null
           bio: string | null
@@ -1031,6 +1032,7 @@ export type Database = {
           weekly_pattern: string | null
         }
         Insert: {
+          approval_status?: string
           availability_slots?: string[] | null
           available?: boolean | null
           bio?: string | null
@@ -1047,6 +1049,7 @@ export type Database = {
           weekly_pattern?: string | null
         }
         Update: {
+          approval_status?: string
           availability_slots?: string[] | null
           available?: boolean | null
           bio?: string | null
@@ -1783,6 +1786,10 @@ export type Database = {
     }
     Functions: {
       admin_platform_analytics: { Args: never; Returns: Json }
+      admin_review_mentor: {
+        Args: { _approve: boolean; _user_id: string }
+        Returns: boolean
+      }
       award_badge: {
         Args: { p_badge_id: string; p_user_id: string }
         Returns: undefined

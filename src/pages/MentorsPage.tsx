@@ -44,6 +44,7 @@ const MentorsPage = () => {
   const [bookingNotes, setBookingNotes] = useState("");
   const [showRegister, setShowRegister] = useState(false);
   const [isMentor, setIsMentor] = useState(false);
+  const [mentorApplicationStatus, setMentorApplicationStatus] = useState<string | null>(null);
   const [regForm, setRegForm] = useState({
     title: "", bio: "", company: "", skills: "", hourly_rate: "3000",
   });
@@ -57,8 +58,9 @@ const MentorsPage = () => {
 
   const checkIsMentor = async () => {
     if (!user) return;
-    const { data } = await supabase.from("mentor_profiles").select("id").eq("user_id", user.id).maybeSingle();
-    setIsMentor(!!data);
+    const { data } = await supabase.from("mentor_profiles").select("id, approval_status").eq("user_id", user.id).maybeSingle();
+    setMentorApplicationStatus(data?.approval_status ?? null);
+    setIsMentor(data?.approval_status === "approved");
   };
 
   const fetchMentors = async () => {
@@ -99,17 +101,15 @@ const MentorsPage = () => {
       skills: regForm.skills.split(",").map(s => s.trim()).filter(Boolean),
       hourly_rate: parseInt(regForm.hourly_rate) || 3000,
       availability_slots: slotsToStrings(regSlots),
-      available: true,
+      available: false,
+      approval_status: "pending",
     });
     if (error) { toast.error("Failed to register"); return; }
 
-    // Assign mentor role via secure DB function
-    await supabase.rpc("register_as_mentor", { _user_id: user.id });
-
-    toast.success("You're now a mentor! 🎉");
+    toast.success("Application submitted for administrator review.");
     setShowRegister(false);
-    setIsMentor(true);
-    fetchMentors();
+    setMentorApplicationStatus("pending");
+    setIsMentor(false);
   };
 
   const bookSession = async () => {
@@ -203,6 +203,12 @@ const MentorsPage = () => {
             <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => navigate("/mentor-dashboard")}>
               My Dashboard
             </Button>
+          )}
+          {mentorApplicationStatus === "pending" && (
+            <span className="text-xs text-muted-foreground">Mentor application pending review</span>
+          )}
+          {mentorApplicationStatus === "rejected" && (
+            <span className="text-xs text-muted-foreground">Mentor application not approved</span>
           )}
         </div>
       </motion.div>
