@@ -46,14 +46,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchRoles = useCallback(async (userId: string): Promise<string[]> => {
     setRolesLoading(true);
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
-    const fetchedRoles = data ? data.map((r) => r.role) : [];
-    setRoles(fetchedRoles);
-    setRolesLoading(false);
-    return fetchedRoles;
+    let timeoutId: number | undefined;
+    try {
+      const roleRequest = supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      const timeout = new Promise<null>((resolve) => {
+        timeoutId = window.setTimeout(() => resolve(null), 5000);
+      });
+      const result = await Promise.race([roleRequest, timeout]);
+      const fetchedRoles = result?.data ? result.data.map((r) => r.role) : [];
+      setRoles(fetchedRoles);
+      return fetchedRoles;
+    } catch {
+      setRoles([]);
+      return [];
+    } finally {
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      setRolesLoading(false);
+    }
   }, []);
 
   const getRedirectPath = useCallback((loadedRoles?: string[]) => {
@@ -83,6 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let initialSessionHandled = false;
+    let isMounted = true;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
@@ -104,17 +117,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const timeout = window.setTimeout(() => {
       initialSessionHandled = true;
+      if (isMounted) setLoading(false);
+    }, 5000);
+
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      window.clearTimeout(timeout);
+      if (!isMounted) return;
+      initialSessionHandled = true;
+      if (error) {
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
         loadUserData(session.user.id);
       }
       setLoading(false);
+    }).catch(() => {
+      window.clearTimeout(timeout);
+      if (!isMounted) return;
+      initialSessionHandled = true;
+      setSession(null);
+      setUser(null);
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      window.clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, [loadUserData]);
 
   const signUp = async (email: string, password: string, displayName: string, phone?: string) => {

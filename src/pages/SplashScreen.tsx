@@ -21,8 +21,8 @@ const SplashScreen = () => {
   const [animationDone, setAnimationDone] = useState(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase("zoom"), 1800);
-    const t2 = setTimeout(() => setAnimationDone(true), 3200);
+    const t1 = setTimeout(() => setPhase("zoom"), 300);
+    const t2 = setTimeout(() => setAnimationDone(true), 900);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
