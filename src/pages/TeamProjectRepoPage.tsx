@@ -99,6 +99,12 @@ export default function TeamProjectRepoPage() {
   const isOwner = project?.owner_id === user?.id;
 
   useEffect(() => {
+    return () => {
+      if (fileUrl?.startsWith("blob:")) URL.revokeObjectURL(fileUrl);
+    };
+  }, [fileUrl]);
+
+  useEffect(() => {
     if (!user) { navigate("/auth"); return; }
     if (projectId) fetchProject();
   }, [user, projectId]);
@@ -165,10 +171,6 @@ export default function TeamProjectRepoPage() {
         continue;
       }
 
-      const { data: urlData } = await supabase.storage
-        .from("team-projects")
-        .createSignedUrl(storagePath, 3600);
-
       await supabase.from("project_files").insert({
         project_id: projectId,
         file_name: fileName,
@@ -210,39 +212,46 @@ export default function TeamProjectRepoPage() {
     setFileUrl(null);
 
     const ext = file.file_name.split(".").pop()?.toLowerCase() || "";
-    const { data: urlData } = await supabase.storage
+    const { data: fileBlob, error } = await supabase.storage
       .from("team-projects")
-      .createSignedUrl(file.file_path, 3600);
-    const publicUrl = urlData?.signedUrl;
+      .download(file.file_path);
+    if (error || !fileBlob) {
+      setViewingFile(null);
+      toast.error("You no longer have access to this project file.");
+      return;
+    }
 
     if (IMAGE_EXTENSIONS.includes(ext)) {
-      setFileUrl(publicUrl);
+      setFileUrl(URL.createObjectURL(fileBlob));
       return;
     }
 
     if (CODE_EXTENSIONS.includes(ext) || ext === "txt" || ext === "md") {
       try {
-        const res = await fetch(publicUrl);
-        const text = await res.text();
-        setFileContent(text);
+        setFileContent(await fileBlob.text());
       } catch {
         setFileContent("// Unable to load file content");
       }
       return;
     }
 
-    setFileUrl(publicUrl);
+    setFileUrl(URL.createObjectURL(fileBlob));
   };
 
   const handleDownload = async (file: ProjectFile) => {
-    const { data } = await supabase.storage
+    const { data, error } = await supabase.storage
       .from("team-projects")
-      .createSignedUrl(file.file_path, 3600);
-    if (!data?.signedUrl) return;
+      .download(file.file_path);
+    if (error || !data) {
+      toast.error("You no longer have access to this project file.");
+      return;
+    }
+    const objectUrl = URL.createObjectURL(data);
     const a = document.createElement("a");
-    a.href = data.signedUrl;
+    a.href = objectUrl;
     a.download = file.file_name;
     a.click();
+    URL.revokeObjectURL(objectUrl);
   };
 
   // Get folder structure for current path
@@ -278,20 +287,22 @@ export default function TeamProjectRepoPage() {
 
   const [readmeContent, setReadmeContent] = useState<string | null>(null);
   useEffect(() => {
-    if (readmeFile) {
-      supabase.storage
+    let cancelled = false;
+    const loadReadme = async () => {
+      if (!readmeFile || !user) {
+        setReadmeContent(null);
+        return;
+      }
+      const { data, error } = await supabase.storage
         .from("team-projects")
-        .createSignedUrl(readmeFile.file_path, 3600)
-        .then(({ data }) => {
-          if (data?.signedUrl) {
-            return fetch(data.signedUrl).then(res => res.text()).then(setReadmeContent);
-          }
-        })
-        .catch(() => setReadmeContent(null));
-    } else {
-      setReadmeContent(null);
-    }
-  }, [readmeFile?.id]);
+        .download(readmeFile.file_path);
+      if (!cancelled) setReadmeContent(!error && data ? await data.text() : null);
+    };
+    void loadReadme().catch(() => {
+      if (!cancelled) setReadmeContent(null);
+    });
+    return () => { cancelled = true; };
+  }, [readmeFile?.id, user?.id]);
 
   if (loading) {
     return (
