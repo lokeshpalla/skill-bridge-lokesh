@@ -2,3 +2,5 @@
 - [ ] Harden pre-join media preview and permission states
 - [ ] Stabilize peer signaling, participant presence, and responsive meeting controls
 - [ ] Verify room creation, code join, media controls, and meeting state in the running app
+
+- [ ] Fix only the selected security scan findings for broad table reads and avatar storage access
