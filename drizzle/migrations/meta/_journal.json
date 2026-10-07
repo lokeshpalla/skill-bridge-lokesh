@@ -36,6 +36,13 @@
       "when": 1791369527446,
       "tag": "0004_require_mentor_approval",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791369592512,
+      "tag": "0005_enforce_mentor_admin_approval",
+      "breakpoints": true
     }
   ]
 }
