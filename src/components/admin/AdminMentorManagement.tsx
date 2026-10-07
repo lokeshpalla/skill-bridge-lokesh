@@ -18,6 +18,7 @@ interface MentorProfile {
   total_sessions: number | null;
   total_earnings: number | null;
   available: boolean | null;
+  approval_status: string;
   created_at: string;
   display_name?: string;
 }
