@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Send, X, Bot, User, Loader2, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PortfolioContext {
   display_name: string;
@@ -176,11 +177,10 @@ const PortfolioAIChat = ({ portfolioContext, externalOpen, onExternalOpenChange 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token ?? ""}`,
         },
         body: JSON.stringify({
           message: text,
-          portfolio_context: portfolioContext,
         }),
       });
 
